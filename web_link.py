@@ -2,6 +2,8 @@
 # also with the status code of those responses failed, written to a file named
 # broken_links.txt, while it takes too long time to run, the next step would be
 # using threading pool or process pool or some async functions to speed up searching
+# and also need to classify the type of response not with status code 200 or 404
+# to see why it failed
 import requests
 
 from bs4 import BeautifulSoup
@@ -16,7 +18,7 @@ def scrape_pages(baseurl):
         visited_or_about_to_visit = set()
 
         to_visit_list = list()
-        # base url don't have parent
+        # base url don't have parent in pattern [current link, source page link]
         to_visit_list.append([baseurl,None])
 
 
