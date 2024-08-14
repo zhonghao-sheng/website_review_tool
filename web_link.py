@@ -1,12 +1,16 @@
+# the program print links not accessible with the source page it appears on
+# also with the status code of those responses failed, written to a file named
+# broken_links.txt, while it takes too long time to run, the next step would be
+# using threading pool or process pool or some async functions to speed up searching
 import requests
 
 from bs4 import BeautifulSoup
 
 
 broken_links = list()
-def scrapepages(baseurl):
+def scrape_pages(baseurl):
     # the file used to record the broken links and its parent links
-    with open('brokenlinks.txt', 'w') as f:
+    with open('broken_links.txt', 'w') as f:
 
         visited = set()
         visited_or_about_to_visit = set()
@@ -86,4 +90,4 @@ def scrapepages(baseurl):
 
 base_url = 'https://sites.research.unimelb.edu.au/research-funding'
 
-scrapepages(base_url)
+scrape_pages(base_url)
