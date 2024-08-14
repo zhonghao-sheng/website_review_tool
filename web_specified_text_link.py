@@ -1,5 +1,6 @@
 # same logic as search for broken links method while being simpler
 # as only need to check if the string is contained in response.text
+# write all the links which page source contains specific text in string_pattern_link.txt
 import requests
 
 from bs4 import BeautifulSoup
