@@ -2,7 +2,7 @@
 # as only need to check if the string is contained in response.text
 # write all the links which page source contains specific text in string_pattern_link.txt
 import requests
-
+from queue import Queue
 from bs4 import BeautifulSoup
 
 
@@ -11,18 +11,15 @@ def scrape_pages(baseurl, search_string):
     with open('string_pattern_links.txt', 'w') as f:
 
         visited = set()
-        to_visit_list = [base_url]
+        to_visit_list = Queue()
+        to_visit_list.put(baseurl)
 
 
 
-        while to_visit_list:
-
-            url = to_visit_list.pop(0)
+        while not to_visit_list.empty():
+            url = to_visit_list.get()
             if url in visited or url in to_visit_list:
                 continue
-
-
-
             try:
 
                 response = requests.get(url)
@@ -54,7 +51,7 @@ def scrape_pages(baseurl, search_string):
                         # Check if the link already in the list to avoid repeat
                         if href.startswith(baseurl):
                             if href not in to_visit_list and href not in visited:
-                                to_visit_list.append(href)
+                                to_visit_list.put(href)
 
                                 print('new links founded', href)
             # i guess no need to handle with error here? as only task is to search specified text
