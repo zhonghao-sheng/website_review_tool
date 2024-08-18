@@ -2,33 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="../static/jquery.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Search Tool</title>
+    {% load static %} <!-- Load the static tag library -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        function openLoginWindow() {
+            const url = document.getElementById('url').value;
+            window.open(url, '_blank');
+        }
+    </script>
 </head>
 <body>
-    <input type="number" id="a1">
-    <p>x</p>
-    <input type="number" id="a2">
-    <p>=</p>
-    <input type="number" id="a3">
-    <button id="btn">calculating</button>
+    <h1>Keyword Search Tool</h1>
+    <form action="{% url 'search_link' %}" method="post">
+        {% csrf_token %}
+        <label for="url">Enter Website URL:</label>
+        <input type="text" id="url" name="url" required>
+        {% comment %} <label for="keyword">Enter Keyword:</label> {% endcomment %}
+        {% comment %} <input type="text" id="keyword" name="keyword" required> {% endcomment %}
+        {% comment %} <button type="button" onclick="openLoginWindow()">Open Login Page</button> {% endcomment %}
+        <button type="submit">Search</button>
+    </form>
 </body>
-<script>
-    $('#btn').click(function(){
-        $.ajax({
-            url: "{% url 'pro' %}",
-            method: 'post',
-            data: {
-                'a1': $('#a1').val(),
-                'a2': $('#a2').val()
-            },
-            success: function(args){
-                $('#a3').val(args)
-            },
-            error: function(xhr, status, error) {
-                        console.error('Error:', error);
-                    }
-        })
-    })
-</script>
 </html>
