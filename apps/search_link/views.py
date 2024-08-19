@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import time
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# import time
 import requests
 from bs4 import BeautifulSoup
 
