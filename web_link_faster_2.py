@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from threading import Thread
 from multiprocessing import Process, JoinableQueue as Queue
+import sys
 import time
 class web_spider():
     def __init__(self):
@@ -46,6 +47,9 @@ class web_spider():
                 self.counter -= 1
                 print(f'counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
+                if self.counter == 0 and self.web_links.qsize() == 0:
+                    self.file.close()
+                    sys.exit()
     # help save time by filtering out broken link to reduce response time
     def detect_links(self):
         while True:
@@ -72,8 +76,12 @@ class web_spider():
             finally:
                 self.web_links.task_done()
                 self.counter -= 1
+
                 print(f'counter = {self.counter}')
                 print(f'remaining detected tasks{self.web_links.qsize()}')
+                if self.counter == 0 and self.web_links.qsize() == 0:
+                    self.file.close()
+                    sys.exit()
     def main(self, baseurl):
         self.put_url(baseurl)
         thread_list = list()
