@@ -39,6 +39,7 @@ class web_spider():
                 else:
                     print(f'status_code:{response.status_code}, broken_link:{url}, page source:{url_combo[1]}')
                     self.file.write(f'status_code:{response.status_code}, broken_link:{url}, page source:{url_combo[1]}\n')
+                    self.broken_links.append({'url':url, 'status_code':response.status_code, 'page source':url_combo[1]})
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
                 print(f'error fetch {url}, {str(e)}')
@@ -47,9 +48,6 @@ class web_spider():
                 self.counter -= 1
                 print(f'counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
-                if self.counter == 0 and self.web_links.qsize() == 0:
-                    self.file.close()
-                    sys.exit()
     # help save time by filtering out broken link to reduce response time
     def detect_links(self):
         while True:
@@ -70,6 +68,7 @@ class web_spider():
                 else:
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
                     self.file.write(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}\n')
+                    self.broken_links.append({'url':link, 'status_code':response.status_code, 'page source':link_combo[1]})
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
                 print(f'error fetch {link}, {str(e)}')
@@ -79,9 +78,6 @@ class web_spider():
 
                 print(f'counter = {self.counter}')
                 print(f'remaining detected tasks{self.web_links.qsize()}')
-                if self.counter == 0 and self.web_links.qsize() == 0:
-                    self.file.close()
-                    sys.exit()
     def main(self, baseurl):
         self.put_url(baseurl)
         thread_list = list()
@@ -92,9 +88,10 @@ class web_spider():
             t = Thread(target=self.detect_links)
             thread_list.append(t)
         for t in thread_list:
+            t.daemon = True
             t.start()
         self.web_links.join()
-
+        return self.broken_links
 if __name__ == '__main__':
     ws = web_spider()
     base_url = 'https://sites.research.unimelb.edu.au/research-funding'
