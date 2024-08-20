@@ -14,33 +14,28 @@ class Web_spider():
         self.web_links = Queue()
         self.baseurl = None
         self.broken_link_file = open('broken_links_faster.txt', 'w')
-        self.UOM_sign_links = list()
-        self.uom_sign_link_file = open('uom_links.txt','w')
+        self.uom_sign_link_file = open('uom_links.txt', 'w')
+
         self.counter = 0
         self.broken_links = list()
+        self.UOM_sign_links = list()
 
     def put_url(self, baseurl):
         self.web_links.put([baseurl, None])
         self.counter += 1
         self.baseurl = baseurl
+
     def add_uom_sign_link(self, link, source_link):
         self.UOM_sign_links.append({'url': link, 'source_link': source_link})
 
     def write_uom_sign_link(self, link, source_link):
         self.uom_sign_link_file.write(f'uom link:{link}, page source:{source_link}\n')
 
-    def deal_uom_sign_link(self, link, source_link):
-        self.add_uom_sign_link(link, source_link)
-        self.write_uom_sign_link(link, source_link)
     def add_broken_link(self, link, source_link):
         self.broken_links.append({'url': link, 'source_link': source_link})
 
     def write_broken_link(self, link, source_link, response_status):
         self.broken_link_file.write(f'status:{response_status}, broken link: {link}, page source: {source_link}')
-
-    def deal_broken_link(self, link, source_link, response_status):
-        self.add_broken_link(link, source_link)
-        self.write_broken_link(link, source_link, response_status)
 
     def get_more_links(self):
         while True:
@@ -63,18 +58,18 @@ class Web_spider():
                                 self.web_links.put([href, link])
                                 self.counter += 1
                             else:
-                                print(f'not responsible for checking mails {href}')
+                                print(f'not responsible for checking mails{href}')
                             print('new links founded', href)
                 else:
-                    if response.status_code == 403:
-                        self.deal_uom_sign_link(link, link_combo[1])
-                    else:
-                        self.deal_broken_link(link, link_combo[1], response.status_code)
+                    # if response.status_code == 403:
+                    #     self.add_uom_sign_link(link, link_combo[1])
+                    #     self.write_uom_sign_link(link, link_combo[1])
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
-
+                    self.add_broken_link(link, link_combo[1])
+                    self.write_broken_link(link, link_combo[1], response.status_code)
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
-                print(f'error fetch {link}, {str(e)}')
+                print(f'error fetch {link}, {str(e)}, source page {link_combo[1]}')
             finally:
                 self.web_links.task_done()
                 self.counter -= 1
@@ -99,15 +94,15 @@ class Web_spider():
                             print('finished')
                             return
                 else:
+                    # if response.status_code == 403:
+                    #     self.add_uom_sign_link(link, link_combo[1])
+                    #     self.write_uom_sign_link(link, link_combo[1])
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
-                    if response.status_code == 403:
-                        self.deal_uom_sign_link(link, link_combo[1])
-                    else:
-                        self.deal_broken_link(link, link_combo[1], response.status_code)
-
+                    self.add_broken_link(link, link_combo[1])
+                    self.write_broken_link(link, link_combo[1], response.status_code)
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
-                print(f'error fetch {link}, {str(e)}')
+                print(f'error fetch {link}, {str(e)}, pagesource is {link_combo[1]}')
             finally:
                 self.web_links.task_done()
                 self.counter -= 1
@@ -144,80 +139,3 @@ def search_link(request):
         return render(request, 'results.html', {'results': results})
     return render(request, 'index.html')
 
-#
-# def scrape_pages(baseurl):
-#     broken_links = []
-#     visited = set()
-#     visited_or_about_to_visit = set()
-#     to_visit_list = list()
-#
-#     # base url don't have parent in pattern [current link, source page link]
-#     to_visit_list.append([baseurl, None])
-#
-#     while to_visit_list:
-#         url_combo = to_visit_list.pop(0)
-#         url = url_combo[0]
-#         if url in visited:
-#             continue
-#
-#         try:
-#             response = requests.get(url)
-#             visited.add(url)
-#             visited_or_about_to_visit.add(url)
-#
-#             if response.status_code == 200:
-#                 # For external links, just need to check accessibility, no need to find sublink
-#                 if not url.startswith(baseurl):
-#                     continue
-#
-#                 soup = BeautifulSoup(response.content, 'html.parser')
-#                 # print(url)
-#
-#                 # Find all links on the page
-#                 for link in soup.find_all('a', href=True):
-#                     href = link['href']
-#
-#                     # Check if the link is already in the list to avoid repeats
-#                     if href not in visited_or_about_to_visit:
-#                         visited_or_about_to_visit.add(href)
-#                         to_visit_list.append([href, url])
-#                         print('New link found:', href)
-#             else:
-#                 print(f'Broken link {url} found with status {response.status_code}')
-#                 broken_links.append({'url': url, 'source': url_combo[1], 'status_code': response.status_code})
-#
-#         except requests.exceptions.RequestException as e:
-#             print(f"Error fetching {url}: {e}")
-#
-#     return broken_links
-
-# def search_keyword(request):
-#     if request.method == 'POST':
-#         url = request.POST['url']
-#         keyword = request.POST['keyword']
-#         results = search_for_keyword(url, keyword)
-#         return render(request, 'results.html', {'results': results, 'keyword': keyword})
-#     return render(request, 'index.html')
-
-# def search_for_keyword(url, keyword):
-#     options = webdriver.ChromeOptions()
-#     options.add_argument("--headless")
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--disable-dev-shm-usage")
-
-#     driver = webdriver.Chrome(options=options)
-
-#     try:
-#         driver.get(url)
-
-#         # Pause to allow user to log in manually if needed
-#         input("Press Enter after logging in...")
-
-#         # Check if logged in and search for keyword
-#         body_text = driver.find_element(By.TAG_NAME, 'body').text
-#         occurrences = body_text.lower().count(keyword.lower())
-
-#     finally:
-#         driver.quit()
-
-#     return occurrences

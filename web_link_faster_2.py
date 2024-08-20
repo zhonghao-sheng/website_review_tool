@@ -32,10 +32,12 @@ class web_spider():
                     for link in soup.find_all('a', href=True):
                         href = link['href']
                         if href not in self.visited_or_about_to_visit:
-                            self.visited_or_about_to_visit.add(href)
-                            self.web_links.put([href, url])
-                            self.counter += 1
-                            print('new links founded', href)
+                            if 'mailto:' not in href:
+                                self.visited_or_about_to_visit.add(href)
+                                self.web_links.put([href, url])
+                                self.counter += 1
+                            else:
+                                print(f'not responsible for checking mails{href}')
                 else:
                     print(f'status_code:{response.status_code}, broken_link:{url}, page source:{url_combo[1]}')
                     self.file.write(f'status_code:{response.status_code}, broken_link:{url}, page source:{url_combo[1]}\n')
