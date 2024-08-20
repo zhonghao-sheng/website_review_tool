@@ -23,6 +23,8 @@ class Web_spider():
         self.web_links.put([baseurl, None])
         self.counter += 1
         self.baseurl = baseurl
+    def is_uom_sign_link(self, link):
+        return self.baseurl in link
     def add_uom_sign_link(self, link, source_link):
         self.UOM_sign_links.append({'url': link, 'source_link': source_link})
 
@@ -30,8 +32,9 @@ class Web_spider():
         self.uom_sign_link_file.write(f'uom link:{link}, page source:{source_link}\n')
 
     def deal_uom_sign_link(self, link, source_link):
-        self.add_uom_sign_link(link, source_link)
-        self.write_uom_sign_link(link, source_link)
+        if self.is_uom_sign_link(link):
+            self.add_uom_sign_link(link, source_link)
+            self.write_uom_sign_link(link, source_link)
     def add_broken_link(self, link, source_link):
         self.broken_links.append({'url': link, 'source_link': source_link})
 
@@ -68,8 +71,7 @@ class Web_spider():
                 else:
                     if response.status_code == 403:
                         self.deal_uom_sign_link(link, link_combo[1])
-                    else:
-                        self.deal_broken_link(link, link_combo[1], response.status_code)
+                    self.deal_broken_link(link, link_combo[1], response.status_code)
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
 
                     print(f'now the queue size is {self.web_links.qsize()}')
@@ -102,8 +104,7 @@ class Web_spider():
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
                     if response.status_code == 403:
                         self.deal_uom_sign_link(link, link_combo[1])
-                    else:
-                        self.deal_broken_link(link, link_combo[1], response.status_code)
+                    self.deal_broken_link(link, link_combo[1], response.status_code)
 
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
