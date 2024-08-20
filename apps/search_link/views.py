@@ -12,17 +12,23 @@ class Web_spider():
     def __init__(self):
         self.visited_or_about_to_visit = set()
         self.web_links = Queue()
-        self.baseurl = None
+        self.baseurl = 'https://sites.research.unimelb.edu.au/research-funding'
         self.broken_link_file = open('broken_links_faster.txt', 'w')
         self.UOM_sign_links = list()
         self.uom_sign_link_file = open('uom_links.txt','w')
+        self.keyword_link_file = open('keyword_links.txt','w')
         self.counter = 0
         self.broken_links = list()
+        self.keyword = 'Funding Partners'
+        self.keyword_links = list()
+
 
     def put_url(self, baseurl):
         self.web_links.put([baseurl, None])
         self.counter += 1
         self.baseurl = baseurl
+    def put_keyword(self, keyword):
+        self.keyword = keyword
     def is_uom_sign_link(self, link):
         return self.baseurl in link
     def add_uom_sign_link(self, link, source_link):
@@ -58,6 +64,12 @@ class Web_spider():
                     if not link.startswith(self.baseurl):
                         continue
                     soup = BeautifulSoup(response.content, 'html.parser')
+                    if self.keyword is not None:
+                        text = soup.get_text()
+                        if self.keyword in text:
+                            print(f'found keyword {self.keyword} in link {link}')
+                            self.keyword_links.append(link)
+                            self.keyword_link_file.write(link + '\n')
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
                         if href not in self.visited_or_about_to_visit:
@@ -116,7 +128,7 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 print(f'remaining detected tasks{self.web_links.qsize()}')
 
-    def main(self, baseurl):
+    def search_broken_links(self, baseurl):
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
@@ -129,7 +141,23 @@ class Web_spider():
             t.daemon = True
             t.start()
         self.web_links.join()
+        print(self.keyword_links)
         return self.broken_links
+    def search_keyword_links(self, baseurl, keyword):
+        self.put_keyword(keyword)
+        self.put_url(baseurl)
+        thread_list = list()
+        for _ in range(20):
+            t = Thread(target=self.get_more_links)
+            thread_list.append(t)
+        for _ in range(20):
+            t = Thread(target=self.detect_links)
+            thread_list.append(t)
+        for t in thread_list:
+            t.daemon = True
+            t.start()
+        self.web_links.join()
+        return self.keyword_links
 
 
 def index(request):
@@ -140,7 +168,7 @@ def search_link(request):
     if request.method == 'POST':
         url = request.POST['url']
         web_spider = Web_spider()
-        results = web_spider.main(url)
+        results = web_spider.search_broken_links(url)
         # results = scrape_pages(url)
         return render(request, 'results.html', {'results': results})
     return render(request, 'index.html')
