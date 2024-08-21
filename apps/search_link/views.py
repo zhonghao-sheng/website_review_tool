@@ -24,7 +24,8 @@ class Web_spider():
 
 
     def put_url(self, baseurl):
-        self.web_links.put([baseurl, None])
+        # [link, source page link, associated text]
+        self.web_links.put([baseurl, None, None])
         self.counter += 1
         self.baseurl = baseurl
     def put_keyword(self, keyword):
@@ -41,15 +42,17 @@ class Web_spider():
         if self.is_uom_sign_link(link):
             self.add_uom_sign_link(link, source_link)
             self.write_uom_sign_link(link, source_link)
-    def add_broken_link(self, link, source_link):
-        self.broken_links.append({'url': link, 'source_link': source_link})
+    def add_broken_link(self, link, source_link, associated_text):
+        self.broken_links.append({'url': link, 'source_link':
+            source_link, 'associated_text': associated_text})
 
-    def write_broken_link(self, link, source_link, response_status):
-        self.broken_link_file.write(f'status:{response_status}, broken link: {link}, page source: {source_link}')
+    def write_broken_link(self, link, source_link, response_status, associated_text):
+        self.broken_link_file.write(f'status:{response_status}, broken link: '
+                                    f'{link}, page source: {source_link}, associated_text: {associated_text}\n')
 
-    def deal_broken_link(self, link, source_link, response_status):
-        self.add_broken_link(link, source_link)
-        self.write_broken_link(link, source_link, response_status)
+    def deal_broken_link(self, link, source_link, response_status, associated_text):
+        self.add_broken_link(link, source_link, associated_text)
+        self.write_broken_link(link, source_link, response_status, associated_text)
 
     def get_more_links(self):
         while True:
@@ -72,10 +75,11 @@ class Web_spider():
                             self.keyword_link_file.write(link + '\n')
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
+                        text = href_link.get_text()
                         if href not in self.visited_or_about_to_visit:
                             if 'mailto:' not in href:
                                 self.visited_or_about_to_visit.add(href)
-                                self.web_links.put([href, link])
+                                self.web_links.put([href, link, text])
                                 self.counter += 1
                             else:
                                 print(f'not responsible for checking mails {href}')
@@ -83,8 +87,9 @@ class Web_spider():
                 else:
                     if response.status_code == 403:
                         self.deal_uom_sign_link(link, link_combo[1])
-                    self.deal_broken_link(link, link_combo[1], response.status_code)
-                    print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
+                    else:
+                        self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
+                    print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}, associated_text:{link_combo[2]}')
 
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
@@ -100,6 +105,7 @@ class Web_spider():
         while True:
             link_combo = self.web_links.get()
             link = link_combo[0]
+
             try:
                 print(f'detecting link {link}')
                 response = requests.get(link)
@@ -116,7 +122,8 @@ class Web_spider():
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
                     if response.status_code == 403:
                         self.deal_uom_sign_link(link, link_combo[1])
-                    self.deal_broken_link(link, link_combo[1], response.status_code)
+                    else:
+                        self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
 
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
