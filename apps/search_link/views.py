@@ -179,8 +179,8 @@ def check_login(request):
 # def logout_view(request):
 #     logout(request)
 
-def index(request):
-    return render(request, 'index.html')
+def search(request):
+    return render(request, 'search.html')
 
 @login_required
 def search_link(request):
