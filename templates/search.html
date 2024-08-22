@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Keyword Search Tool</title>
+    {% load static %} <!-- Load the static tag library -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        function openLoginWindow() {
+            const url = document.getElementById('url').value;
+            window.open(url, '_blank');
+        }
+    </script>
 </head>
 <body>
-    <h1>Search Results for "{{ keyword }}"</h1>
-    <p>Occurrences: {{ results }}</p>
-    <a href="{{ url_for('index') }}">Search Again</a>
+    <h1>Keyword Search Tool</h1>
+    <form action="{% url 'search_link' %}" method="post">
+        {% csrf_token %}
+        <label for="url">Enter Website URL:</label>
+        <input type="text" id="url" name="url" required>
+        {% comment %} <label for="keyword">Enter Keyword:</label> {% endcomment %}
+        {% comment %} <input type="text" id="keyword" name="keyword" required> {% endcomment %}
+        {% comment %} <button type="button" onclick="openLoginWindow()">Open Login Page</button> {% endcomment %}
+        <button type="submit">Search</button>
+    </form>
 </body>
 </html>
