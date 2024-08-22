@@ -5,9 +5,6 @@ from threading import Thread
 # from selenium.webdriver.common.by import By
 # import time
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.contrib.auth import logout
-from django.contrib.auth.views import LogoutView
 import requests
 from bs4 import BeautifulSoup
 
@@ -169,18 +166,10 @@ class Web_spider():
             t.start()
         self.web_links.join()
         return self.keyword_links
-
-def check_login(request):
-    if request.user.is_authenticated:
-        return redirect('search_link')  # Redirect to the search page if logged in
-    else:
-        return redirect('login')  # Redirect to the login page if not logged in
     
-# def logout_view(request):
-#     logout(request)
 
-def search(request):
-    return render(request, 'search.html')
+# def search(request):
+#     return render(request, 'search.html')
 
 @login_required
 def search_link(request):

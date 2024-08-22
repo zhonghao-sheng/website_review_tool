@@ -45,3 +45,9 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+def check_login(request):
+    if request.user.is_authenticated:
+        return redirect('search_link')  # Redirect to the search page if logged in
+    else:
+        return redirect('login')  # Redirect to the login page if not logged in
