@@ -5,9 +5,6 @@ from threading import Thread
 # from selenium.webdriver.common.by import By
 # import time
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.contrib.auth import logout
-from django.contrib.auth.views import LogoutView
 import requests
 from bs4 import BeautifulSoup
 
@@ -26,6 +23,16 @@ class Web_spider():
         self.keyword = 'Funding Partners'
         self.keyword_links = list()
 
+    # def __enter__(self):
+    #     self.broken_link_file = open(self.broken_link_file_path, 'w')
+    #     self.uom_sign_link_file = open(self.uom_sign_link_file_path, 'w')
+    #     self.keyword_link_file = open(self.keyword_link_file_path, 'w')
+    #     return self
+
+    # def __exit__(self, exc_type, exc_value, traceback):
+    #     self.broken_link_file.close()
+    #     self.uom_sign_link_file.close()
+    #     self.keyword_link_file.close()
 
     def put_url(self, baseurl):
         # [link, source page link, associated text]
@@ -95,14 +102,14 @@ class Web_spider():
                         self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}, associated_text:{link_combo[2]}')
 
-                    print(f'now the queue size is {self.web_links.qsize()}')
+                    # print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
                 print(f'error fetch {link}, {str(e)}')
             finally:
                 self.web_links.task_done()
                 self.counter -= 1
                 print(f'counter = {self.counter}')
-                print(f'remaining links number {self.web_links.qsize()}')
+                # print(f'remaining links number {self.web_links.qsize()}')
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self):
@@ -119,7 +126,7 @@ class Web_spider():
                         self.web_links.put(link_combo)
                         self.counter += 1
                     else:
-                        if self.web_links.qsize() == 0:
+                        if self.counter == 0:
                             print('finished')
                             return
                 else:
@@ -129,7 +136,7 @@ class Web_spider():
                     else:
                         self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
 
-                    print(f'now the queue size is {self.web_links.qsize()}')
+                    # print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
                 print(f'error fetch {link}, {str(e)}')
             finally:
@@ -137,7 +144,7 @@ class Web_spider():
                 self.counter -= 1
 
                 print(f'counter = {self.counter}')
-                print(f'remaining detected tasks{self.web_links.qsize()}')
+                # print(f'remaining detected tasks{self.web_links.qsize()}')
 
     def search_broken_links(self, baseurl):
         self.put_url(baseurl)
@@ -151,6 +158,8 @@ class Web_spider():
         for t in thread_list:
             t.daemon = True
             t.start()
+        for t in thread_list:
+            t.join()
         self.web_links.join()
         print(self.keyword_links)
         return self.broken_links
@@ -170,25 +179,21 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
-def check_login(request):
-    if request.user.is_authenticated:
-        return redirect('search_link')  # Redirect to the search page if logged in
-    else:
-        return redirect('login')  # Redirect to the login page if not logged in
-    
-# def logout_view(request):
-#     logout(request)
-
-def search(request):
-    return render(request, 'search.html')
-
 @login_required
 def search_link(request):
     if request.method == 'POST':
-        url = request.POST['url']
+        url = request.POST.get('url')
+        keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+        
+        # Initialize Web_spider instance
         web_spider = Web_spider()
-        results = web_spider.search_broken_links(url)
-        # results = scrape_pages(url)
+        
+        if keyword:
+            results = web_spider.search_keyword_links(url, keyword)
+        else:
+            results = web_spider.search_broken_links(url)
+        
+        # Render results
         return render(request, 'results.html', {'results': results})
+    
     return render(request, 'search.html')
-
