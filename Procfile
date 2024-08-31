@@ -1,1 +1,1 @@
-web: gunicorn website-reiew-tool.wsgi
+web: gunicorn website_review_tool.wsgi
