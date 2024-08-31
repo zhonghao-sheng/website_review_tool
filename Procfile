@@ -1,1 +1,1 @@
-web: gunicorn website_reiew_tool.wsgi
+web: gunicorn website-reiew-tool.wsgi
