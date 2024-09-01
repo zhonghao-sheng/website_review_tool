@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from multiprocessing import JoinableQueue as Queue
 from threading import Thread
 # from selenium import webdriver
@@ -7,6 +7,12 @@ from threading import Thread
 from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
+from rq import Queue
+from worker import conn
+import uuid
+from rq.job import Job
+
+q = Queue(connection=conn)
 
 
 class Web_spider():
@@ -179,21 +185,59 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
+import logging
+
+logger = logging.getLogger(__name__)
 @login_required
 def search_link(request):
     if request.method == 'POST':
-        url = request.POST.get('url')
-        keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
-        
-        # Initialize Web_spider instance
-        web_spider = Web_spider()
-        
-        if keyword:
-            results = web_spider.search_keyword_links(url, keyword)
-        else:
-            results = web_spider.search_broken_links(url)
-        
-        # Render results
-        return render(request, 'results.html', {'results': results})
+        try:
+            url = request.POST.get('url')
+            keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+
+            # Generate a unique ID for this task
+            job_id = str(uuid.uuid4())
+            
+            logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
+
+            # Enqueue the job
+            job = q.enqueue(search_task, url, keyword, job_id)
+
+            logger.info(f"Job {job_id} enqueued successfully.")
+
+            # Redirect to a results page that will display the job status
+            return redirect('results', job_id=job_id)
+        except Exception as e:
+            logger.error(f"Error in search_link view: {str(e)}")
+            return render(request, 'error.html', {'error': str(e)})
     
     return render(request, 'search.html')
+
+# assign a job ID to each task
+def search_task(url, keyword, job_id):
+    # Initialize Web_spider instance
+    web_spider = Web_spider()
+
+    if keyword:
+        results = web_spider.search_keyword_links(url, keyword)
+    else:
+        results = web_spider.search_broken_links(url)
+
+    # Store the results in a Redis key using the job ID
+    conn.set(job_id, results, ex=3600)  # Results expire after 1 hour
+
+
+def results(request, job_id):
+    try:
+        job = Job.fetch(job_id, connection=conn)
+
+        if job.is_finished:
+            results = conn.get(job_id)
+            results = eval(results)  # Convert string back to a list
+            return render(request, 'results.html', {'results': results})
+        elif job.is_failed:
+            return render(request, 'results.html', {'error': 'Job failed.'})
+        else:
+            return render(request, 'results.html', {'status': 'Job is still processing...'})
+    except Exception as e:
+        return render(request, 'results.html', {'error': str(e)})

@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
-    {% load static %} <!-- Load the static tag library -->
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    {% comment %} <h1>Search Results for "{{ keyword }}"</h1> {% endcomment %}
-    <p>Occurrences: </p>
-    <p>{{ results }}</p>
-    <a href="{% url 'index' %}">Search Again</a>
+    <h1>Search Results</h1>
+    {% if results %}
+        <p>Occurrences:</p>
+        <p>{{ results }}</p>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+    <a href="{% url 'search_link' %}">Search Again</a>
 </body>
 </html>

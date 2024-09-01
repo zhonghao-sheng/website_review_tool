@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# 'django-insecure-9m!jf+5qd0_z@4ot!d82mucd3xk!(klc*l!rbb@*$w$)vx$#qs'
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     default=secrets.token_urlsafe(nbytes=64),
