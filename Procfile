@@ -1,1 +1,2 @@
-web: gunicorn website_review_tool.wsgi --timeout 120
+web: gunicorn website_review_tool.wsgi
+worker: python worker.py
