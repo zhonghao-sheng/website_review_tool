@@ -9,6 +9,10 @@ from worker import conn
 import uuid
 from rq.job import Job
 import json
+from rq.exceptions import NoSuchJobError
+import logging
+
+logger = logging.getLogger(__name__)
 
 q = Queue(connection=conn)
 
@@ -26,17 +30,6 @@ class Web_spider():
         self.broken_links = list()
         self.keyword = 'Funding Partners'
         self.keyword_links = list()
-
-    # def __enter__(self):
-    #     self.broken_link_file = open(self.broken_link_file_path, 'w')
-    #     self.uom_sign_link_file = open(self.uom_sign_link_file_path, 'w')
-    #     self.keyword_link_file = open(self.keyword_link_file_path, 'w')
-    #     return self
-
-    # def __exit__(self, exc_type, exc_value, traceback):
-    #     self.broken_link_file.close()
-    #     self.uom_sign_link_file.close()
-    #     self.keyword_link_file.close()
 
     def put_url(self, baseurl):
         # [link, source page link, associated text]
@@ -183,9 +176,6 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
-import logging
-
-logger = logging.getLogger(__name__)
 @login_required
 def search_link(request):
     if request.method == 'POST':
@@ -220,12 +210,12 @@ def search_task(url, keyword, job_id):
         results = web_spider.search_keyword_links(url, keyword)
     else:
         results = web_spider.search_broken_links(url)
-
+    
     # Serialize the results as a JSON string
-    json.dumps(results)
+    results_json = json.dumps(results)
 
     # Store the results in a Redis key using the job ID
-    conn.set(job_id, results, ex=3600)  # Results expire after 1 hour
+    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
 
 
 def results(request, job_id):
@@ -245,5 +235,7 @@ def results(request, job_id):
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
             return render(request, 'results.html', {'status': 'Job is still processing...'})
+    except NoSuchJobError:
+        return render(request, 'results.html', {'error': 'No such job found.'})
     except Exception as e:
         return render(request, 'results.html', {'error': str(e)})
