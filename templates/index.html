@@ -2,27 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keyword Search Tool</title>
-    {% load static %} <!-- Load the static tag library -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <script>
-        function openLoginWindow() {
-            const url = document.getElementById('url').value;
-            window.open(url, '_blank');
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+    <title>search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
         }
-    </script>
+
+        .container {
+            text-align: center;
+        }
+
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: 100px;
+            background-color: #cfcfcf;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+
+        .image {
+            width: 150px;
+            height: 100px;
+            background-color: #d9d9d9;
+            margin: 20px auto;
+        }
+
+        .search-button {
+            width: 200px;
+            height: 60px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 30px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between buttons */
+            margin-top: 10px; /* Move the container down instead of the buttons */
+        }
+
+        .placeholder-button, .language-button {
+            width: 120px;
+            height: 50px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* Hover effect */
+        .placeholder-button:hover, .language-button:hover, .search-button:hover {
+            background-color: #d0d0d0; /* Darker shade of the original color */
+        }
+
+        .text {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .link {
+            text-decoration: none;
+            color: blue;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Keyword Search Tool</h1>
-    <form action="{% url 'search_link' %}" method="post">
-        {% csrf_token %}
-        <label for="url">Enter Website URL:</label>
-        <input type="text" id="url" name="url" required>
-        {% comment %} <label for="keyword">Enter Keyword:</label> {% endcomment %}
-        {% comment %} <input type="text" id="keyword" name="keyword" required> {% endcomment %}
-        {% comment %} <button type="button" onclick="openLoginWindow()">Open Login Page</button> {% endcomment %}
-        <button type="submit">Search</button>
-    </form>
+    <div class="container">
+        <div class="logo">UNIMELB</div>
+        <div class="image"></div>
+        {% comment %} <input type="text" value="Log in"> {% endcomment %}
+
+        {% if user.is_authenticated %}
+            <p>Hello, {{ user.username }}! 
+                {% comment %} <a href="{% url 'logout' %}">Logout</a> {% endcomment %}
+                <form id="logout-form" action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            </p>
+        {% else %}
+            <p>You are not logged in. <a href="{% url 'login' %}">Login</a> or <a href="{% url 'signup' %}">Sign up</a></p>
+        {% endif %}
+
+        <button class="search-button" onclick="location.href='{% url 'check_login' %}'">SEARCH</button>
+
+        <div class="button-container">
+            <button class="placeholder-button">Placeholder</button>
+            <button class="language-button">LANGUAGE PREFERENCE</button>
+        </div>
+        <div class="text">Text Text Text</div>
+        <a href="#" class="link">Link</a>
+    </div>
 </body>
 </html>

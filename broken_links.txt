@@ -1,16 +1,57 @@
-broken link is https://gateway.research.unimelb.edu.au/resources/contracts  page source url is https://sites.research.unimelb.edu.au/research-funding  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/resources/ip-and-commercialisation  page source url is https://sites.research.unimelb.edu.au/research-funding  status_code: 404
-broken link is https://staff.unimelb.edu.au/research/grants/successful-applications-library?f.Sponsor|sponsor=MRFF&start_rank=1  page source url is https://sites.research.unimelb.edu.au/research-funding/mrff  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/services/research-innovation-and-commercialisation/micg  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 404
-broken link is https://sites.research.unimelb.edu.au/research-funding/international/international-codes-and-contacts   page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 404
-broken link is https://gateway.research.unimelb.edu.au/resources/funding/grant-resources/international-grants  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/canada-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/france-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/germany-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/japan-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/qatar-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/sweden-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/taiwan-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/united-kingdom-fact-sheet  page source url is https://sites.research.unimelb.edu.au/research-funding/international  status_code: 403
-broken link is https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/research-funding-schemes/pivot-rp-funding-database  page source url is https://sites.research.unimelb.edu.au/research-funding/domestic  status_code: 403
-broken link is http://research.unimelb.edu.au/contact-us  page source url is https://sites.research.unimelb.edu.au/research-funding/domestic  status_code: 404
+#main-content - Invalid URL '#main-content': No scheme supplied. Perhaps you meant http://#main-content?
+https://gateway.research.unimelb.edu.au/resources/contracts - 403
+https://gateway.research.unimelb.edu.au/resources/ip-and-commercialisation - 404
+//students.unimelb.edu.au/?in_c=ham - Invalid URL '//students.unimelb.edu.au/?in_c=ham': No scheme supplied. Perhaps you meant http:////students.unimelb.edu.au/?in_c=ham?
+//library.unimelb.edu.au/?in_c=ham - Invalid URL '//library.unimelb.edu.au/?in_c=ham': No scheme supplied. Perhaps you meant http:////library.unimelb.edu.au/?in_c=ham?
+//staff.unimelb.edu.au/?in_c=ham - Invalid URL '//staff.unimelb.edu.au/?in_c=ham': No scheme supplied. Perhaps you meant http:////staff.unimelb.edu.au/?in_c=ham?
+https://staff.unimelb.edu.au/research/grants/successful-applications-library?f.Sponsor|sponsor=MRFF&start_rank=1 - 403
+# - Invalid URL '#': No scheme supplied. Perhaps you meant http://#?
+https://gateway.research.unimelb.edu.au/services/research-innovation-and-commercialisation/micg - 404
+https://sites.research.unimelb.edu.au/research-funding/international/international-codes-and-contacts  - 404
+https://gateway.research.unimelb.edu.au/resources/funding/grant-resources/international-grants - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/canada-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/france-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/germany-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/japan-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/qatar-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/sweden-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/taiwan-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/grant-application-resources/international-funding-scheme-applications/united-kingdom-fact-sheet - 403
+https://gateway.research.unimelb.edu.au/funding-contracts-and-ethics/funding-and-grants/research-funding-schemes/pivot-rp-funding-database - 403
+http://research.unimelb.edu.au/contact-us - 404
+http://www.bcinnovation.com.au/ - HTTPSConnectionPool(host='www.bcinnovation.com.au', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLError(1, '[SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshake failure (_ssl.c:1129)')))
+https://gateway.research.unimelb.edu.au/researcherdevelopment/development-programs/reel-impact-prize - 403
+https://gateway.research.unimelb.edu.au/platforms-data-and-reporting/platforms-and-equipment/program-support2/program-support/anff-vic-technology-fellow-ambassador-program2 - 403
+https://gateway.research.unimelb.edu.au/platforms-data-and-reporting/platforms-and-equipment/program-support2/program-support/melbourne-collaborative-research-infrastructure-program-mcrip - 403
+https://gateway.research.unimelb.edu.au/platforms-data-and-reporting/platforms-and-equipment/funding-opportunities2/funding-opportunities/research-infrastructure-investment-fund-collaborative-equipment-grant-riif-ceg2 - 403
+https://gateway.research.unimelb.edu.au/resources/funding - 403
+https://gateway.research.unimelb.edu.au/resources/systems-reporting/codes - 403
+./?external-uuid=522607d0-9ab0-4136-a5c0-6115f2c6b057 - Invalid URL './?external-uuid=522607d0-9ab0-4136-a5c0-6115f2c6b057': No scheme supplied. Perhaps you meant http://./?external-uuid=522607d0-9ab0-4136-a5c0-6115f2c6b057?
+https://gateway.research.unimelb.edu.au/resources/funding/grant-resources - 403
+https://gateway.research.unimelb.edu.au/resources/systems-reporting/themis-guides - 403
+./?external-uuid=31dd9d51-feee-409a-80ec-b203604fcbd2 - Invalid URL './?external-uuid=31dd9d51-feee-409a-80ec-b203604fcbd2': No scheme supplied. Perhaps you meant http://./?external-uuid=31dd9d51-feee-409a-80ec-b203604fcbd2?
+./?external-uuid=c318f340-bd5a-4c65-8790-398c05e28160 - Invalid URL './?external-uuid=c318f340-bd5a-4c65-8790-398c05e28160': No scheme supplied. Perhaps you meant http://./?external-uuid=c318f340-bd5a-4c65-8790-398c05e28160?
+https://gateway.research.unimelb.edu.au/resources/funding/grant-resources/fellowship-salary-gap-management-process - 403
+https://staff.unimelb.edu.au/research/grants/successful-applications-library?query=!padrenull - 403
+https://gateway.research.unimelb.edu.au/resources/systems-reporting - 403
+https://unimelbcloud.sharepoint.com/teams/UniversityDecisionSupport/SitePages/UDS%20Research_RES04-RES05.aspx#res05-overview - 403
+https://gateway.research.unimelb.edu.au/directory/contact-lists/post-award-finance-support - 403
+./?external-uuid=4e810801-8fa8-4ff2-9416-308dd8d778eb - Invalid URL './?external-uuid=4e810801-8fa8-4ff2-9416-308dd8d778eb': No scheme supplied. Perhaps you meant http://./?external-uuid=4e810801-8fa8-4ff2-9416-308dd8d778eb?
+https://gateway.research.unimelb.edu.au/services-strategy-and-contacts/services-and-contacts/ric?vtab=Post_Award_Finance_Support - 403
+https://gateway.research.unimelb.edu.au/platforms-data-and-reporting/systems-tools-guides/guides/themis-guides/grants,-contracts-and-submissions/create-a-grant-submission-record - 403
+https://gateway.research.unimelb.edu.au/resources/systems-reporting/themis-guides/grants,-contracts-and-submissions/create-a-grant-submission-record - 403
+https://gateway.research.unimelb.edu.au/resources/contracts/preparing/costing-pricing-support - 403
+https://staff.unimelb.edu.au/research/grants/successful-applications-library?f.Sponsor%7Csponsor=University%20of%20Melbourne&start_rank=1&f.Sponsor%7Csponsor=University+of+Melbourne&f.Scheme%7Cscheme=Early+Career+Researcher+Grants - 403
+https://fbe-research.smartygrants.com.au/DE25 - 404
+international-research@unimelb.edu.au - Invalid URL 'international-research@unimelb.edu.au': No scheme supplied. Perhaps you meant http://international-research@unimelb.edu.au?
+https://gateway.research.unimelb.edu.au/resources/graduate-research/joint-phds-IRTGs - 403
+https://gateway.research.unimelb.edu.au/resources/graduate-research/joint-phds-IRTGs/IRTG-EOI-template.docx - 403
+https://portal.bihealth.de/portal/ - 502
+https://www.manchester.ac.uk/collaborate/worldwide/collaborations/manchester-melbourne-research-fund/ - 404
+./?external-uuid=91ec7444-2c2c-465d-abb4-e2fbad8434c7 - Invalid URL './?external-uuid=91ec7444-2c2c-465d-abb4-e2fbad8434c7': No scheme supplied. Perhaps you meant http://./?external-uuid=91ec7444-2c2c-465d-abb4-e2fbad8434c7?
+./?external-uuid=b342cf00-c06e-411b-9d7e-5206ca5721e3 - Invalid URL './?external-uuid=b342cf00-c06e-411b-9d7e-5206ca5721e3': No scheme supplied. Perhaps you meant http://./?external-uuid=b342cf00-c06e-411b-9d7e-5206ca5721e3?
+https://staff.unimelb.edu.au/research/research-systems/research-themis-guides/grants,-contracts-and-submissions/create-a-grant-submission-record - 404
+http://musse.unimelb.edu.au/october-12-97/woodward-medals-honour-history-and-science - 404
+http://blogs.unimelb.edu.au/researchnews/2011/12/19/woodward-medals/ - 410
+http://musse.unimelb.edu.au/february-11-53/woodward-medallists-named - 404
+http://blogs.unimelb.edu.au/musse/?p=466 - 404
