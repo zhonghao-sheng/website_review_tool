@@ -230,10 +230,11 @@ def search_task(url, keyword, job_id):
 
 def results(request, job_id):
     try:
-        job = Job.fetch(job_id, connection=conn)
+        job_id_str = str(job_id)
+        job = Job.fetch(job_id_str, connection=conn)
 
         if job.is_finished:
-            results = conn.get(job_id)
+            results = conn.get(job_id_str)
             if results:
                 results = json.loads(results)  # Convert JSON string back to a list
             else:
