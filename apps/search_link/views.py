@@ -1,9 +1,6 @@
 from django.shortcuts import render, redirect
 from multiprocessing import JoinableQueue as Queue
 from threading import Thread
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# import time
 from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
@@ -202,7 +199,7 @@ def search_link(request):
             logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
             # Enqueue the job
-            job = q.enqueue(search_task, url, keyword, job_id)
+            q.enqueue(search_task, url, keyword, job_id)
 
             logger.info(f"Job {job_id} enqueued successfully.")
 
@@ -225,7 +222,7 @@ def search_task(url, keyword, job_id):
         results = web_spider.search_broken_links(url)
 
     # Serialize the results as a JSON string
-    serialized_results = json.dumps(results)
+    json.dumps(results)
 
     # Store the results in a Redis key using the job ID
     conn.set(job_id, results, ex=3600)  # Results expire after 1 hour
