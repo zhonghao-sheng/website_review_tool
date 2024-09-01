@@ -185,20 +185,31 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
+import logging
+
+logger = logging.getLogger(__name__)
 @login_required
 def search_link(request):
     if request.method == 'POST':
-        url = request.POST.get('url')
-        keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+        try:
+            url = request.POST.get('url')
+            keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
 
-        # Generate a unique ID for this task
-        job_id = str(uuid.uuid4())
-        
-        # Enqueue the job
-        job = q.enqueue(search_task, url, keyword, job_id)
+            # Generate a unique ID for this task
+            job_id = str(uuid.uuid4())
+            
+            logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
-        # Redirect to a results page that will display the job status
-        return redirect('results', job_id=job_id)
+            # Enqueue the job
+            job = q.enqueue(search_task, url, keyword, job_id)
+
+            logger.info(f"Job {job_id} enqueued successfully.")
+
+            # Redirect to a results page that will display the job status
+            return redirect('results', job_id=job_id)
+        except Exception as e:
+            logger.error(f"Error in search_link view: {str(e)}")
+            return render(request, 'error.html', {'error': str(e)})
     
     return render(request, 'search.html')
 
