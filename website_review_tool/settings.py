@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'login',
     'apps.search_link.apps.SearchLinkConfig',
+    "django_rq",
 ]
 
 MIDDLEWARE = [
@@ -195,3 +196,11 @@ LOGGING = {
         },
     },
 }
+
+RQ_QUEUES = {
+    'default': {
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'), # If you're on Heroku
+        'DEFAULT_TIMEOUT': 500,
+        },
+}
+
