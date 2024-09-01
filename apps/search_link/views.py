@@ -11,6 +11,7 @@ from rq import Queue
 from worker import conn
 import uuid
 from rq.job import Job
+import json
 
 q = Queue(connection=conn)
 
@@ -223,6 +224,9 @@ def search_task(url, keyword, job_id):
     else:
         results = web_spider.search_broken_links(url)
 
+    # Serialize the results as a JSON string
+    serialized_results = json.dumps(results)
+
     # Store the results in a Redis key using the job ID
     conn.set(job_id, results, ex=3600)  # Results expire after 1 hour
 
@@ -233,7 +237,11 @@ def results(request, job_id):
 
         if job.is_finished:
             results = conn.get(job_id)
-            results = eval(results)  # Convert string back to a list
+            if results:
+                results = json.loads(results)  # Convert JSON string back to a list
+            else:
+                results = []  # Handle the case where results might be None
+
             return render(request, 'results.html', {'results': results})
         elif job.is_failed:
             return render(request, 'results.html', {'error': 'Job failed.'})
