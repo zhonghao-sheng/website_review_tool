@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Search Results</title>
+    <title>Results</title>
 </head>
 <body>
     {% if error %}
-        <p>Error: {{ error }}</p>
+        <h1>An error occurred</h1>
+        <p>{{ error }}</p>
     {% else %}
         <h1>Search Results</h1>
         <ul>

@@ -193,10 +193,12 @@ def search_link(request):
 
             # Redirect to a results page that will display the job status
             return redirect('results', job_id=job_id)
+        except ConnectionError as e:
+            logger.error(f"Redis connection error: {str(e)}")
+            return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
         except Exception as e:
             logger.error(f"Error in search_link view: {str(e)}")
-            return render(request, 'error.html', {'error': str(e)})
-    
+            return render(request, 'results.html', {'error': str(e)})
     return render(request, 'search.html')
 
 # assign a job ID to each task
