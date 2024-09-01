@@ -119,7 +119,6 @@
 
     {% if user.is_authenticated %}
         <p>Hello, {{ user.username }}!
-            {% comment %} <a href="{% url 'logout' %}">Logout</a> {% endcomment %}
             <form id="logout-form" action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Logout</button>
@@ -129,7 +128,7 @@
         <p>You are not logged in. <a href="{% url 'login' %}">Login</a> or <a href="{% url 'signup' %}">Sign up</a></p>
     {% endif %}
 
-    <button class="search-button">
+    <button class="search-button" onclick="location.href='{% url 'check_login' %}'">
             SEARCH <i class="fas fa-search"></i>
         </button>
 
