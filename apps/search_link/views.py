@@ -182,60 +182,85 @@ def search_link(request):
         try:
             url = request.POST.get('url')
             keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
-
-            # Generate a unique ID for this task
-            job_id = str(uuid.uuid4())
             
-            logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
-
-            # Enqueue the job
-            q.enqueue(search_task, url, keyword, job_id)
-
-            logger.info(f"Job {job_id} enqueued successfully.")
-
-            # Redirect to a results page that will display the job status
-            return redirect('results', job_id=job_id)
+            # Initialize Web_spider instance
+            web_spider = Web_spider()
+            
+            if keyword:
+                results = web_spider.search_keyword_links(url, keyword)
+            else:
+                results = web_spider.search_broken_links(url)
+            
+            # Render results
+            return render(request, 'results.html', {'results': results})
+        
         except Exception as e:
-            logger.error(f"Error in search_link view: {str(e)}")
-            return render(request, 'error.html', {'error': str(e)})
+            logger.error(f"Error occurred during search: {str(e)}")
+            return render(request, 'results.html', {'error': str(e)})
     
     return render(request, 'search.html')
 
-# assign a job ID to each task
-def search_task(url, keyword, job_id):
-    # Initialize Web_spider instance
-    web_spider = Web_spider()
 
-    if keyword:
-        results = web_spider.search_keyword_links(url, keyword)
-    else:
-        results = web_spider.search_broken_links(url)
+# @login_required
+# def search_link(request):
+#     if request.method == 'POST':
+#         try:
+#             url = request.POST.get('url')
+#             keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+
+#             # Generate a unique ID for this task
+#             job_id = str(uuid.uuid4())
+            
+#             logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
+
+#             # Enqueue the job
+#             q.enqueue(search_task, url, keyword, job_id)
+
+#             logger.info(f"Job {job_id} enqueued successfully.")
+
+#             # Redirect to a results page that will display the job status
+#             return redirect('results', job_id=job_id)
+#         except Exception as e:
+#             logger.error(f"Error in search_link view: {str(e)}")
+#             return render(request, 'error.html', {'error': str(e)})
     
-    # Serialize the results as a JSON string
-    results_json = json.dumps(results)
+#     return render(request, 'search.html')
 
-    # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
+# # assign a job ID to each task
+# def search_task(url, keyword, job_id):
+#     # Initialize Web_spider instance
+#     web_spider = Web_spider()
+
+#     if keyword:
+#         results = web_spider.search_keyword_links(url, keyword)
+#     else:
+#         results = web_spider.search_broken_links(url)
+    
+#     # Serialize the results as a JSON string
+#     results_json = json.dumps(results)
+
+#     # Store the results in a Redis key using the job ID
+#     conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
 
 
-def results(request, job_id):
-    try:
-        job_id_str = str(job_id)
-        job = Job.fetch(job_id_str, connection=conn)
+# def results(request, job_id):
+#     try:
+#         job_id_str = str(job_id)
+#         job = Job.fetch(job_id_str, connection=conn)
 
-        if job.is_finished:
-            results = conn.get(job_id_str)
-            if results:
-                results = json.loads(results)  # Convert JSON string back to a list
-            else:
-                results = []  # Handle the case where results might be None
+#         if job.is_finished:
+#             results = conn.get(job_id_str)
+#             if results:
+#                 results = json.loads(results)  # Convert JSON string back to a list
+#             else:
+#                 results = []  # Handle the case where results might be None
 
-            return render(request, 'results.html', {'results': results})
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
-        else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
-    except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
-    except Exception as e:
-        return render(request, 'results.html', {'error': str(e)})
+#             return render(request, 'results.html', {'results': results})
+#         elif job.is_failed:
+#             return render(request, 'results.html', {'error': 'Job failed.'})
+#         else:
+#             return render(request, 'results.html', {'status': 'Job is still processing...'})
+#     except NoSuchJobError:
+#         return render(request, 'results.html', {'error': 'No such job found.'})
+#     except Exception as e:
+#         return render(request, 'results.html', {'error': str(e)})
