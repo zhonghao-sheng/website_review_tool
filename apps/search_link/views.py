@@ -223,6 +223,7 @@ def results(request, job_id):
         job = Job.fetch(str(job_id), connection=conn)
 
         while not job.is_finished and not job.is_failed:
+            logger.debug(f"Job status: {job.get_status()}")
             time.sleep(1)  # Wait for 1 second before checking again
             job.refresh()
 
