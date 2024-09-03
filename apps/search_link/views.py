@@ -189,7 +189,7 @@ def search_link(request):
             logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
             # Enqueue the job in the background
-            job = q.enqueue('search_link.views.search_task', url, keyword, job_id)
+            job = q.enqueue(search_task, url, keyword, job_id)
             logger.info(f"Job {job_id} enqueued successfully with job_id {job.id}.")
 
             # Redirect to a results page that will display the job status
