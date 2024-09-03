@@ -176,6 +176,7 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
+
 @login_required
 def search_link(request):
     if request.method == 'POST':
@@ -187,12 +188,12 @@ def search_link(request):
             job_id = str(uuid.uuid4())
             logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
-            # Enqueue the job
-            q.enqueue(search_task, url, keyword, job_id)
-            logger.info(f"Job {job_id} enqueued successfully.")
+            # Enqueue the job in the background
+            job = q.enqueue(search_task, url, keyword, job_id)
+            logger.info(f"Job {job_id} enqueued successfully with job_id {job.id}.")
 
             # Redirect to a results page that will display the job status
-            return redirect('results', job_id=job_id)
+            return redirect('results', job_id=job.id)
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
             return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
@@ -201,7 +202,7 @@ def search_link(request):
             return render(request, 'results.html', {'error': str(e)})
     return render(request, 'search.html')
 
-# assign a job ID to each task
+# Task to perform the search, running in the background
 def search_task(url, keyword, job_id):
     # Initialize Web_spider instance
     web_spider = Web_spider()
@@ -215,16 +216,15 @@ def search_task(url, keyword, job_id):
     results_json = json.dumps(results)
 
     # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
-
+    conn.set(job_id, results_json, ex=3600)  # Results expire after 1 hour
 
 def results(request, job_id):
     try:
-        job_id_str = str(job_id)
-        job = Job.fetch(job_id_str, connection=conn)
+        job = Job.fetch(job_id, connection=conn)
 
         if job.is_finished:
-            results = conn.get(job_id_str)
+            # Fetch the results from Redis using the job ID
+            results = conn.get(job_id)
             if results:
                 results = json.loads(results)  # Convert JSON string back to a list
             else:
@@ -241,4 +241,5 @@ def results(request, job_id):
         logger.error(f"Redis connection error: {str(e)}")
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
+        logger.error(f"Error fetching results for job {job_id}: {str(e)}")
         return render(request, 'results.html', {'error': str(e), 'results': []})
