@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import uuid
 import json
 import logging
+from django_rq import get_queue, get_connection
 from rq.job import Job, NoSuchJobError
 from multiprocessing import JoinableQueue as Queue
 from threading import Thread

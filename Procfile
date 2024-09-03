@@ -1,2 +1,3 @@
-web: gunicorn website_review_tool.wsgi
-worker: python website_review_tool/manage.py rqworker high default low
+web: newrelic-admin run-program gunicorn my_api.wsgi -w 4 --log-file -
+rqworker: python manage.py rqworker default
+rqscheduler: python manage.py rqscheduler default --interval $RQ_SCHEDULER_INTERVAL
