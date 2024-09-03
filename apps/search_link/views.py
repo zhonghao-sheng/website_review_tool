@@ -11,6 +11,7 @@ from rq.job import Job
 import json
 from rq.exceptions import NoSuchJobError
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -243,30 +244,12 @@ def process_link(link, job_id):
         conn.set(job_id, result_json, ex=3600)
 
 def results(request, job_id):
-    job_ids = job_ids.split(',')
-    all_finished = True
-    aggregated_results = []
     try:
-<<<<<<< HEAD
-        for job_id in job_ids:
-            job = Job.fetch(job_id, connection=conn)
-            if not job.is_finished:
-                all_finished = False
-                break
-
-        if all_finished:
-            for job_id in job_ids:
-                # Fetch the results from Redis using the job ID
-                result = conn.get(job_id)
-                if result:
-                    result = json.loads(result)  # Convert JSON string back to a dictionary
-                    aggregated_results.append(result)
-
-            return render(request, 'results.html', {'results': aggregated_results, 'job_finished': True})
-        else:
-            return render(request, 'results.html', {'status': 'Jobs are still processing...', 'job_finished': False})
-=======
         job = Job.fetch(job_id, connection=conn)
+
+        while not job.is_finished and not job.is_failed:
+            time.sleep(1)  # Wait for 1 second before checking again
+            job.refresh()
 
         if job.is_finished:
             # Fetch the results from Redis using the job ID
@@ -279,19 +262,11 @@ def results(request, job_id):
             return render(request, 'results.html', {'results': results})
         elif job.is_failed:
             return render(request, 'results.html', {'error': 'Job failed.'})
-        else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
->>>>>>> parent of 4c0b607... update the results page
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
-<<<<<<< HEAD
-        logger.error(f"Error fetching results for jobs {job_ids}: {str(e)}")
-        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_finished': True})
-=======
         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
         return render(request, 'results.html', {'error': str(e), 'results': []})
->>>>>>> parent of 4c0b607... update the results page
