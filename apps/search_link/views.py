@@ -4,7 +4,7 @@ from threading import Thread
 from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
-from rq import rQueue
+from rq import Queue as rQueue
 from worker import conn
 import uuid
 from rq.job import Job
