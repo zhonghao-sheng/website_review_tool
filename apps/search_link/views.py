@@ -134,11 +134,6 @@ class Web_spider():
                     else:
                         self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
 
-                    # Enqueue a new job for each link found
-                    job_id = str(uuid.uuid4())
-                    q.enqueue('apps.search_link.views.process_link', link, job_id)
-
-                    # print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
                 print(f'error fetch {link}, {str(e)}')
             finally:
@@ -223,29 +218,9 @@ def search_task(url, keyword, job_id):
     # Store the results in a Redis key using the job ID
     conn.set(job_id, results_json, ex=3600)  # Results expire after 1 hour
 
-# Assign tasks to process each link, running in the background
-def process_link(link, job_id):
-    try:
-        response = requests.get(link)
-        if response.status_code == 200:
-            # Process the link as needed
-            result = {'url': link, 'status': 'valid'}
-        else:
-            result = {'url': link, 'status': 'broken', 'status_code': response.status_code}
-
-        # Serialize the result as a JSON string
-        result_json = json.dumps(result)
-
-        # Store the result in a Redis key using the job ID
-        conn.set(job_id, result_json, ex=3600)  # Results expire after 1 hour
-    except Exception as e:
-        result = {'url': link, 'status': 'error', 'error': str(e)}
-        result_json = json.dumps(result)
-        conn.set(job_id, result_json, ex=3600)
-
 def results(request, job_id):
     try:
-        job = Job.fetch(job_id, connection=conn)
+        job = Job.fetch(str(job_id), connection=conn)
 
         while not job.is_finished and not job.is_failed:
             time.sleep(1)  # Wait for 1 second before checking again
@@ -253,7 +228,7 @@ def results(request, job_id):
 
         if job.is_finished:
             # Fetch the results from Redis using the job ID
-            results = conn.get(job_id)
+            results = conn.get(str(job_id))
             if results:
                 results = json.loads(results)  # Convert JSON string back to a list
             else:
