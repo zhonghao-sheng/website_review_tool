@@ -230,16 +230,16 @@ def results(request, job_id):
             else:
                 results = []  # Handle the case where results might be None
 
-            return render(request, 'results.html', {'results': results})
+            return render(request, 'results.html', {'results': results, 'job_finished': True})
         elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
+            return render(request, 'results.html', {'error': 'Job failed.', 'job_finished': True})
         else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
+            return render(request, 'results.html', {'status': 'Job is still processing...', 'job_finished': False})
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
+        return render(request, 'results.html', {'error': 'No such job found.', 'job_finished': True})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_finished': True})
     except Exception as e:
         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-        return render(request, 'results.html', {'error': str(e), 'results': []})
+        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_finished': True})
