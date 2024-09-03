@@ -4,7 +4,7 @@ from threading import Thread
 from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
-from rq import Queue
+from rq import rQueue
 from worker import conn
 import uuid
 from rq.job import Job
@@ -14,7 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-q = Queue(connection=conn)
+q = rQueue(connection=conn)
 
 
 class Web_spider():
