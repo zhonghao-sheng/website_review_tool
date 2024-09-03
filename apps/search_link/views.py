@@ -189,11 +189,11 @@ def search_link(request):
             logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
             # Enqueue the job in the background
-            job = q.enqueue(search_task, url, keyword, job_id)
-            logger.info(f"Job {job_id} enqueued successfully with job_id {job.id}.")
+            q.enqueue('search_link.views.search_task', url, keyword, job_id)
+            logger.info(f"Job {job_id} enqueued successfully")
 
             # Redirect to a results page that will display the job status
-            return redirect('results', job_id=job.id)
+            return redirect('results', job_id=job_id)
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
             return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
