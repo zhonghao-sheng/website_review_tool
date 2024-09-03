@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <style>
         body {
@@ -60,6 +61,7 @@
             <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
         </div>
         <form action="/submit-login" method="post">
+            {% csrf_token %}
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
 
@@ -72,6 +74,9 @@
             </div>
 
             <button type="submit">LOGIN</button>
+            {% if form.errors %}
+                <p style="color:red;">Invalid username or password. Please try again.</p>
+            {% endif %}
         </form>
         <div class="footer">
             <a href="#">Not a user? Register now</a><br>
