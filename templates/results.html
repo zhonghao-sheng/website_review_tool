@@ -2,42 +2,18 @@
 <html>
 <head>
     <title>Results</title>
-    <script>
-        function checkJobStatus(jobId) {
-            fetch(`/results/${jobId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.job_finished) {
-                        if (data.error) {
-                            document.getElementById('status').innerHTML = `<h1>An error occurred</h1><p>${data.error}</p>`;
-                        } else {
-                            let resultsHtml = '<h1>Search Results</h1><ul>';
-                            data.results.forEach(result => {
-                                resultsHtml += `<li>${result}</li>`;
-                            });
-                            resultsHtml += '</ul>';
-                            document.getElementById('status').innerHTML = resultsHtml;
-                        }
-                    } else {
-                        setTimeout(() => checkJobStatus(jobId), 2000);  // Poll every 2 seconds
-                    }
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const jobId = '{{ job_id }}';
-            checkJobStatus(jobId);
-        });
-    </script>
 </head>
 <body>
-    <div id="status">
-        {% if error %}
-            <h1>An error occurred</h1>
-            <p>{{ error }}</p>
-        {% else %}
-            <h1>Job is still processing...</h1>
-        {% endif %}
-    </div>
+    {% if error %}
+        <h1>An error occurred</h1>
+        <p>{{ error }}</p>
+    {% else %}
+        <h1>Search Results</h1>
+        <ul>
+            {% for result in results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>
