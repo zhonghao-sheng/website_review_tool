@@ -243,27 +243,32 @@ def process_link(link, job_id):
         conn.set(job_id, result_json, ex=3600)
 
 def results(request, job_id):
+    job_ids = job_ids.split(',')
+    all_finished = True
+    aggregated_results = []
     try:
-        job = Job.fetch(job_id, connection=conn)
+        for job_id in job_ids:
+            job = Job.fetch(job_id, connection=conn)
+            if not job.is_finished:
+                all_finished = False
+                break
 
-        if job.is_finished:
-            # Fetch the results from Redis using the job ID
-            results = conn.get(job_id)
-            if results:
-                results = json.loads(results)  # Convert JSON string back to a list
-            else:
-                results = []  # Handle the case where results might be None
+        if all_finished:
+            for job_id in job_ids:
+                # Fetch the results from Redis using the job ID
+                result = conn.get(job_id)
+                if result:
+                    result = json.loads(result)  # Convert JSON string back to a dictionary
+                    aggregated_results.append(result)
 
-            return render(request, 'results.html', {'results': results, 'job_finished': True})
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.', 'job_finished': True})
+            return render(request, 'results.html', {'results': aggregated_results, 'job_finished': True})
         else:
-            return render(request, 'results.html', {'status': 'Job is still processing...', 'job_finished': False})
+            return render(request, 'results.html', {'status': 'Jobs are still processing...', 'job_finished': False})
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.', 'job_finished': True})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_finished': True})
     except Exception as e:
-        logger.error(f"Error fetching results for job {job_id}: {str(e)}")
+        logger.error(f"Error fetching results for jobs {job_ids}: {str(e)}")
         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_finished': True})
