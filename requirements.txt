@@ -38,3 +38,7 @@ whitenoise==6.7.0
 wsproto==1.2.0
 psycopg2==2.9.9
 django-rq==2.10.2
+authlib ~= 1.2
+django ~= 4.2
+python-dotenv ~= 1.0
+requests ~= 2.31
