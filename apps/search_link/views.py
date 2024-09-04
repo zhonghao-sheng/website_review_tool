@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
+
 class Web_spider():
     def __init__(self):
         self.visited_or_about_to_visit = set()

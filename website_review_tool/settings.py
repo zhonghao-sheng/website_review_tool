@@ -17,8 +17,8 @@ from dotenv import load_dotenv, find_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
-AllOWED_CAllBACK_URLS = "http://localhost:3000/callback"
-AllOWED_LOGOUT_URLS = "http://localhost:3000/"
+AllOWED_CAllBACK_URLS = "http://127.0.0.1:8000/callback/"
+AllOWED_LOGOUT_URLS = "http://127.0.0.1:8000/logout/"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
