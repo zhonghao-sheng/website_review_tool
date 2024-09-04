@@ -37,9 +37,7 @@ def callback(request):
 
 
 def login(request):
-    print("\n\n\n\nthis is log")
     print(request.build_absolute_uri(reverse("callback")))
-    print("\n\n\n")
     return oauth.auth0.authorize_redirect(
         request, request.build_absolute_uri(reverse("callback"))
     )

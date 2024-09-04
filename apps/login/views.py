@@ -13,6 +13,17 @@ from django.shortcuts import redirect, render, redirect
 from django.urls import reverse
 from urllib.parse import quote_plus, urlencode
 
+oauth = OAuth()
+
+oauth.register(
+    "auth0",
+    client_id=settings.AUTH0_CLIENT_ID,
+    client_secret=settings.AUTH0_CLIENT_SECRET,
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url=f"https://{settings.AUTH0_DOMAIN}/.well-known/openid-configuration",
+)
 
 
 
@@ -23,20 +34,33 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'You are now logged in.')
-            return redirect('index')  # Redirect to a suitable page after login
+            return oauth.auth0.authorize_redirect(
+                request, request.build_absolute_uri(reverse("callback"))
+            )
         else:
             messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
-
+def callback(request):
+    token = oauth.auth0.authorize_access_token(request)
+    request.session["user"] = token
+    return redirect(request.build_absolute_uri(reverse("index")))
 def logout_user(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
     return redirect('index')  # Redirect to a suitable page after logout
 
 def index(request):
-    return render(request, 'index.html')
+
+    return render(
+        request,
+        "index.html",
+        context={
+            "session": request.session.get("user"),
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },
+    )
 
 
 def signup(request):
