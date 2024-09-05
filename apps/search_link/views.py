@@ -222,23 +222,41 @@ def search_task(url, keyword, job_id):
 def results(request, job_id):
     try:
         job = Job.fetch(str(job_id), connection=conn)
+        print('job status: %s' % job.get_status())
 
-        while not job.is_finished and not job.is_failed:
-            logger.debug(f"Job status: {job.get_status()}")
-            time.sleep(1)  # Wait for 1 second before checking again
-            job.refresh()
+        done = False
+        while not done:
+            done = True
 
-        if job.is_finished:
-            # Fetch the results from Redis using the job ID
-            results = conn.get(str(job_id))
-            if results:
-                results = json.loads(results)  # Convert JSON string back to a list
+            if job.is_finished:
+                results = conn.get(str(job_id))
+                if results:
+                    results = json.loads(results)  # Convert JSON string back to a list
+                else:
+                    results = []  # Handle the case where results might be None
+                return render(request, 'results.html', {'results': results, 'job_id': job_id})
+            elif job.is_failed:
+                done = True
             else:
-                results = []  # Handle the case where results might be None
+                time.sleep(1)
+                job.refresh()
 
-            return render(request, 'results.html', {'results': results, 'job_id': job_id})
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
+        # while not job.is_finished and not job.is_failed:
+        #     logger.debug(f"Job status: {job.get_status()}")
+        #     time.sleep(1)  # Wait for 1 second before checking again
+        #     job.refresh()
+
+        # if job.is_finished:
+        #     # Fetch the results from Redis using the job ID
+        #     results = conn.get(str(job_id))
+        #     if results:
+        #         results = json.loads(results)  # Convert JSON string back to a list
+        #     else:
+        #         results = []  # Handle the case where results might be None
+
+        #     return render(request, 'results.html', {'results': results, 'job_id': job_id})
+        # elif job.is_failed:
+        #     return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id})
     except ConnectionError as e:
