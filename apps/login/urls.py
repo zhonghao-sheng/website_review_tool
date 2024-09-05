@@ -1,5 +1,5 @@
 from django.urls import path
-from login.views import index,login_user, logout_user,signup, check_login, callback
+from login.views import index,login_user, logout_user,signup,check_login, callback
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [

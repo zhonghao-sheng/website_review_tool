@@ -37,6 +37,7 @@ def login_user(request):
             return oauth.auth0.authorize_redirect(
                 request, request.build_absolute_uri(reverse("callback"))
             )
+
         else:
             messages.error(request, 'Invalid username or password.')
     else:
@@ -52,16 +53,16 @@ def logout_user(request):
     messages.success(request, 'You have been logged out.')
     request.session.clear()
 
-    # return redirect(
-    #     f"https://{settings.AUTH0_DOMAIN}/v2/logout?"
-    #     + urlencode(
-    #         {
-    #             "returnTo": request.build_absolute_uri(reverse("index")),
-    #             "client_id": settings.AUTH0_CLIENT_ID,
-    #         },
-    #         quote_via=quote_plus,
-    #     ),
-    # )
+    return redirect(
+        f"https://{settings.AUTH0_DOMAIN}/v2/logout?"
+        + urlencode(
+            {
+                "returnTo": request.build_absolute_uri(reverse("index")),
+                "client_id": settings.AUTH0_CLIENT_ID,
+            },
+            quote_via=quote_plus,
+        ),
+    )
     return redirect('index')  # Redirect to a suitable page after logout
 
 
