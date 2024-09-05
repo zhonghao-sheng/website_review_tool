@@ -60,7 +60,7 @@
             <h1>Website Review</h1>
             <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
         </div>
-        <form action="/submit-login" method="post">
+        <form method="post">
             {% csrf_token %}
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
@@ -74,10 +74,10 @@
             </div>
 
             <button type="submit">LOGIN</button>
-            {% if form.errors %}
-                <p style="color:red;">Invalid username or password. Please try again.</p>
-            {% endif %}
         </form>
+        {% if form.errors %}
+                <p style="color:red;">Invalid username or password. Please try again.</p>
+        {% endif %}
         <div class="footer">
             <a href="#">Not a user? Register now</a><br>
             <a href="#">Forgot Password?</a>

@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Results</title>
 </head>
 <body>
-    <h1>Search Results</h1>
-    {% if results %}
-        <p>Occurrences:</p>
-        <p>{{ results }}</p>
+    {% if error %}
+        <h1>An error occurred</h1>
+        <p>{{ error }}</p>
     {% else %}
-        <p>No results found.</p>
+        <h1>Search Results</h1>
+        <ul>
+            {% for result in results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
     {% endif %}
-    <a href="{% url 'search_link' %}">Search Again</a>
 </body>
 </html>
