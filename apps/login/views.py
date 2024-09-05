@@ -45,11 +45,25 @@ def login_user(request):
 def callback(request):
     token = oauth.auth0.authorize_access_token(request)
     request.session["user"] = token
+    print("callback function invoked")
     return redirect(request.build_absolute_uri(reverse("index")))
 def logout_user(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
+    request.session.clear()
+
+    # return redirect(
+    #     f"https://{settings.AUTH0_DOMAIN}/v2/logout?"
+    #     + urlencode(
+    #         {
+    #             "returnTo": request.build_absolute_uri(reverse("index")),
+    #             "client_id": settings.AUTH0_CLIENT_ID,
+    #         },
+    #         quote_via=quote_plus,
+    #     ),
+    # )
     return redirect('index')  # Redirect to a suitable page after logout
+
 
 def index(request):
 
