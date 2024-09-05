@@ -3,7 +3,8 @@ import redis
 import multiprocessing
 from rq import Worker, Queue, Connection
 
-listen = ['high', 'default', 'low']
+# listen = ['high', 'default', 'low']
+listen = ['default']
 
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 

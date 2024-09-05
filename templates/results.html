@@ -13,6 +13,8 @@
                     } else if (data.status === 'failed') {
                         // Job failed, show error message
                         document.getElementById('status').innerText = 'Job failed.';
+                    } else if (data.status === 'error') {
+                        document.getElementById('status').innerText = `Error: ${data.message}`;
                     } else {
                         // Job is still running, check again after 1 second
                         setTimeout(() => checkJobStatus(jobId), 1000);
@@ -21,10 +23,11 @@
                 .catch(error => {
                     console.error('Error checking job status:', error);
                     document.getElementById('status').innerText = 'Error checking job status.';
+                    setTimeout(() => checkJobStatus(jobId), 3000); // Check again after 3 seconds
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() => {
             const jobId = '{{ job_id }}';
             checkJobStatus(jobId);
         });

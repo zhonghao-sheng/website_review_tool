@@ -187,11 +187,11 @@ def search_link(request):
 
             # Generate a unique ID for this task
             job_id = str(uuid.uuid4())
-            logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
+            logger.error(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
             # Enqueue the job in the background
             q.enqueue('apps.search_link.views.search_task', url, keyword, job_id)
-            logger.info(f"Job {job_id} enqueued successfully")
+            logger.error(f"Job {job_id} enqueued successfully")
 
             # Redirect to a results page that will display the job status
             return redirect('results', job_id=job_id)
@@ -220,45 +220,28 @@ def search_task(url, keyword, job_id):
     conn.set(job_id, results_json, ex=3600)  # Results expire after 1 hour
 
 def results(request, job_id):
+    logger.info(f"Fetching results for job_id: {job_id}")
     try:
-        job = Job.fetch(str(job_id), connection=conn)
-        print('job status: %s' % job.get_status())
+        job = q.fetch_job(str(job_id))
+        while not job.is_finished and not job.is_failed:
+            time.sleep(1)
+            job.refresh()
+            logger.debug(f"Job {job_id} status after refresh: {job.get_status()}")
 
-        done = False
-        while not done:
-            done = True
-
-            if job.is_finished:
-                results = conn.get(str(job_id))
-                if results:
-                    results = json.loads(results)  # Convert JSON string back to a list
-                else:
-                    results = []  # Handle the case where results might be None
-                return render(request, 'results.html', {'results': results, 'job_id': job_id})
-            elif job.is_failed:
-                done = True
+        if job.is_finished:
+            results = conn.get(str(job_id))
+            if results:
+                results = json.loads(results)
             else:
-                time.sleep(1)
-                job.refresh()
-
-        # while not job.is_finished and not job.is_failed:
-        #     logger.debug(f"Job status: {job.get_status()}")
-        #     time.sleep(1)  # Wait for 1 second before checking again
-        #     job.refresh()
-
-        # if job.is_finished:
-        #     # Fetch the results from Redis using the job ID
-        #     results = conn.get(str(job_id))
-        #     if results:
-        #         results = json.loads(results)  # Convert JSON string back to a list
-        #     else:
-        #         results = []  # Handle the case where results might be None
-
-        #     return render(request, 'results.html', {'results': results, 'job_id': job_id})
-        # elif job.is_failed:
-        #     return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
+                results = []
+            logger.info(f"Job {job_id} finished successfully with results.")
+            return render(request, 'results.html', {'results': results, 'job_id': job_id})
+        elif job.is_failed:
+            logger.error(f"Job {job_id} failed.")
+            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id})
+        logger.error(f"No such job found: {job_id}")
+        return render(request, 'results.html', {'error': '!!No such job found.', 'job_id': job_id})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id})
@@ -267,15 +250,20 @@ def results(request, job_id):
         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
 def job_status(request, job_id):
+    logger.info(f"Checking job status for job_id: {job_id}")
     try:
         job = Job.fetch(str(job_id), connection=conn)
         if job.is_finished:
+            logger.info(f"Job {job_id} is finished.")
             return JsonResponse({'status': 'finished'})
         elif job.is_failed:
+            logger.error(f"Job {job_id} has failed.")
             return JsonResponse({'status': 'failed'})
         else:
+            logger.info(f"Job {job_id} is still running.")
             return JsonResponse({'status': 'running'})
     except NoSuchJobError:
+        logger.error(f"No such job found: {job_id}")
         return JsonResponse({'status': 'not_found'})
     except Exception as e:
         logger.error(f"Error checking job status for job {job_id}: {str(e)}")
