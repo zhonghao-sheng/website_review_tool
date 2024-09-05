@@ -12,6 +12,7 @@ import json
 from rq.exceptions import NoSuchJobError
 import logging
 import time
+from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -224,6 +225,7 @@ def results(request, job_id):
 
         while not job.is_finished and not job.is_failed:
             logger.debug(f"Job status: {job.get_status()}")
+            print(f"Job status: {job.get_status()}")
             time.sleep(1)  # Wait for 1 second before checking again
             job.refresh()
 
@@ -246,3 +248,18 @@ def results(request, job_id):
     except Exception as e:
         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
         return render(request, 'results.html', {'error': str(e), 'results': []})
+    
+def job_status(request, job_id):
+    try:
+        job = Job.fetch(str(job_id), connection=conn)
+        if job.is_finished:
+            return JsonResponse({'status': 'finished'})
+        elif job.is_failed:
+            return JsonResponse({'status': 'failed'})
+        else:
+            return JsonResponse({'status': 'running'})
+    except NoSuchJobError:
+        return JsonResponse({'status': 'not_found'})
+    except Exception as e:
+        logger.error(f"Error checking job status for job {job_id}: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)})

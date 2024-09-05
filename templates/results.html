@@ -2,6 +2,33 @@
 <html>
 <head>
     <title>Results</title>
+    <script>
+        function checkJobStatus(jobId) {
+            fetch(`/search_link/job_status/${jobId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'finished') {
+                        // Job is finished, reload the page to show results
+                        window.location.reload();
+                    } else if (data.status === 'failed') {
+                        // Job failed, show error message
+                        document.getElementById('status').innerText = 'Job failed.';
+                    } else {
+                        // Job is still running, check again after 1 second
+                        setTimeout(() => checkJobStatus(jobId), 1000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking job status:', error);
+                    document.getElementById('status').innerText = 'Error checking job status.';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const jobId = '{{ job_id }}';
+            checkJobStatus(jobId);
+        });
+    </script>
 </head>
 <body>
     {% if error %}
@@ -9,6 +36,7 @@
         <p>{{ error }}</p>
     {% else %}
         <h1>Search Results</h1>
+        <div id="status">Checking job status...</div>
         <ul>
             {% for result in results %}
                 <li>{{ result }}</li>
