@@ -238,15 +238,15 @@ def results(request, job_id):
 
             return render(request, 'results.html', {'results': results, 'job_id': job_id})
         elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id}})
+            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id}})
+        return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id}})
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id})
     except Exception as e:
         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id}})
+        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
 def job_status(request, job_id):
     try:
