@@ -153,6 +153,12 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
+                 # Check if the queue is empty and counter is zero to break the loop
+                if self.web_links.qsize() == 0 and self.counter == 0:
+                    print('finished')
+                    get_current_job().set_status('finished')
+                    break
+
     def search_broken_links(self, baseurl):
         self.put_url(baseurl)
         thread_list = list()
