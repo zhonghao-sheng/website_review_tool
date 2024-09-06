@@ -39,10 +39,13 @@ class Web_spider():
         self.web_links.put([baseurl, None, None])
         self.counter += 1
         self.baseurl = baseurl
+
     def put_keyword(self, keyword):
         self.keyword = keyword
+
     def is_uom_sign_link(self, link):
         return self.baseurl in link
+    
     def add_uom_sign_link(self, link, source_link):
         self.UOM_sign_links.append({'url': link, 'source_link': source_link})
 
@@ -72,7 +75,7 @@ class Web_spider():
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
-                response = requests.get(link)
+                response = requests.get(link, timeout=2)
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
@@ -93,7 +96,7 @@ class Web_spider():
                                 self.web_links.put([href, link, text])
                                 self.counter += 1
                                 # Enqueue a new job for the found link
-                                # q.enqueue('web_link_faster_2.process_link', href, link)
+                                # q.enqueue('process_link', href, link)
                             else:
                                 print(f'not responsible for checking mails {href}')
                             print('new links founded', href)
@@ -105,13 +108,16 @@ class Web_spider():
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}, associated_text:{link_combo[2]}')
 
                     # print(f'now the queue size is {self.web_links.qsize()}')
+            except requests.exceptions.Timeout:
+                print(f'timeout fetching {link}')
+                self.deal_broken_link(link, link_combo[1], 'timeout', link_combo[2])
             except Exception as e:
                 print(f'error fetch {link}, {str(e)}')
             finally:
                 self.web_links.task_done()
                 self.counter -= 1
-                print(f'counter = {self.counter}')
-                # print(f'remaining links number {self.web_links.qsize()}')
+                print(f'Final counter = {self.counter}')
+                print(f'remaining links number {self.web_links.qsize()}')
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self):
@@ -121,7 +127,7 @@ class Web_spider():
 
             try:
                 print(f'detecting link {link}')
-                response = requests.get(link)
+                response = requests.get(link, timeout = 2)
                 # if not broken, then put back to the queue
                 if response.status_code == 200:
                     if link.startswith(self.baseurl):
@@ -213,7 +219,7 @@ def search_link(request):
                 time.sleep(0.5)
                 job.refresh()
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
-                logger.error(f"Job {job.id} job position: {job.get_position()}")
+                # logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
             return redirect('results', job_id=job.id)
