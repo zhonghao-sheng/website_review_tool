@@ -8,10 +8,12 @@ from rq import Queue as rQueue
 from worker import conn
 import uuid
 from rq.job import Job
+from rq import get_current_job
 import json
 from rq.exceptions import NoSuchJobError
 import logging
 import time
+from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +92,8 @@ class Web_spider():
                                 self.visited_or_about_to_visit.add(href)
                                 self.web_links.put([href, link, text])
                                 self.counter += 1
+                                # Enqueue a new job for the found link
+                                # q.enqueue('web_link_faster_2.process_link', href, link)
                             else:
                                 print(f'not responsible for checking mails {href}')
                             print('new links founded', href)
@@ -176,24 +180,44 @@ class Web_spider():
         self.web_links.join()
         return self.keyword_links
 
+# def process_link(href, source_url):
+#     try:
+#         print(f'Processing link {href} from source {source_url}')
+#         response = requests.get(href)
+#         if response.status_code == 200:
+#             print(f'Link {href} is valid.')
+#         else:
+#             print(f'Link {href} is broken with status code {response.status_code}.')
+#             # Handle broken link (e.g., log it, save it to a file, etc.)
+#     except Exception as e:
+#         print(f'Error processing link {href}: {str(e)}')
 
 @login_required
 def search_link(request):
+    q.empty()
     if request.method == 'POST':
         try:
             url = request.POST.get('url')
             keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
 
-            # Generate a unique ID for this task
             job_id = str(uuid.uuid4())
-            logger.info(f"Enqueueing job with ID: {job_id} for URL: {url} and Keyword: {keyword}")
 
             # Enqueue the job in the background
-            q.enqueue('apps.search_link.views.search_task', url, keyword, job_id)
-            logger.info(f"Job {job_id} enqueued successfully")
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
+            q.enqueue_job(job)
+            logger.error(f"Checking job {job.id}")
+            logger.error(f"Job {job.id} status: {job.get_status()}")
 
-            # Redirect to a results page that will display the job status
-            return redirect('results', job_id=job_id)
+            # Poll the job every second for up to 30 seconds
+            for i in range(60):
+                time.sleep(0.5)
+                job.refresh()
+                logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
+                logger.error(f"Job {job.id} job position: {job.get_position()}")
+                if job.is_finished:
+                    break
+            return redirect('results', job_id=job.id)
+
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
             return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
@@ -202,8 +226,9 @@ def search_link(request):
             return render(request, 'results.html', {'error': str(e)})
     return render(request, 'search.html')
 
-# Assign tasks to perform the search, running in the background
+# assign a job ID to each task
 def search_task(url, keyword, job_id):
+    job_id = str(job_id) # ensure job_id is a string
     # Initialize Web_spider instance
     web_spider = Web_spider()
 
@@ -216,33 +241,95 @@ def search_task(url, keyword, job_id):
     results_json = json.dumps(results)
 
     # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600)  # Results expire after 1 hour
+    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
 
+# def results(request, job_id):
+#     logger.info(f"Fetching results for job_id: {job_id}")
+#     try:
+#         job = q.fetch_job(str(job_id))
+#         while not job.is_finished and not job.is_failed:
+#             time.sleep(1)
+#             job.refresh()
+#             logger.debug(f"Job {job_id} status after refresh: {job.get_status()}")
+
+#         if job.is_finished:
+#             results = conn.get(str(job_id))
+#             if results:
+#                 results = json.loads(results)
+#             else:
+#                 results = []
+#             logger.info(f"Job {job_id} finished successfully with results.")
+#             return render(request, 'results.html', {'results': results, 'job_id': job_id})
+#         elif job.is_failed:
+#             logger.error(f"Job {job_id} failed.")
+#             return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
+#     except NoSuchJobError:
+#         logger.error(f"No such job found: {job_id}")
+#         return render(request, 'results.html', {'error': '!!No such job found.', 'job_id': job_id})
+#     except ConnectionError as e:
+#         logger.error(f"Redis connection error: {str(e)}")
+#         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id})
+#     except Exception as e:
+#         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
+#         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
+    
 def results(request, job_id):
+    job_id = str(job_id) # ensure job_id is a string
+    logger.info(f"Fetching results for job_id: {job_id}")
+    
     try:
-        job = Job.fetch(str(job_id), connection=conn)
-
-        while not job.is_finished and not job.is_failed:
-            logger.debug(f"Job status: {job.get_status()}")
-            time.sleep(1)  # Wait for 1 second before checking again
-            job.refresh()
-
-        if job.is_finished:
-            # Fetch the results from Redis using the job ID
-            results = conn.get(str(job_id))
+        # Poll for the job for up to 30 seconds
+        job = None
+        for i in range(60):
+            job = q.fetch_job(job_id)
+            if job is not None:
+                break
+            time.sleep(0.5)
+            if i % 10 == 0:
+                logger.warning(f"Job {job_id} not found after {i*0.5} seconds")
+        
+        if job is None:
+            logger.warning(f"No job found for job_id: {job_id} after polling")
+            return render(request, 'results.html', {'error': 'Job not found', 'job_id': job_id})
+        
+        status = job.get_status()
+        
+        if status == 'finished':
+            results = conn.get(job_id)
             if results:
-                results = json.loads(results)  # Convert JSON string back to a list
+                results = json.loads(results)
             else:
-                results = []  # Handle the case where results might be None
-
-            return render(request, 'results.html', {'results': results})
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
+                results = []
+            return render(request, 'results.html', {'results': results, 'job_id': job_id})
+        elif status == 'failed':
+            return render(request, 'results.html', {'error': 'Job failed', 'job_id': job_id})
+        else:
+            return render(request, 'results.html', {'status': 'pending', 'job_id': job_id})
+    
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
-    except ConnectionError as e:
-        logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+        logger.error(f"No such job found: {job_id}")
+        return render(request, 'results.html', {'error': 'Job not found', 'job_id': job_id})
     except Exception as e:
         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-        return render(request, 'results.html', {'error': str(e), 'results': []})
+        return render(request, 'results.html', {'error': str(e), 'job_id': job_id})
+
+def job_status(request, job_id):
+    job_id = str(job_id) # ensure job_id is a string
+    logger.info(f"Checking job status for job_id: {job_id}")
+    try:
+        job = Job.fetch(str(job_id), connection=conn)
+        if job.is_finished:
+            logger.info(f"Job {job_id} is finished.")
+            return JsonResponse({'status': 'finished'})
+        elif job.is_failed:
+            logger.error(f"Job {job_id} has failed.")
+            return JsonResponse({'status': 'failed'})
+        else:
+            logger.info(f"Job {job_id} is still running.")
+            return JsonResponse({'status': 'running'})
+    except NoSuchJobError:
+        logger.error(f"No such job found: {job_id}")
+        return JsonResponse({'status': 'not_found'})
+    except Exception as e:
+        logger.error(f"Error checking job status for job {job_id}: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)})
