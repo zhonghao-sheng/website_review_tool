@@ -118,6 +118,7 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
+                get_current_job().set_status('finished')
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self):
