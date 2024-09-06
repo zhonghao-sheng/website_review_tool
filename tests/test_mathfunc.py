@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from mathfunc import *
-
+from math_functions.mathfunc import *
 
 class TestMathFunc(unittest.TestCase):
     """Test mathfuc.py"""
