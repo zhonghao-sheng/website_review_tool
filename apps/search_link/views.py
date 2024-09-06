@@ -18,7 +18,7 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
-job = None
+current_job_id = ""
 
 
 class Web_spider():
@@ -158,7 +158,9 @@ class Web_spider():
                  # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
-                    if job:
+                    print(f'current job id is {current_job_id}')
+                    if current_job_id:
+                        job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                     if get_current_job():
                         get_current_job().set_status('finished')
@@ -218,6 +220,7 @@ def search_link(request):
             keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
 
             job_id = str(uuid.uuid4())
+            current_job_id = job_id
 
             # Enqueue the job in the background
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
