@@ -219,7 +219,7 @@ def search_link(request):
                 time.sleep(0.5)
                 job.refresh()
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
-                # logger.error(f"Job {job.id} job position: {job.get_position()}")
+                logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
             return redirect('results', job_id=job.id)
