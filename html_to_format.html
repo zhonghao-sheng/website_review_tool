@@ -1,16 +1,47 @@
-<!-- table.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: white;
+        }
+        .header {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
 <table>
-    <tr>
-      <th>Name</th>
-      <th>Age</th>
-    </tr>
-    <tr>
-      <td>Alice</td>
-      <td>30</td>
-    </tr>
-    <tr>
-      <td>Bob</td>
-      <td>25</td>
-    </tr>
-  </table>
-  
+  <tr>
+    <td colspan="2" class="header">Specified Text Search</td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      Searched all websites commencing with a URL commencing with 
+      <a href="https://sites.research.unimelb.edu.au/research-funding" target="_blank">https://sites.research.unimelb.edu.au/research-funding</a>...
+    </td>
+  </tr>
+  <tr>
+    <th>Text Searched</th>
+    <th>Page URL</th>
+  </tr>
+  <tr>
+    <td>Gabrielle Nagle</td>
+    <td>
+      <a href="https://sites.research.unimelb.edu.au/research-funding/nhmrc/ideas-grants" target="_blank">https://sites.research.unimelb.edu.au/research-funding/nhmrc/ideas-grants</a>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
