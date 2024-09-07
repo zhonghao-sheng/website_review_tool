@@ -4,8 +4,8 @@ from io import StringIO
 
 # converts HTML table to excel
 def html_excel(html_content, output):
-    #html_io = StringIO(html_content)
-    tables = pd.read_html(html_content)
+    html_io = StringIO(html_content)
+    tables = pd.read_html(html_io)
     df = tables[0]
     df.to_excel(output, index=False)
 
