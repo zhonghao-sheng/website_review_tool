@@ -210,3 +210,13 @@ LOGGING = {
     },
 }
 
+# Emailing settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM = 'hostemail@email.com'
+EMAIL_HOST_USER = 'hostemail@email.com'        # your email address
+EMAIL_HOST_PASSWORD = 'hostpassword'          # your email password; could use app password
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+PASSWORD_RESET_TIMEOUT = 14400
