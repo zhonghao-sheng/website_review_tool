@@ -327,44 +327,29 @@ def search_task(url, keyword, job_id):
 #         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
 def results(request, job_id):
-    job_id = str(job_id) # ensure job_id is a string
-    logger.info(f"Fetching results for job_id: {job_id}")
-    
     try:
-        # Poll for the job for up to 30 seconds
-        job = None
-        for i in range(60):
-            job = q.fetch_job(job_id)
-            if job is not None:
-                break
-            time.sleep(0.5)
-            if i % 10 == 0:
-                logger.warning(f"Job {job_id} not found after {i*0.5} seconds")
-        
-        if job is None:
-            logger.warning(f"No job found for job_id: {job_id} after polling")
-            return render(request, 'results.html', {'error': 'Job not found', 'job_id': job_id})
-        
-        status = job.get_status()
-        
-        if status == 'finished':
-            results = conn.get(job_id)
+        job_id_str = str(job_id)
+        job = Job.fetch(job_id_str, connection=conn)
+
+        if job.is_finished:
+            results = conn.get(job_id_str)
             if results:
-                results = json.loads(results)
+                results = json.loads(results)  # Convert JSON string back to a list
             else:
-                results = []
-            return render(request, 'results.html', {'results': results, 'job_id': job_id})
-        elif status == 'failed':
-            return render(request, 'results.html', {'error': 'Job failed', 'job_id': job_id})
+                results = []  # Handle the case where results might be None
+
+            return render(request, 'results.html', {'results': results})
+        elif job.is_failed:
+            return render(request, 'results.html', {'error': 'Job failed.'})
         else:
-            return render(request, 'results.html', {'status': 'pending', 'job_id': job_id})
-    
+            return render(request, 'results.html', {'status': 'Job is still processing...'})
     except NoSuchJobError:
-        logger.error(f"No such job found: {job_id}")
-        return render(request, 'results.html', {'error': 'Job not found', 'job_id': job_id})
+        return render(request, 'results.html', {'error': 'No such job found.'})
+    except ConnectionError as e:
+        logger.error(f"Redis connection error: {str(e)}")
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
-        logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-        return render(request, 'results.html', {'error': str(e), 'job_id': job_id})
+        return render(request, 'results.html', {'error': str(e), 'results': []})
 
 def job_status(request, job_id):
     job_id = str(job_id) # ensure job_id is a string

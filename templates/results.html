@@ -61,6 +61,7 @@
         <p>{{ error }}</p>
     {% else %}
         <h1>Search Results</h1>
+        <body> {{ result = none }} </body>
         <ul>
             {% for result in results %}
                 <li>{{ result }}</li>
