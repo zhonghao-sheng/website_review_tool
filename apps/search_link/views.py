@@ -252,7 +252,6 @@ def search_link(request):
             keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
 
             job_id = str(uuid.uuid4())
-            current_job_id = job_id
             # Global dictionary to store results
             results_store = {}
 
@@ -294,7 +293,9 @@ def search_task(url, keyword, job_id, results_store):
         results = web_spider.search_broken_links(url, job_id)
     
     # Store the results in the dictionary
-        results_store[job_id] = results
+    results_store[job_id] = results
+    
+    logger.error(f"Results store: {results_store}")
     
     # # Serialize the results as a JSON string
     # results_json = json.dumps(results)
