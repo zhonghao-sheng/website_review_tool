@@ -253,10 +253,13 @@ def search_link(request):
 
             job_id = str(uuid.uuid4())
             current_job_id = job_id
+            # Global dictionary to store results
+            results_store = {}
 
             # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id, results_store))
             q.enqueue_job(job)
+
             logger.error(f"Checking job {job.id}")
             logger.error(f"Job {job.id} status: {job.get_status()}")
 
@@ -268,7 +271,7 @@ def search_link(request):
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
-            return redirect('results', job_id=job.id)
+            return redirect('results', job_id=job.id, results_store=results_store)
 
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
@@ -279,7 +282,7 @@ def search_link(request):
     return render(request, 'search.html')
 
 # assign a job ID to each task
-def search_task(url, keyword, job_id):
+def search_task(url, keyword, job_id, results_store):
     job_id = str(job_id) # ensure job_id is a string
     # Initialize Web_spider instance
     web_spider = Web_spider()
@@ -290,11 +293,14 @@ def search_task(url, keyword, job_id):
     else:
         results = web_spider.search_broken_links(url, job_id)
     
-    # Serialize the results as a JSON string
-    results_json = json.dumps(results)
+    # Store the results in the dictionary
+        results_store[job_id] = results
+    
+    # # Serialize the results as a JSON string
+    # results_json = json.dumps(results)
 
-    # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
+    # # Store the results in a Redis key using the job ID
+    # conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
 
 # def results(request, job_id):
 #     logger.info(f"Fetching results for job_id: {job_id}")
@@ -326,19 +332,15 @@ def search_task(url, keyword, job_id):
 #         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
 #         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
-def results(request, job_id):
+def results(request, job_id, results_store):
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
 
         if job.is_finished:
-            results = conn.get(job_id_str)
-            if results:
-                results = json.loads(results)  # Convert JSON string back to a list
-            else:
-                results = []  # Handle the case where results might be None
-
+            results = results_store.get(job_id_str, [])
             return render(request, 'results.html', {'results': results})
+        
         elif job.is_failed:
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
