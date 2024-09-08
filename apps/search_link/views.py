@@ -18,7 +18,6 @@ from django.http import JsonResponse
 logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
-current_job_id = ""
 
 
 class Web_spider():
@@ -34,6 +33,10 @@ class Web_spider():
         self.broken_links = list()
         self.keyword = 'Funding Partners'
         self.keyword_links = list()
+        self.job_id = None
+
+    def put_job_id(self, job_id):
+        self.job_id = job_id
 
     def put_url(self, baseurl):
         # [link, source page link, associated text]
@@ -122,7 +125,7 @@ class Web_spider():
                 get_current_job().set_status('finished')
 
     # help save time by filtering out broken link to reduce response time
-    def detect_links(self):
+    def detect_links(self, current_job_id=None):
         while True:
             link_combo = self.web_links.get()
             link = link_combo[0]
@@ -162,18 +165,19 @@ class Web_spider():
                     if current_job_id:
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
+                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
                     if get_current_job():
                         get_current_job().set_status('finished')
                     break
 
-    def search_broken_links(self, baseurl):
+    def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
             t = Thread(target=self.get_more_links)
             thread_list.append(t)
         for _ in range(20):
-            t = Thread(target=self.detect_links)
+            t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
             t.daemon = True
@@ -183,7 +187,7 @@ class Web_spider():
         self.web_links.join()
         print(self.keyword_links)
         return self.broken_links
-    def search_keyword_links(self, baseurl, keyword):
+    def search_keyword_links(self, baseurl, keyword, job_id):
         self.put_keyword(keyword)
         self.put_url(baseurl)
         thread_list = list()
@@ -191,7 +195,7 @@ class Web_spider():
             t = Thread(target=self.get_more_links)
             thread_list.append(t)
         for _ in range(20):
-            t = Thread(target=self.detect_links)
+            t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
             t.daemon = True
@@ -251,11 +255,12 @@ def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
     # Initialize Web_spider instance
     web_spider = Web_spider()
+    web_spider.put_job_id(job_id)
 
     if keyword:
-        results = web_spider.search_keyword_links(url, keyword)
+        results = web_spider.search_keyword_links(url, keyword, job_id)
     else:
-        results = web_spider.search_broken_links(url)
+        results = web_spider.search_broken_links(url, job_id)
     
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
