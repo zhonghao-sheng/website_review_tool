@@ -301,8 +301,7 @@ def search_task(url, keyword, job_id):
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
 
-    # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
+    return results_json
 
 # def results(request, job_id):
 #     logger.info(f"Fetching results for job_id: {job_id}")
