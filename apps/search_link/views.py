@@ -8,12 +8,12 @@ from rq import Queue as rQueue
 from worker import conn
 import uuid
 from rq.job import Job
-from rq import get_current_job
 import json
 from rq.exceptions import NoSuchJobError
 import logging
 import time
 from django.http import JsonResponse
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +122,6 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
-                get_current_job().set_status('finished')
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
@@ -133,8 +132,16 @@ class Web_spider():
             try:
                 print(f'detecting link {link}')
                 response = requests.get(link, timeout = 2)
+
+                content_type = response.headers.get('Content-Type', '').lower()
+
+                # Check if the link is a valid download link
+                if 'application/' in content_type or 'octet-stream' in content_type:
+                    print(f'Valid download link detected: {link}')
+                    self.handle_download_link(link, link_combo[1], content_type)
+
                 # if not broken, then put back to the queue
-                if response.status_code == 200:
+                elif response.status_code == 200:
                     if link.startswith(self.baseurl):
                         self.web_links.put(link_combo)
                         self.counter += 1
@@ -161,14 +168,35 @@ class Web_spider():
                  # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
-                    print(f'current job id is {current_job_id}')
                     if current_job_id:
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                    if get_current_job():
-                        get_current_job().set_status('finished')
                     break
+
+    def handle_download_link(self, link, source_link, content_type):
+        # download the file
+        try:
+            response = requests.get(link, stream=True)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+
+            # Extract the filename from the URL
+            filename = link.split('/')[-1]
+            download_path = os.path.join('downloads', filename)
+
+            # Ensure the downloads directory exists
+            os.makedirs(os.path.dirname(download_path), exist_ok=True)
+
+            # Write the file to the downloads directory
+            with open(download_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+
+            print(f'File downloaded: {download_path}')
+        except Exception as e:
+            print(f'Failed to download file: {link}, error: {str(e)}')
+            # Log the failure to the broken links file
+            self.deal_broken_link(link, source_link, 'download_failed', str(e))
 
     def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
