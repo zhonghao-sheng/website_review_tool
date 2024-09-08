@@ -287,7 +287,7 @@ def search_link(request):
     return render(request, 'search.html')
 
 # assign a job ID to each task
-def search_task(url, keyword, job_id, results_store):
+def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
     # Initialize Web_spider instance
     web_spider = Web_spider()
