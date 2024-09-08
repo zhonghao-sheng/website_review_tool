@@ -261,7 +261,7 @@ def search_link(request):
 
             job_id = str(uuid.uuid4())
             # Global dictionary to store results
-            results_store = {}
+            results_store = dict()
 
             # Enqueue the job in the background
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id, results_store))
@@ -301,9 +301,9 @@ def search_task(url, keyword, job_id, results_store):
         results = web_spider.search_broken_links(url, job_id)
     
     # Store the results in the dictionary
-    results_store[job_id] = results
-    
-    logger.error(f"Results store: {results_store}")
+    results_store.update({job_id: results})
+    logger.error(f"!Results: {results}")
+    logger.error(f"!!!Results store: {results_store}")
     
     # # Serialize the results as a JSON string
     # results_json = json.dumps(results)
