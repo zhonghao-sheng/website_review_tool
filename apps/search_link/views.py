@@ -271,7 +271,7 @@ def search_link(request):
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
-            return redirect('results', job_id=job.id, results_store=results_store)
+            return redirect('results', job_id=job_id, results_store=results_store)
 
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
