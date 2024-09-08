@@ -339,7 +339,7 @@ def results(request, job_id):
         job = Job.fetch(job_id_str, connection=conn)
 
         if job.is_finished:
-            results = conn.get(job_id_str)
+            results = job.result
             if results:
                 results = json.loads(results)
             else:
