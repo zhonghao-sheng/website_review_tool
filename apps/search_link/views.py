@@ -302,8 +302,8 @@ def search_task(url, keyword, job_id, results_store):
     
     # Store the results in the dictionary
     results_store.update({job_id: results})
-    logger.error(f"!Results: {results}")
-    logger.error(f"!!!Results store: {results_store}")
+    print(f"!Results: {results}")
+    print(f"!!!Results store: {results_store}")
     
     # # Serialize the results as a JSON string
     # results_json = json.dumps(results)
