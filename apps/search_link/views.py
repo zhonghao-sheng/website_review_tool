@@ -72,7 +72,7 @@ class Web_spider():
         self.add_broken_link(link, source_link, associated_text)
         self.write_broken_link(link, source_link, response_status, associated_text)
 
-    def get_more_links(self):
+    def get_more_links(self, current_job_id=None):
         while True:
             link_combo = self.web_links.get()
 
@@ -122,6 +122,14 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
+                # Check if the queue is empty and counter is zero to break the loop
+                if self.web_links.qsize() == 0 and self.counter == 0:
+                    print('finished')
+                    if current_job_id:
+                        job = Job.fetch(current_job_id, connection=conn)
+                        job.set_status('finished')
+                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                    break
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
@@ -165,7 +173,7 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
-                 # Check if the queue is empty and counter is zero to break the loop
+                # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
                     if current_job_id:
@@ -202,7 +210,7 @@ class Web_spider():
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
-            t = Thread(target=self.get_more_links)
+            t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
         for _ in range(20):
             t = Thread(target=self.detect_links, args=(self.job_id,))
@@ -220,7 +228,7 @@ class Web_spider():
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
-            t = Thread(target=self.get_more_links)
+            t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
         for _ in range(20):
             t = Thread(target=self.detect_links, args=(self.job_id,))
