@@ -278,7 +278,27 @@ def search_link(request):
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
-            return redirect('results', job_id=job_id)
+            try:
+                if job.is_finished:
+                    results = job.result
+                    if results:
+                        results = json.loads(results)
+                    else:
+                        results = []
+                    logger.error(f"results: {results}")
+                    return render(request, 'results.html', {'results': results})
+                
+                elif job.is_failed:
+                    return render(request, 'results.html', {'error': 'Job failed.'})
+                else:
+                    return render(request, 'results.html', {'status': 'Job is still processing...'})
+            except NoSuchJobError:
+                return render(request, 'results.html', {'error': 'No such job found.'})
+            except ConnectionError as e:
+                logger.error(f"Redis connection error: {str(e)}")
+                return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+            except Exception as e:
+                return render(request, 'results.html', {'error': str(e), 'results': []})
 
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
@@ -340,50 +360,3 @@ def search_task(url, keyword, job_id):
 #         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
 #         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
-def results(request, job_id):
-    logger.error(f"!error: global_results: {global_results[0]}")
-    try:
-        job_id_str = str(job_id)
-        job = Job.fetch(job_id_str, connection=conn)
-
-        if job.is_finished:
-            results = job.result
-            if results:
-                results = json.loads(results)
-            else:
-                results = []
-            logger.error(f"results: {results}")
-            return render(request, 'results.html', {'results': results})
-        
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
-        else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
-    except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
-    except ConnectionError as e:
-        logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
-    except Exception as e:
-        return render(request, 'results.html', {'error': str(e), 'results': []})
-
-def job_status(request, job_id):
-    job_id = str(job_id) # ensure job_id is a string
-    logger.info(f"Checking job status for job_id: {job_id}")
-    try:
-        job = Job.fetch(str(job_id), connection=conn)
-        if job.is_finished:
-            logger.info(f"Job {job_id} is finished.")
-            return JsonResponse({'status': 'finished'})
-        elif job.is_failed:
-            logger.error(f"Job {job_id} has failed.")
-            return JsonResponse({'status': 'failed'})
-        else:
-            logger.info(f"Job {job_id} is still running.")
-            return JsonResponse({'status': 'running'})
-    except NoSuchJobError:
-        logger.error(f"No such job found: {job_id}")
-        return JsonResponse({'status': 'not_found'})
-    except Exception as e:
-        logger.error(f"Error checking job status for job {job_id}: {str(e)}")
-        return JsonResponse({'status': 'error', 'message': str(e)})
