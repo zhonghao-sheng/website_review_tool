@@ -302,6 +302,8 @@ def search_link(request):
         except Exception as e:
             logger.error(f"Error in search_link view: {str(e)}")
             return render(request, 'results.html', {'error': str(e)})
+        finally:
+            send_stop_job_command(conn, job_id_str)
     return render(request, 'search.html')
 
 # assign a job ID to each task
@@ -349,8 +351,6 @@ def results(request, job_id):
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
         return render(request, 'results.html', {'error': str(e), 'results': []})
-    finally:
-        send_stop_job_command(conn, job_id_str)
         
     
 
