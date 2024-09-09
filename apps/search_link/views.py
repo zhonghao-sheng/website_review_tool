@@ -224,7 +224,9 @@ class Web_spider():
             t.join()
         self.web_links.join()
         print(self.keyword_links)
+        print("!!!!broken links: ", self.broken_links)
         return self.broken_links
+    
     def search_keyword_links(self, baseurl, keyword, job_id):
         self.put_keyword(keyword)
         self.put_url(baseurl)
