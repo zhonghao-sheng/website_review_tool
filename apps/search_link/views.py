@@ -223,8 +223,9 @@ class Web_spider():
         for t in thread_list:
             t.join()
         self.web_links.join()
-        print(self.keyword_links)
         print("!!!!broken links: ", self.broken_links)
+        for link in self.broken_links:
+            print(link)
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword, job_id):
