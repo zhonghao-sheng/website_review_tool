@@ -300,6 +300,9 @@ def search_task(url, keyword, job_id):
     
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
+    logger.error(f"error: results_json: {results_json}")
+    print(f"results_json: {results_json}")
+    logger.info(f'info: results_json: {results_json}')
 
     return results_json
 
@@ -339,7 +342,7 @@ def results(request, job_id):
         job = Job.fetch(job_id_str, connection=conn)
 
         if job.is_finished:
-            results = job.return_value
+            results = job.result
             if results:
                 results = json.loads(results)
             else:
