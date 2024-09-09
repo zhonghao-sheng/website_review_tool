@@ -131,6 +131,13 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                        
+                        # Serialize the results as a JSON string
+                        results_json = json.dumps(self.broken_links)
+
+                        # Store the results in a Redis key using the job ID
+                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
+                        logger.error(f"Results: {results_json}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -182,6 +189,13 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+
+                        # Serialize the results as a JSON string
+                        results_json = json.dumps(self.broken_links)
+
+                        # Store the results in a Redis key using the job ID
+                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
+                        logger.error(f"Results: {results_json}")
                     break
 
     def handle_download_link(self, link, source_link, content_type):
@@ -223,9 +237,6 @@ class Web_spider():
         for t in thread_list:
             t.join()
         self.web_links.join()
-        print("!!!!broken links: ", self.broken_links)
-        for link in self.broken_links:
-            print(link)
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword, job_id):
@@ -305,18 +316,7 @@ def search_task(url, keyword, job_id):
     else:
         results = web_spider.search_broken_links(url, job_id)
     
-    global_results.append(results)
-    logger.error(f"error: global_results: {global_results}")
     
-    # Serialize the results as a JSON string
-    results_json = json.dumps(results)
-    logger.error(f"error: results_json: {results}")
-
-    # Store the results in a Redis key using the job ID
-    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
-    logger.error(f"Results from web_spider: {results}")
-
-    return results
 
 def results(request, job_id):
     logger.error(f"!try error: global_results: {global_results}")
