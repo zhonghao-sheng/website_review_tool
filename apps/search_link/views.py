@@ -281,6 +281,7 @@ def search_link(request):
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
+            
             return redirect('results', job_id=job_id)
 
         except ConnectionError as e:
@@ -294,6 +295,7 @@ def search_link(request):
 # assign a job ID to each task
 def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
+    
     # Initialize Web_spider instance
     web_spider = Web_spider()
     web_spider.put_job_id(job_id)
@@ -305,6 +307,7 @@ def search_task(url, keyword, job_id):
     
     global_results.append(results)
     logger.error(f"error: global_results: {global_results}")
+    
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
     logger.error(f"error: results_json: {results}")
