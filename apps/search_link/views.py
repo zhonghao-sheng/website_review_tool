@@ -202,7 +202,7 @@ class Web_spider():
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
 
-            logger.error(f'File downloaded: {download_path}')
+            print(f'File downloaded: {download_path}')
         except Exception as e:
             logger.error(f'Failed to download file: {link}, error: {str(e)}')
             # Log the failure to the broken links file
@@ -270,20 +270,19 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
             q.enqueue_job(job)
 
+            logger.error(f"Checking job {job.id}")
+            logger.error(f"Job {job.id} status: {job.get_status()}")
+
             # Poll the job every second for up to 30 seconds
             for i in range(60):
                 time.sleep(0.5)
                 job.refresh()
+                logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
+                logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
-                    results = job.result
-                    return render(request, 'results.html', {'results': results})
-                elif job.is_failed:
-                    return render(request, 'results.html', {'error': 'Job failed.'})
-                else:
-                    return render(request, 'results.html', {'status': 'Job is still processing...'})
+                    break
+            return redirect('results', job_id=job_id)
 
-        except NoSuchJobError:
-            return render(request, 'results.html', {'error': 'No such job found.'})
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
             return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
@@ -295,7 +294,6 @@ def search_link(request):
 # assign a job ID to each task
 def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
-    
     # Initialize Web_spider instance
     web_spider = Web_spider()
     web_spider.put_job_id(job_id)
@@ -307,11 +305,45 @@ def search_task(url, keyword, job_id):
     
     global_results.append(results)
     logger.error(f"error: global_results: {global_results}")
-    
     # Serialize the results as a JSON string
-    # results_json = json.dumps(results)
+    results_json = json.dumps(results)
+    logger.error(f"error: results_json: {results}")
 
-    return results
+    # Store the results in a Redis key using the job ID
+    conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
+
+    return results_json
+
+def results(request, job_id):
+    logger.error(f"!try error: global_results: {global_results}")
+    try:
+        job_id_str = str(job_id)
+        job = Job.fetch(job_id_str, connection=conn)
+
+        if job.is_finished:
+            results = job.result
+            if results:
+                results = json.loads(results)
+                logger.error(f"job.result results: {results}")
+            else:
+                results = conn.get(str(job_id))
+                logger.error(f"conn get results: {results}")
+
+            logger.error(f"final results: {results}")
+            return render(request, 'results.html', {'results': results})
+        
+        elif job.is_failed:
+            return render(request, 'results.html', {'error': 'Job failed.'})
+        else:
+            return render(request, 'results.html', {'status': 'Job is still processing...'})
+    except NoSuchJobError:
+        return render(request, 'results.html', {'error': 'No such job found.'})
+    except ConnectionError as e:
+        logger.error(f"Redis connection error: {str(e)}")
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+    except Exception as e:
+        return render(request, 'results.html', {'error': str(e), 'results': []})
+    
 
 # def results(request, job_id):
 #     logger.info(f"Fetching results for job_id: {job_id}")
