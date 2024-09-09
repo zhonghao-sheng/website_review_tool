@@ -125,13 +125,13 @@ class Web_spider():
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
                 # Check if the queue is empty and counter is zero to break the loop
-                if self.web_links.qsize() == 0 and self.counter == 0:
-                    print('finished')
-                    if current_job_id:
-                        job = Job.fetch(current_job_id, connection=conn)
-                        job.set_status('finished')
-                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                    break
+                # if self.web_links.qsize() == 0 and self.counter == 0:
+                #     print('finished')
+                #     if current_job_id:
+                #         job = Job.fetch(current_job_id, connection=conn)
+                #         job.set_status('finished')
+                #         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                #     break
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
@@ -176,13 +176,13 @@ class Web_spider():
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
                 # Check if the queue is empty and counter is zero to break the loop
-                if self.web_links.qsize() == 0 and self.counter == 0:
-                    print('finished')
-                    if current_job_id:
-                        job = Job.fetch(current_job_id, connection=conn)
-                        job.set_status('finished')
-                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                    break
+                # if self.web_links.qsize() == 0 and self.counter == 0:
+                #     print('finished')
+                #     if current_job_id:
+                #         job = Job.fetch(current_job_id, connection=conn)
+                #         job.set_status('finished')
+                #         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                #     break
 
     def handle_download_link(self, link, source_link, content_type):
         # download the file
@@ -202,9 +202,9 @@ class Web_spider():
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
 
-            print(f'File downloaded: {download_path}')
+            logger.error(f'File downloaded: {download_path}')
         except Exception as e:
-            print(f'Failed to download file: {link}, error: {str(e)}')
+            logger.error(f'Failed to download file: {link}, error: {str(e)}')
             # Log the failure to the broken links file
             self.deal_broken_link(link, source_link, 'download_failed', str(e))
 
@@ -270,40 +270,20 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
             q.enqueue_job(job)
 
-            logger.error(f"Checking job {job.id}")
-            logger.error(f"Job {job.id} status: {job.get_status()}")
-
             # Poll the job every second for up to 30 seconds
             for i in range(60):
                 time.sleep(0.5)
                 job.refresh()
-                logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
-                logger.error(f"Job {job.id} job position: {job.get_position()}")
-                if job.is_finished:
-                    break
-            try:
                 if job.is_finished:
                     results = job.result
-                    logger.error(f"results: {results}")
-                    logger.error(f"global_results: {global_results}")
-                    if results:
-                        results = json.loads(results)
-                    else:
-                        results = []
                     return render(request, 'results.html', {'results': results})
-                
                 elif job.is_failed:
                     return render(request, 'results.html', {'error': 'Job failed.'})
                 else:
                     return render(request, 'results.html', {'status': 'Job is still processing...'})
-            except NoSuchJobError:
-                return render(request, 'results.html', {'error': 'No such job found.'})
-            except ConnectionError as e:
-                logger.error(f"Redis connection error: {str(e)}")
-                return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
-            except Exception as e:
-                return render(request, 'results.html', {'error': str(e), 'results': []})
 
+        except NoSuchJobError:
+            return render(request, 'results.html', {'error': 'No such job found.'})
         except ConnectionError as e:
             logger.error(f"Redis connection error: {str(e)}")
             return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
@@ -315,6 +295,7 @@ def search_link(request):
 # assign a job ID to each task
 def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
+    
     # Initialize Web_spider instance
     web_spider = Web_spider()
     web_spider.put_job_id(job_id)
@@ -325,15 +306,12 @@ def search_task(url, keyword, job_id):
         results = web_spider.search_broken_links(url, job_id)
     
     global_results.append(results)
-    logger.error(f"error: global_results: {global_results[0]}")
+    logger.error(f"error: global_results: {global_results}")
     
     # Serialize the results as a JSON string
-    results_json = json.dumps(results)
-    global_results.append(results_json)
-
-    logger.error(f"error: results_json: {results}")
-    print(f"results_json: {results}")
-    logger.info(f'info: results_json: {results}')
+    # results_json = json.dumps(results)
+    job = Job.fetch(job_id, connection=conn)
+    job.set_status('finished')
 
     return results
 
