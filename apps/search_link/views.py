@@ -267,7 +267,7 @@ def search_link(request):
             job_id = str(uuid.uuid4())
 
             # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(request, url, keyword, job_id))
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
             q.enqueue_job(job)
 
             logger.error(f"Checking job {job.id}")
@@ -281,7 +281,7 @@ def search_link(request):
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
                     break
-            
+
             return redirect('results', job_id=job_id)
 
         except ConnectionError as e:
@@ -293,7 +293,7 @@ def search_link(request):
     return render(request, 'search.html')
 
 # assign a job ID to each task
-def search_task(request, url, keyword, job_id):
+def search_task(url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
     
     # Initialize Web_spider instance
@@ -314,9 +314,9 @@ def search_task(request, url, keyword, job_id):
 
     # Store the results in a Redis key using the job ID
     conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
+    logger.error(f"Results from web_spider: {results}")
 
-    # return results_json
-    return render(request, 'results.html', {'results': results})
+    return results
 
 def results(request, job_id):
     logger.error(f"!try error: global_results: {global_results}")
@@ -326,14 +326,15 @@ def results(request, job_id):
 
         if job.is_finished:
             results = job.result
-            if results:
-                results = json.loads(results)
-                logger.error(f"job.result results: {results}")
-            else:
-                results = conn.get(str(job_id))
-                logger.error(f"conn get results: {results}")
+            if not results:
+                # If job.result is empty, try to get results from Redis
+                results_json = conn.get(job_id_str)
+                if results_json:
+                    results = json.loads(results_json)
+                else:
+                    results = []
 
-            logger.error(f"final results: {results}")
+            logger.error(f"Final results: {results}")
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
