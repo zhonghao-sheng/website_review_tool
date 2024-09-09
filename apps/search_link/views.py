@@ -20,9 +20,6 @@ logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
 
-global_results = []
-
-
 class Web_spider():
     def __init__(self):
         self.visited_or_about_to_visit = set()
@@ -302,8 +299,6 @@ def search_link(request):
         except Exception as e:
             logger.error(f"Error in search_link view: {str(e)}")
             return render(request, 'results.html', {'error': str(e)})
-        finally:
-            send_stop_job_command(conn, job_id)
     return render(request, 'search.html')
 
 # assign a job ID to each task
@@ -322,7 +317,6 @@ def search_task(url, keyword, job_id):
     
 
 def results(request, job_id):
-    logger.error(f"!try error: global_results: {global_results}")
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
@@ -351,6 +345,9 @@ def results(request, job_id):
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
         return render(request, 'results.html', {'error': str(e), 'results': []})
+    
+    # always stop the job after fetching the results
+    send_stop_job_command(conn, job_id_str)
         
     
 
