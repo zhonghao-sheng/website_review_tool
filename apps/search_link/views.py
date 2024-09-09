@@ -125,13 +125,13 @@ class Web_spider():
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
                 # Check if the queue is empty and counter is zero to break the loop
-                # if self.web_links.qsize() == 0 and self.counter == 0:
-                #     print('finished')
-                #     if current_job_id:
-                #         job = Job.fetch(current_job_id, connection=conn)
-                #         job.set_status('finished')
-                #         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                #     break
+                if self.web_links.qsize() == 0 and self.counter == 0:
+                    print('finished')
+                    if current_job_id:
+                        job = Job.fetch(current_job_id, connection=conn)
+                        job.set_status('finished')
+                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                    break
 
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
@@ -176,13 +176,13 @@ class Web_spider():
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
                 # Check if the queue is empty and counter is zero to break the loop
-                # if self.web_links.qsize() == 0 and self.counter == 0:
-                #     print('finished')
-                #     if current_job_id:
-                #         job = Job.fetch(current_job_id, connection=conn)
-                #         job.set_status('finished')
-                #         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                #     break
+                if self.web_links.qsize() == 0 and self.counter == 0:
+                    print('finished')
+                    if current_job_id:
+                        job = Job.fetch(current_job_id, connection=conn)
+                        job.set_status('finished')
+                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
+                    break
 
     def handle_download_link(self, link, source_link, content_type):
         # download the file
@@ -310,8 +310,6 @@ def search_task(url, keyword, job_id):
     
     # Serialize the results as a JSON string
     # results_json = json.dumps(results)
-    job = Job.fetch(job_id, connection=conn)
-    job.set_status('finished')
 
     return results
 
