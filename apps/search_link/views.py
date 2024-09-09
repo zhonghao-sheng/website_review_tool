@@ -303,7 +303,7 @@ def search_link(request):
             logger.error(f"Error in search_link view: {str(e)}")
             return render(request, 'results.html', {'error': str(e)})
         finally:
-            send_stop_job_command(conn, job_id_str)
+            send_stop_job_command(conn, job_id)
     return render(request, 'search.html')
 
 # assign a job ID to each task
