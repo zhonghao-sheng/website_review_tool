@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
 
+global_results = []
+
 
 class Web_spider():
     def __init__(self):
@@ -298,11 +300,13 @@ def search_task(url, keyword, job_id):
     else:
         results = web_spider.search_broken_links(url, job_id)
     
+    global_results.append(results)
+    logger.error(f"error: global_results: {global_results[0]}")
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
-    logger.error(f"error: results_json: {results_json}")
-    print(f"results_json: {results_json}")
-    logger.info(f'info: results_json: {results_json}')
+    logger.error(f"error: results_json: {results}")
+    print(f"results_json: {results}")
+    logger.info(f'info: results_json: {results}')
 
     return results_json
 
@@ -337,6 +341,7 @@ def search_task(url, keyword, job_id):
 #         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
     
 def results(request, job_id):
+    logger.error(f"!error: global_results: {global_results[0]}")
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
