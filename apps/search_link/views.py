@@ -323,13 +323,16 @@ def search_task(url, keyword, job_id):
     
     global_results.append(results)
     logger.error(f"error: global_results: {global_results[0]}")
+    
     # Serialize the results as a JSON string
     results_json = json.dumps(results)
+    global_results.append(results_json)
+
     logger.error(f"error: results_json: {results}")
     print(f"results_json: {results}")
     logger.info(f'info: results_json: {results}')
 
-    return results_json
+    return results
 
 # def results(request, job_id):
 #     logger.info(f"Fetching results for job_id: {job_id}")
