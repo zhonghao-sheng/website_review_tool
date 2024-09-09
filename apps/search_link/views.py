@@ -8,6 +8,7 @@ from rq import Queue as rQueue
 from worker import conn
 import uuid
 from rq.job import Job
+from rq.command import send_stop_job_command
 import json
 from rq.exceptions import NoSuchJobError
 import logging
@@ -349,7 +350,8 @@ def results(request, job_id):
     except Exception as e:
         return render(request, 'results.html', {'error': str(e), 'results': []})
     finally:
-        current_job = Job.fetch(job_id_str, connection=conn).set_status('finished')
+        send_stop_job_command(conn, job_id_str)
+        
     
 
 # def results(request, job_id):
