@@ -281,11 +281,12 @@ def search_link(request):
             try:
                 if job.is_finished:
                     results = job.result
+                    logger.error(f"results: {results}")
+                    logger.error(f"global_results: {global_results}")
                     if results:
                         results = json.loads(results)
                     else:
                         results = []
-                    logger.error(f"results: {results}")
                     return render(request, 'results.html', {'results': results})
                 
                 elif job.is_failed:
