@@ -343,6 +343,8 @@ def results(request, job_id):
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
         return render(request, 'results.html', {'error': str(e), 'results': []})
+    finally:
+        current_job = Job.fetch(job_id_str, connection=conn).set_status('finished')
     
 
 # def results(request, job_id):
