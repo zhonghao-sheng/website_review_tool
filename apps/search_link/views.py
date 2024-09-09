@@ -267,7 +267,7 @@ def search_link(request):
             job_id = str(uuid.uuid4())
 
             # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(request, url, keyword, job_id))
             q.enqueue_job(job)
 
             logger.error(f"Checking job {job.id}")
@@ -293,7 +293,7 @@ def search_link(request):
     return render(request, 'search.html')
 
 # assign a job ID to each task
-def search_task(url, keyword, job_id):
+def search_task(request, url, keyword, job_id):
     job_id = str(job_id) # ensure job_id is a string
     
     # Initialize Web_spider instance
@@ -315,7 +315,8 @@ def search_task(url, keyword, job_id):
     # Store the results in a Redis key using the job ID
     conn.set(job_id, results_json, ex=3600) # Results expire after 1 hour
 
-    return results_json
+    # return results_json
+    return render(request, 'results.html', {'results': results})
 
 def results(request, job_id):
     logger.error(f"!try error: global_results: {global_results}")
