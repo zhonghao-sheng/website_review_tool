@@ -337,19 +337,19 @@ def results(request, job_id):
 
             logger.error(f"Final results: {results}")
             job.cancel()  # Stop the job
-            return render(request, 'results.html', {'results': results, 'job_id': job_id_str})
+            return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id_str})
+            return render(request, 'results.html', {'error': 'Job failed.'})
         else:
-            return render(request, 'results.html', {'status': 'Job is still processing...', 'job_id': job_id_str})
+            return render(request, 'results.html', {'status': 'Job is still processing...'})
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id_str})
+        return render(request, 'results.html', {'error': 'No such job found.'})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id_str})
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
-        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id_str})
+        return render(request, 'results.html', {'error': str(e), 'results': []})
          
 # @csrf_exempt
 # def stop_job(request, job_id):
