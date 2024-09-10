@@ -288,7 +288,7 @@ def search_link(request):
             for i in range(60):
                 time.sleep(0.5)
                 job.refresh()
-                logger.error(f"current job id: {get_current_job().id}")
+                # logger.error(f"current job id: {get_current_job().id}")
                 logger.error(f"current job status: {get_current_job().get_status()}")
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
@@ -343,6 +343,7 @@ def results(request, job_id):
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
             return render(request, 'results.html', {'status': 'Job is still processing...'})
+        
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
     except ConnectionError as e:
