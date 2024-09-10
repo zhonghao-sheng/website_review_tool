@@ -354,23 +354,15 @@ def results(request, job_id):
     send_stop_job_command(conn, job_id_str)
          
 @csrf_exempt
-def cancel_job(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        job_id = data.get('job_id')
-        
-        # Fetch and cancel the job
+def stop_job(request, job_id):
+    try:
         job = Job.fetch(job_id, connection=conn)
-        job.cancel()
-
-        return JsonResponse({'status': 'job canceled'})
-    
-# @csrf_exempt
-# def user_left(request):
-#     # You can log or perform actions when the user leaves the page
-#     if request.method == 'POST':
-#         # Here, you could handle cleanup tasks, such as logging the event or notifying the system
-#         return JsonResponse({'status': 'success', 'message': 'User left the page.'})
-    
-#     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+        send_stop_job_command(conn, job_id)
+        job.cancel()  # Cancel the job
+        return JsonResponse({'status': 'Job cancelled successfully'})
+    except NoSuchJobError:
+        return JsonResponse({'error': 'Job not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error stopping job {job_id}: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
     
