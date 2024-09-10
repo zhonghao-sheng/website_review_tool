@@ -289,7 +289,7 @@ def search_link(request):
                 time.sleep(0.5)
                 job.refresh()
                 # logger.error(f"current job id: {get_current_job().id}")
-                logger.error(f"current job status: {get_current_job().get_status()}")
+                # logger.error(f"current job status: {get_current_job().get_status()}")
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
