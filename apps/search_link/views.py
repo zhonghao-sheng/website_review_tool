@@ -336,6 +336,7 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results: {results}")
+            job.cancel()  # Stop the job
             return render(request, 'results.html', {'results': results, 'job_id': job_id_str})
         
         elif job.is_failed:
@@ -363,20 +364,20 @@ def results(request, job_id):
 #         logger.error(f"Error stopping job {job_id}: {str(e)}")
 #         return JsonResponse({'error': str(e)}, status=500)
 
-@csrf_exempt
-def stop_job(request, job_id):
-    if request.method == 'POST':
-        try:
-            job = Job.fetch(job_id, connection=conn)
-            if job.is_started or job.is_finished or job.is_queued:
-                # Cancel the job if it is running
-                job.cancel()
-                return JsonResponse({'status': 'success'}, status=200)
-            else:
-                return JsonResponse({'status': 'job not running'}, status=400)
-        except NoSuchJobError:
-            return JsonResponse({'error': 'No such job found'}, status=404)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+# @csrf_exempt
+# def stop_job(request, job_id):
+#     if request.method == 'POST':
+#         try:
+#             job = Job.fetch(job_id, connection=conn)
+#             if job.is_started or job.is_finished or job.is_queued:
+#                 # Cancel the job if it is running
+#                 job.cancel()
+#                 return JsonResponse({'status': 'success'}, status=200)
+#             else:
+#                 return JsonResponse({'status': 'job not running'}, status=400)
+#         except NoSuchJobError:
+#             return JsonResponse({'error': 'No such job found'}, status=404)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
     

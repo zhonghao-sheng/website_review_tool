@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Results</title>
-    <script>
+    {% comment %} <script>
         window.addEventListener("beforeunload", function (event) {
             // Replace with the correct job_id
             const jobId = "{{ job_id }}"; 
@@ -22,7 +22,7 @@
                 console.error('Error stopping job:', error);
             });
         });
-    </script>
+    </script> {% endcomment %}
 </head>
 <body>
     <h1>Search Results</h1>
