@@ -3,15 +3,24 @@
 <head>
     <title>Results</title>
     <script>
-        // Assuming you have the job ID available in your template context
-        const jobId = "{{ job_id }}";  // Pass the job ID from Django context
-
-        window.addEventListener('beforeunload', function (event) {
-            // Trigger an API call to stop the job
-            fetch("{% url 'stop_job' job_id=job_id %}", {
+        window.addEventListener("beforeunload", function (event) {
+            // Replace with the correct job_id
+            const jobId = "{{ job_id }}"; 
+            
+            // Send a request to stop the job
+            fetch(`/search_link/stop-job/${jobId}/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            }).then(response => {
+                if (!response.ok) {
+                    console.error('Failed to stop job');
+                }
+            }).catch(error => {
+                console.error('Error stopping job:', error);
+            });
         });
     </script>
 </head>

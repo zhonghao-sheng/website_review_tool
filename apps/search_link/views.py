@@ -336,33 +336,47 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results: {results}")
-            return render(request, 'results.html', {'results': results})
+            return render(request, 'results.html', {'results': results, 'job_id': job_id_str})
         
         elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
+            return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id_str})
         else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
+            return render(request, 'results.html', {'status': 'Job is still processing...', 'job_id': job_id_str})
     except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
+        return render(request, 'results.html', {'error': 'No such job found.', 'job_id': job_id_str})
     except ConnectionError as e:
         logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id_str})
     except Exception as e:
-        return render(request, 'results.html', {'error': str(e), 'results': []})
-    
-    # always stop the job after fetching the results
-    send_stop_job_command(conn, job_id_str)
+        return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id_str})
          
+# @csrf_exempt
+# def stop_job(request, job_id):
+#     try:
+#         job = Job.fetch(job_id, connection=conn)
+#         send_stop_job_command(conn, job_id)
+#         job.cancel()  # Cancel the job
+#         return JsonResponse({'status': 'Job cancelled successfully'})
+#     except NoSuchJobError:
+#         return JsonResponse({'error': 'Job not found'}, status=404)
+#     except Exception as e:
+#         logger.error(f"Error stopping job {job_id}: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
 @csrf_exempt
 def stop_job(request, job_id):
-    try:
-        job = Job.fetch(job_id, connection=conn)
-        send_stop_job_command(conn, job_id)
-        job.cancel()  # Cancel the job
-        return JsonResponse({'status': 'Job cancelled successfully'})
-    except NoSuchJobError:
-        return JsonResponse({'error': 'Job not found'}, status=404)
-    except Exception as e:
-        logger.error(f"Error stopping job {job_id}: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'POST':
+        try:
+            job = Job.fetch(job_id, connection=conn)
+            if job.is_started or job.is_finished or job.is_queued:
+                # Cancel the job if it is running
+                job.cancel()
+                return JsonResponse({'status': 'success'}, status=200)
+            else:
+                return JsonResponse({'status': 'job not running'}, status=400)
+        except NoSuchJobError:
+            return JsonResponse({'error': 'No such job found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
     
