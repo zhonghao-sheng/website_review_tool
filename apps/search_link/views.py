@@ -348,36 +348,16 @@ def results(request, job_id):
     
     # always stop the job after fetching the results
     send_stop_job_command(conn, job_id_str)
+         
+
+def cancel_job(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        job_id = data.get('job_id')
         
-    
+        # Fetch and cancel the job
+        job = Job.fetch(job_id, connection=conn)
+        job.cancel()
 
-# def results(request, job_id):
-#     logger.info(f"Fetching results for job_id: {job_id}")
-#     try:
-#         job = q.fetch_job(str(job_id))
-#         while not job.is_finished and not job.is_failed:
-#             time.sleep(1)
-#             job.refresh()
-#             logger.debug(f"Job {job_id} status after refresh: {job.get_status()}")
-
-#         if job.is_finished:
-#             results = conn.get(str(job_id))
-#             if results:
-#                 results = json.loads(results)
-#             else:
-#                 results = []
-#             logger.info(f"Job {job_id} finished successfully with results.")
-#             return render(request, 'results.html', {'results': results, 'job_id': job_id})
-#         elif job.is_failed:
-#             logger.error(f"Job {job_id} failed.")
-#             return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
-#     except NoSuchJobError:
-#         logger.error(f"No such job found: {job_id}")
-#         return render(request, 'results.html', {'error': '!!No such job found.', 'job_id': job_id})
-#     except ConnectionError as e:
-#         logger.error(f"Redis connection error: {str(e)}")
-#         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id})
-#     except Exception as e:
-#         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-#         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
+        return JsonResponse({'status': 'job canceled'})
     
