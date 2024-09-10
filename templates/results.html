@@ -61,11 +61,12 @@
         <p>{{ error }}</p>
     {% else %}
         <h1>Search Results</h1>
-        <ul>
+        <p> {{ results }} </p>
+        {% comment %} <ul>
             {% for result in results %}
                 <li>{{ result }}</li>
             {% endfor %}
-        </ul>
+        </ul> {% endcomment %}
     {% endif %}
 
     {% comment %} <script type="text/javascript">

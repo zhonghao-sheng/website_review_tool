@@ -353,17 +353,17 @@ def results(request, job_id):
     # always stop the job after fetching the results
     send_stop_job_command(conn, job_id_str)
          
-# @csrf_exempt
-# def cancel_job(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-#         job_id = data.get('job_id')
+@csrf_exempt
+def cancel_job(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        job_id = data.get('job_id')
         
-#         # Fetch and cancel the job
-#         job = Job.fetch(job_id, connection=conn)
-#         job.cancel()
+        # Fetch and cancel the job
+        job = Job.fetch(job_id, connection=conn)
+        job.cancel()
 
-#         return JsonResponse({'status': 'job canceled'})
+        return JsonResponse({'status': 'job canceled'})
     
 # @csrf_exempt
 # def user_left(request):
