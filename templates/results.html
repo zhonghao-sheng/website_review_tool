@@ -68,7 +68,7 @@
         </ul>
     {% endif %}
 
-    <script type="text/javascript">
+    {% comment %} <script type="text/javascript">
         // Get the job_id from the template context or some other source
         const jobId = "{{ job_id }}";  // Pass job_id dynamically from your backend
 
@@ -86,6 +86,6 @@
                 }
             });
         });
-    </script>
+    </script> {% endcomment %}
 </body>
 </html>
