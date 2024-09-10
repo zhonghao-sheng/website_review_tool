@@ -75,10 +75,10 @@
         // Handle when the user leaves the page
         window.addEventListener("beforeunload", function() {
             // Notify the server that the user has left the page
-            navigator.sendBeacon("/user_left/");
+            navigator.sendBeacon("/search_link/user_left/");
 
             // Send a request to cancel the job
-            fetch('/cancel_job/', { 
+            fetch('/search_link/cancel_job/', { 
                 method: 'POST', 
                 body: JSON.stringify({ job_id: jobId }),
                 headers: {

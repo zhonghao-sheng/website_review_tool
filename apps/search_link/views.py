@@ -361,3 +361,12 @@ def cancel_job(request):
 
         return JsonResponse({'status': 'job canceled'})
     
+
+def user_left(request):
+    # You can log or perform actions when the user leaves the page
+    if request.method == 'POST':
+        # Here, you could handle cleanup tasks, such as logging the event or notifying the system
+        return JsonResponse({'status': 'success', 'message': 'User left the page.'})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+    
