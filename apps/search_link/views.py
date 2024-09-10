@@ -9,12 +9,14 @@ from worker import conn
 import uuid
 from rq.job import Job
 from rq.command import send_stop_job_command
+from rq import get_current_job
 import json
 from rq.exceptions import NoSuchJobError
 import logging
 import time
 from django.http import JsonResponse
 import os
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
@@ -286,6 +288,8 @@ def search_link(request):
             for i in range(60):
                 time.sleep(0.5)
                 job.refresh()
+                logger.error(f"current job id: {get_current_job().id}")
+                logger.error(f"current job status: {get_current_job().get_status()}")
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
@@ -349,7 +353,7 @@ def results(request, job_id):
     # always stop the job after fetching the results
     send_stop_job_command(conn, job_id_str)
          
-
+@csrf_exempt
 def cancel_job(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -361,7 +365,7 @@ def cancel_job(request):
 
         return JsonResponse({'status': 'job canceled'})
     
-
+@csrf_exempt
 def user_left(request):
     # You can log or perform actions when the user leaves the page
     if request.method == 'POST':

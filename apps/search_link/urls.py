@@ -2,8 +2,7 @@ from django.urls import path
 from search_link import views
 
 urlpatterns = [
-    # path('', views.search, name='search'),
-    path('search_link/', views.search_link, name='search_link'),  # Search page
+    path('', views.search_link, name='search_link'),  # Search page
     path('results/<uuid:job_id>/', views.results, name='results'),
     path('user_left/', views.user_left, name='user_left'),
     path('cancel_job/', views.cancel_job, name='cancel_job'),
