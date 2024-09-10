@@ -324,6 +324,7 @@ def results(request, job_id):
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
+        job.cleanup()  # Clean up the job
 
         if job.is_finished:
             results = job.result
@@ -336,7 +337,6 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results: {results}")
-            job.cancel()  # Stop the job
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
