@@ -230,10 +230,10 @@ class Web_spider():
     def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(20):
+        for _ in range(50):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(20):
+        for _ in range(50):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
@@ -275,6 +275,11 @@ class Web_spider():
 @login_required
 def search_link(request):
     q.empty()
+
+    # Stop the unexpected current job if it's still running
+    if get_current_job():
+        send_stop_job_command(conn, get_current_job().id)
+
     if request.method == 'POST':
         try:
             url = request.POST.get('url')
@@ -286,8 +291,8 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
             q.enqueue_job(job)
 
-            # Poll the job every second for up to 45 seconds
-            for i in range(90):
+            # Poll the job every second for up to 30 seconds
+            for i in range(60):
                 time.sleep(0.5)
                 job.refresh()
                 # logger.error(f"current job id: {get_current_job().id}")
@@ -345,14 +350,11 @@ def results(request, job_id):
 
             logger.error(f"Final results (error): {results}")
             logger.info(f"Final results (info): {results}")
-            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
-            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
-            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'status': 'Job is still processing...'})
         
     except NoSuchJobError:
