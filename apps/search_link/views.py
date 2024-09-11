@@ -23,6 +23,8 @@ EXPIRE_TIME = 180
 # Setting the search time out to 10 seconds
 SEARCH_TIME_OUT = 10
 
+THREAD_NUM = 50
+
 logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
@@ -229,10 +231,10 @@ class Web_spider():
     def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(200):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(200):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
@@ -247,10 +249,10 @@ class Web_spider():
         self.put_keyword(keyword)
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
