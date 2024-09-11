@@ -1,71 +1,35 @@
-{% comment %} <!DOCTYPE html>
-<html>
-<head>
-    <title>Results</title>
-    <script>
-        function checkJobStatus(jobId) {
-            fetch(`/search_link/job_status/${jobId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'finished') {
-                        // Job is finished, reload the page to show results
-                        window.location.reload();
-                    } else if (data.status === 'failed') {
-                        // Job failed, show error message
-                        document.getElementById('status').innerText = 'Job failed.';
-                    } else if (data.status === 'error') {
-                        document.getElementById('status').innerText = `Error: ${data.message}`;
-                    } else {
-                        // Job is still running, check again after 1 second
-                        setTimeout(() => checkJobStatus(jobId), 1000);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking job status:', error);
-                    document.getElementById('status').innerText = 'Error checking job status.';
-                    setTimeout(() => checkJobStatus(jobId), 3000); // Check again after 3 seconds
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() => {
-            const jobId = '{{ job_id }}';
-            checkJobStatus(jobId);
-        });
-    </script>
-</head>
-<body>
-    {% if error %}
-        <h1>An error occurred</h1>
-        <p>{{ error }}</p>
-    {% else %}
-        <h1>Search Results</h1>
-        <div id="status">Checking job status...</div>
-        <ul>
-            {% for result in results %}
-                <li>{{ result }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-</body>
-</html> {% endcomment %}
-
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Results</title>
+    {% comment %} <script>
+        window.addEventListener("beforeunload", function (event) {
+            // Replace with the correct job_id
+            const jobId = "{{ job_id }}"; 
+            
+            // Send a request to stop the job
+            fetch(`/search_link/stop-job/${jobId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            }).then(response => {
+                if (!response.ok) {
+                    console.error('Failed to stop job');
+                }
+            }).catch(error => {
+                console.error('Error stopping job:', error);
+            });
+        });
+    </script> {% endcomment %}
 </head>
 <body>
-    {% if error %}
-        <h1>An error occurred</h1>
-        <p>{{ error }}</p>
-    {% else %}
-        <h1>Search Results</h1>
-        <ul>
-            {% for result in results %}
-                <li>{{ result }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <h1>Search Results</h1>
+    <ul>
+        {% for result in results %}
+            <li>{{ result }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
