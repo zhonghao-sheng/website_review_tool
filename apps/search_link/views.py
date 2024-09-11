@@ -20,6 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Setting the expire time for the results in Redis to 3 minutes
 EXPIRE_TIME = 180
+# Setting the search time out to 5 seconds
+SEARCH_TIME_OUT = 5
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +86,7 @@ class Web_spider():
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
-                response = requests.get(link, timeout=2)
+                response = requests.get(link, timeout=SEARCH_TIME_OUT)
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
@@ -151,7 +153,7 @@ class Web_spider():
 
             try:
                 print(f'detecting link {link}')
-                response = requests.get(link, timeout = 2)
+                response = requests.get(link, timeout = SEARCH_TIME_OUT)
 
                 content_type = response.headers.get('Content-Type', '').lower()
 
