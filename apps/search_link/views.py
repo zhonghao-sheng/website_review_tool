@@ -355,7 +355,18 @@ def results(request, job_id):
         elif job.is_failed:
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
+            results = job.result
+            if not results:
+                # If job.result is empty, try to get results from Redis
+                results_json = conn.get(job_id_str)
+                if results_json:
+                    results = json.loads(results_json)
+                else:
+                    results = []
+
+            logger.error(f"Final results (error): {results}")
+            logger.info(f"Final results (info): {results}")
+            return render(request, 'results.html', {'results': results, 'status': 'Job is still processing...'})
         
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
