@@ -281,8 +281,8 @@ def search_link(request):
             job_id = str(uuid.uuid4())
 
             # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
-            q.enqueue_job(job, failure_ttl = EXPIRE_TIME, ttl = EXPIRE_TIME)
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
+            q.enqueue_job(job)
 
             logger.error(f"Checking job {job.id}")
             logger.error(f"Job {job.id} status: {job.get_status()}")
