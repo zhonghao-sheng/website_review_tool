@@ -23,7 +23,7 @@ EXPIRE_TIME = 180
 # Setting the search time out to 10 seconds
 SEARCH_TIME_OUT = 10
 
-THREAD_NUM = 50
+THREAD_NUM = 40
 
 logger = logging.getLogger(__name__)
 
@@ -366,9 +366,9 @@ def results(request, job_id):
                 else:
                     results = []
 
-            logger.error(f"Final results (error): {results}")
+            logger.error(f"Not finished final results (error): {results}")
             send_stop_job_command(conn, job_id_str)
-            return render(request, 'results.html', {'results': results, 'status': 'Job is still processing...'})
+            return render(request, 'results.html', {'results': results, 'status': 'Job cannot be completed because of the timeout.'})
         
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
