@@ -22,29 +22,57 @@
             background-color: #fff;
         }
         .header .logo {
-            max-width: 175px; /* controll logo size*/
+            max-width: 175px;
         }
         .header .logo img {
             width: 100%;
             height: auto;
         }
         .image {
-            width: 500px;
-            height: 200px;
-            background-color: #ffffff;
-            margin: 20px auto;
+            background-color: #ffffff; 
+            margin: 20px auto; 
+            text-align: center; 
         }
+
+        .image img {
+            display: block; 
+            margin: 0 auto; 
+            max-width: 300px; 
+            height: auto; 
+        }
+
+        .image a {
+            color: #0C4483;
+            text-decoration: none;
+            font-weight: thin;
+        }
+        
+        .image a:hover {
+            text-decoration: underline;
+        }
+
         .form {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+            width: 400px; 
+            margin: 0 auto; 
+        }
         input[type="text"], input[type="password"] {
-            width: 400px;
-            margin-bottom: 10px;
+            width: 100%; 
+            margin-bottom: 5px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        label {
+            margin-bottom: 5px; 
+            align-self: flex-start; 
         }
         button {
             width: 200px;
@@ -54,25 +82,31 @@
             background-color: #0C4483;
             color: #ffffff;
             border-radius: 30px;
-            margin-bottom: 20px;
+            margin: 20px auto 10px; /* Adjusted to reduce the space between button and footer */
             transition: background-color 0.3s;
             cursor: pointer;
             font-size: 25px; 
             gap: 30px;
+            align-self: center; 
         }
         .checkbox {
             display: flex; 
             align-items: center; 
-            justify-content: center; 
             gap: 5px; 
-            margin: 10px auto; 
-            width: fit-content; 
+            margin: 10px 0; 
+            width: 100%;
         }
         .footer {
-            margin-top: 20px;
+            margin-top: 10px; /* Reduce the margin to bring footer closer to the button */
         }
-        a {
+        .footer a {
+            display: block; /* Ensures links are displayed on separate lines */
+            margin: 5px 0; /* Adds spacing between the links */
             color: #0C4483;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -86,7 +120,7 @@
     </div>
 
     <div class="image">
-        <img src="{% static 'images/websiteReview.svg' %}" alt="page Logo">
+        <img src="{% static 'images/website-review-logo.svg' %}" alt="Page Logo">
         <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
     </div>
 
@@ -109,7 +143,7 @@
         <p style="color:red;">Invalid username or password. Please try again.</p>
     {% endif %}
     <div class="footer">
-        <a href="#">Not a user? Register now</a><br>
+        <a href="#">Not a user? Register now</a>
         <a href="#">Forgot Password?</a>
     </div>
 </body>
