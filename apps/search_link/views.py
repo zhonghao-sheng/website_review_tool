@@ -277,7 +277,7 @@ def search_link(request):
     q.empty()
 
     # Stop the unexpected current job if it's still running
-    if get_current_job():
+    if get_current_job() and get_current_job().get_status() == 'finished':
         logger.error(f"Stopping current job: {get_current_job().id}")
         send_stop_job_command(conn, get_current_job().id)
 
