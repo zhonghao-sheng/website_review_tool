@@ -23,7 +23,7 @@ EXPIRE_TIME = 180
 # Setting the search time out to 10 seconds
 SEARCH_TIME_OUT = 10
 
-THREAD_NUM = 40
+THREAD_NUM = 20
 
 logger = logging.getLogger(__name__)
 

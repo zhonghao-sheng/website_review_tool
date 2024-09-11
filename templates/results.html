@@ -23,6 +23,11 @@
 </head>
 <body>
     <h1>Search Results</h1>
+    {% if status %} <!-- Display the info if 'status' is not empty -->
+        <tr>
+            <td colspan="3">{{ status }}</td> <!-- Display a message if an error occurs -->
+        </tr>
+    {% endif %}
     <table>
         <thead>
             <tr>
@@ -32,12 +37,6 @@
             </tr>
         </thead>
         <tbody>
-            {% if status %} <!-- Display the info if 'status' is not empty -->
-                <tr>
-                    <td colspan="3">{{ status }}</td> <!-- Display a message if an error occurs -->
-                </tr>
-            {% endif %}
-
             {% if results %} <!-- Check if 'results' list is empty -->
                 <!-- Loop through the 'results' list and render each dictionary as a row -->
                 {% for result in results %}
