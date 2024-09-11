@@ -293,8 +293,8 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
             q.enqueue_job(job)
 
-            # Poll the job every second for up to 30 seconds
-            for i in range(60):
+            # Poll the job every second for up to 25 seconds
+            for i in range(50):
                 time.sleep(0.5)
                 job.refresh()
                 # logger.error(f"current job id: {get_current_job().id}")
