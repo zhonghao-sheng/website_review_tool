@@ -9,12 +9,19 @@ from worker import conn
 import uuid
 from rq.job import Job
 from rq.command import send_stop_job_command
+from rq import get_current_job
 import json
 from rq.exceptions import NoSuchJobError
 import logging
 import time
 from django.http import JsonResponse
 import os
+from django.views.decorators.csrf import csrf_exempt
+
+# Setting the expire time for the results in Redis to 3 minutes
+EXPIRE_TIME = 180
+# Setting the search time out to 5 seconds
+SEARCH_TIME_OUT = 5
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +86,7 @@ class Web_spider():
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
-                response = requests.get(link, timeout=2)
+                response = requests.get(link, timeout=SEARCH_TIME_OUT)
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
@@ -134,8 +141,8 @@ class Web_spider():
                         results_json = json.dumps(self.broken_links)
 
                         # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
-                        logger.error(f"Results: {results_json}")
+                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                        # logger.error(f"Results: {results_json}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -146,7 +153,7 @@ class Web_spider():
 
             try:
                 print(f'detecting link {link}')
-                response = requests.get(link, timeout = 2)
+                response = requests.get(link, timeout = SEARCH_TIME_OUT)
 
                 content_type = response.headers.get('Content-Type', '').lower()
 
@@ -192,8 +199,8 @@ class Web_spider():
                         results_json = json.dumps(self.broken_links)
 
                         # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
-                        logger.error(f"Results: {results_json}")
+                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                        # logger.error(f"Results: {results_json}")
                     break
 
     def handle_download_link(self, link, source_link, content_type):
@@ -276,16 +283,15 @@ def search_link(request):
             job_id = str(uuid.uuid4())
 
             # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
+            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
             q.enqueue_job(job)
 
-            logger.error(f"Checking job {job.id}")
-            logger.error(f"Job {job.id} status: {job.get_status()}")
-
-            # Poll the job every second for up to 30 seconds
-            for i in range(60):
+            # Poll the job every second for up to 20 seconds
+            for i in range(40):
                 time.sleep(0.5)
                 job.refresh()
+                # logger.error(f"current job id: {get_current_job().id}")
+                # logger.error(f"current job status: {get_current_job().get_status()}")
                 logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
                 logger.error(f"Job {job.id} job position: {job.get_position()}")
                 if job.is_finished:
@@ -310,9 +316,9 @@ def search_task(url, keyword, job_id):
     web_spider.put_job_id(job_id)
 
     if keyword:
-        results = web_spider.search_keyword_links(url, keyword, job_id)
+        web_spider.search_keyword_links(url, keyword, job_id)
     else:
-        results = web_spider.search_broken_links(url, job_id)
+        web_spider.search_broken_links(url, job_id)
     
     
 
@@ -320,6 +326,12 @@ def results(request, job_id):
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
+
+        # if job.is_finished or job.is_failed:
+        #     # Perform job cleanup, delete the job immediately after it finishes
+        #     job.cleanup(ttl=0)
+        #     # remove the job from Redis
+        #     # conn.delete(job.id)
 
         if job.is_finished:
             results = job.result
@@ -331,13 +343,18 @@ def results(request, job_id):
                 else:
                     results = []
 
-            logger.error(f"Final results: {results}")
+            logger.error(f"Final results (error): {results}")
+            logger.info(f"Final results (info): {results}")
+            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
+            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
+            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'status': 'Job is still processing...'})
+        
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
     except ConnectionError as e:
@@ -345,39 +362,34 @@ def results(request, job_id):
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
         return render(request, 'results.html', {'error': str(e), 'results': []})
-    
-    # always stop the job after fetching the results
-    send_stop_job_command(conn, job_id_str)
-        
-    
-
-# def results(request, job_id):
-#     logger.info(f"Fetching results for job_id: {job_id}")
+         
+# @csrf_exempt
+# def stop_job(request, job_id):
 #     try:
-#         job = q.fetch_job(str(job_id))
-#         while not job.is_finished and not job.is_failed:
-#             time.sleep(1)
-#             job.refresh()
-#             logger.debug(f"Job {job_id} status after refresh: {job.get_status()}")
-
-#         if job.is_finished:
-#             results = conn.get(str(job_id))
-#             if results:
-#                 results = json.loads(results)
-#             else:
-#                 results = []
-#             logger.info(f"Job {job_id} finished successfully with results.")
-#             return render(request, 'results.html', {'results': results, 'job_id': job_id})
-#         elif job.is_failed:
-#             logger.error(f"Job {job_id} failed.")
-#             return render(request, 'results.html', {'error': 'Job failed.', 'job_id': job_id})
+#         job = Job.fetch(job_id, connection=conn)
+#         send_stop_job_command(conn, job_id)
+#         job.cancel()  # Cancel the job
+#         return JsonResponse({'status': 'Job cancelled successfully'})
 #     except NoSuchJobError:
-#         logger.error(f"No such job found: {job_id}")
-#         return render(request, 'results.html', {'error': '!!No such job found.', 'job_id': job_id})
-#     except ConnectionError as e:
-#         logger.error(f"Redis connection error: {str(e)}")
-#         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': [], 'job_id': job_id})
+#         return JsonResponse({'error': 'Job not found'}, status=404)
 #     except Exception as e:
-#         logger.error(f"Error fetching results for job {job_id}: {str(e)}")
-#         return render(request, 'results.html', {'error': str(e), 'results': [], 'job_id': job_id})
+#         logger.error(f"Error stopping job {job_id}: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
+# @csrf_exempt
+# def stop_job(request, job_id):
+#     if request.method == 'POST':
+#         try:
+#             job = Job.fetch(job_id, connection=conn)
+#             if job.is_started or job.is_finished or job.is_queued:
+#                 # Cancel the job if it is running
+#                 job.cancel()
+#                 return JsonResponse({'status': 'success'}, status=200)
+#             else:
+#                 return JsonResponse({'status': 'job not running'}, status=400)
+#         except NoSuchJobError:
+#             return JsonResponse({'error': 'No such job found'}, status=404)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
     
