@@ -20,8 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Setting the expire time for the results in Redis to 3 minutes
 EXPIRE_TIME = 180
-# Setting the search time out to 5 seconds
-SEARCH_TIME_OUT = 5
+# Setting the search time out to 10 seconds
+SEARCH_TIME_OUT = 10
 
 logger = logging.getLogger(__name__)
 
