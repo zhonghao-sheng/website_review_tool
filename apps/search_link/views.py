@@ -344,13 +344,16 @@ def results(request, job_id):
             logger.error(f"Final results (error): {results}")
             logger.info(f"Final results (info): {results}")
             job.cleanup(ttl=0)
+            conn.delete(job.id)
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
             job.cleanup(ttl=0)
+            conn.delete(job.id)
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
             job.cleanup(ttl=0)
+            conn.delete(job.id)
             return render(request, 'results.html', {'status': 'Job is still processing...'})
         
     except NoSuchJobError:
