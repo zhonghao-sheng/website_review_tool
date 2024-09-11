@@ -18,8 +18,8 @@ from django.http import JsonResponse
 import os
 from django.views.decorators.csrf import csrf_exempt
 
-# Setting the expire time for the results in Redis to 10 minutes
-EXPIRE_TIME = 600
+# Setting the expire time for the results in Redis to 3 minutes
+EXPIRE_TIME = 180
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ class Web_spider():
 
                         # Store the results in a Redis key using the job ID
                         conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        logger.error(f"Results: {results_json}")
+                        # logger.error(f"Results: {results_json}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -198,7 +198,7 @@ class Web_spider():
 
                         # Store the results in a Redis key using the job ID
                         conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        logger.error(f"Results: {results_json}")
+                        # logger.error(f"Results: {results_json}")
                     break
 
     def handle_download_link(self, link, source_link, content_type):
@@ -284,11 +284,8 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
             q.enqueue_job(job)
 
-            logger.error(f"Checking job {job.id}")
-            logger.error(f"Job {job.id} status: {job.get_status()}")
-
-            # Poll the job every second for up to 30 seconds
-            for i in range(60):
+            # Poll the job every second for up to 20 seconds
+            for i in range(40):
                 time.sleep(0.5)
                 job.refresh()
                 # logger.error(f"current job id: {get_current_job().id}")
@@ -328,11 +325,11 @@ def results(request, job_id):
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
 
-        if job.is_finished or job.is_failed:
-            # Perform job cleanup, delete the job immediately after it finishes
-            job.cleanup(ttl=0)
-            # remove the job from Redis
-            # conn.delete(job.id)
+        # if job.is_finished or job.is_failed:
+        #     # Perform job cleanup, delete the job immediately after it finishes
+        #     job.cleanup(ttl=0)
+        #     # remove the job from Redis
+        #     # conn.delete(job.id)
 
         if job.is_finished:
             results = job.result
@@ -344,12 +341,16 @@ def results(request, job_id):
                 else:
                     results = []
 
-            logger.error(f"Final results: {results}")
+            logger.error(f"Final results (error): {results}")
+            logger.info(f"Final results (info): {results}")
+            job.cleanup(ttl=0)
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
+            job.cleanup(ttl=0)
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
+            job.cleanup(ttl=0)
             return render(request, 'results.html', {'status': 'Job is still processing...'})
         
     except NoSuchJobError:
