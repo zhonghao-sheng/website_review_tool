@@ -18,6 +18,9 @@ from django.http import JsonResponse
 import os
 from django.views.decorators.csrf import csrf_exempt
 
+# Setting the expire time for the results in Redis to 10 minutes
+EXPIRE_TIME = 600
+
 logger = logging.getLogger(__name__)
 
 q = rQueue(connection=conn)
@@ -136,7 +139,7 @@ class Web_spider():
                         results_json = json.dumps(self.broken_links)
 
                         # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
+                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
                         logger.error(f"Results: {results_json}")
                     break
 
@@ -194,7 +197,7 @@ class Web_spider():
                         results_json = json.dumps(self.broken_links)
 
                         # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=3600) # Results expire after 1 hour
+                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
                         logger.error(f"Results: {results_json}")
                     break
 
@@ -279,7 +282,7 @@ def search_link(request):
 
             # Enqueue the job in the background
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id))
-            q.enqueue_job(job)
+            q.enqueue_job(job, failure_ttl = EXPIRE_TIME, ttl = EXPIRE_TIME)
 
             logger.error(f"Checking job {job.id}")
             logger.error(f"Job {job.id} status: {job.get_status()}")
@@ -314,9 +317,9 @@ def search_task(url, keyword, job_id):
     web_spider.put_job_id(job_id)
 
     if keyword:
-        results = web_spider.search_keyword_links(url, keyword, job_id)
+        web_spider.search_keyword_links(url, keyword, job_id)
     else:
-        results = web_spider.search_broken_links(url, job_id)
+        web_spider.search_broken_links(url, job_id)
     
     
 
@@ -324,8 +327,12 @@ def results(request, job_id):
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
-        job.cancel()  # Cancel the job
-        job.cleanup()  # Clean up the job
+
+        if job.is_finished or job.is_failed:
+            # Perform job cleanup, delete the job immediately after it finishes
+            job.cleanup(ttl=0)
+            # remove the job from Redis
+            # conn.delete(job.id)
 
         if job.is_finished:
             results = job.result
