@@ -278,6 +278,7 @@ def search_link(request):
 
     # Stop the unexpected current job if it's still running
     if get_current_job():
+        logger.error(f"Stopping current job: {get_current_job().id}")
         send_stop_job_command(conn, get_current_job().id)
 
     if request.method == 'POST':
@@ -349,7 +350,6 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results (error): {results}")
-            logger.info(f"Final results (info): {results}")
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
@@ -365,7 +365,6 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results (error): {results}")
-            logger.info(f"Final results (info): {results}")
             return render(request, 'results.html', {'results': results, 'status': 'Job is still processing...'})
         
     except NoSuchJobError:
