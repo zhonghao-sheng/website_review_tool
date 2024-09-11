@@ -324,6 +324,7 @@ def results(request, job_id):
     try:
         job_id_str = str(job_id)
         job = Job.fetch(job_id_str, connection=conn)
+        job.cancel()  # Cancel the job
         job.cleanup()  # Clean up the job
 
         if job.is_finished:
