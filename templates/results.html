@@ -2,34 +2,50 @@
 <html>
 <head>
     <title>Results</title>
-    {% comment %} <script>
-        window.addEventListener("beforeunload", function (event) {
-            // Replace with the correct job_id
-            const jobId = "{{ job_id }}"; 
-            
-            // Send a request to stop the job
-            fetch(`/search_link/stop-job/${jobId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                },
-            }).then(response => {
-                if (!response.ok) {
-                    console.error('Failed to stop job');
-                }
-            }).catch(error => {
-                console.error('Error stopping job:', error);
-            });
-        });
-    </script> {% endcomment %}
+    <style>
+        /* Style for the table */
+        table {
+            border-collapse: collapse; /* Merge borders between table cells to avoid double borders */
+            width: 100%; /* Make the table occupy the full width of the page */
+        }
+
+        /* Apply border and padding to the table, table headers, and table cells */
+        table, th, td {
+            border: 1px solid black; /* Set a 1px solid black border */
+            padding: 8px; /* Add padding inside the table cells */
+        }
+
+        /* Style the table header */
+        th {
+            background-color: #f2f2f2; /* Set a light gray background color for the header */
+        }
+    </style>
 </head>
 <body>
     <h1>Search Results</h1>
-    <ul>
-        {% for result in results %}
-            <li>{{ result }}</li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th> <!-- Column for URLs -->
+                <th>Source Link</th> <!-- Column for source links -->
+                <th>Associated Text</th> <!-- Column for associated text -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through the 'results' list and render each dictionary as a row -->
+            {% for result in results %}
+            <tr>
+                <!-- Display URL as a clickable link -->
+                <td><a href="{{ result.url }}">{{ result.url }}</a></td>
+
+                <!-- Display Source Link as a clickable link -->
+                <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>
+
+                <!-- Display associated text as plain text -->
+                <td>{{ result.associated_text }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

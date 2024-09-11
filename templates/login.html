@@ -9,141 +9,142 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #FFFFFF;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            background-color: #fff;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #fff;
+        }
+        .header .logo {
+            max-width: 175px;
+        }
+        .header .logo img {
+            width: 100%;
+            height: auto;
+        }
+        .image {
+            background-color: #ffffff; 
+            margin: 20px auto; 
+            text-align: center; 
+        }
+
+        .image img {
+            display: block; 
+            margin: 0 auto; 
+            max-width: 300px; 
+            height: auto; 
+        }
+
+        .image a {
+            color: #0C4483;
+            text-decoration: none;
+            font-weight: thin;
+        }
+        
+        .image a:hover {
+            text-decoration: underline;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         form {
             display: flex;
             flex-direction: column;
+            align-items: flex-start; 
+            width: 400px; 
+            margin: 0 auto; 
         }
         input[type="text"], input[type="password"] {
-            margin-bottom: 10px;
+            width: 100%; 
+            margin-bottom: 5px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        label {
+            margin-bottom: 5px; 
+            align-self: flex-start; 
+        }
         button {
+            width: 200px;
+            height: 60px;
             padding: 10px;
             border: none;
             background-color: #0C4483;
-            color: white;
-            border-radius: 4px;
+            color: #ffffff;
+            border-radius: 30px;
+            margin: 20px auto 10px; /* Adjusted to reduce the space between button and footer */
+            transition: background-color 0.3s;
             cursor: pointer;
+            font-size: 25px; 
+            gap: 30px;
+            align-self: center; 
+        }
+        .checkbox {
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            margin: 10px 0; 
+            width: 100%;
         }
         .footer {
-            text-align: center;
-            margin-top: 20px;
+            margin-top: 10px; /* Reduce the margin to bring footer closer to the button */
         }
-        a {
+        .footer a {
+            display: block; /* Ensures links are displayed on separate lines */
+            margin: 5px 0; /* Adds spacing between the links */
             color: #0C4483;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Website Review</h1>
-            <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
+    <div class="header">
+        <div class="logo">
+            <a href="https://www.unimelb.edu.au" title="Unimelb" target="_blank">
+            <img src="{% static 'images/unimelb.jpg' %}" alt="University of Melbourne Logo">
+            </a>
         </div>
-        <form method="post">
-            {% csrf_token %}
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+    </div>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+    <div class="image">
+        <img src="{% static 'images/website-review-logo.svg' %}" alt="Page Logo">
+        <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
+    </div>
 
-            <div>
-                <input type="checkbox" id="save-password" name="save-password">
-                <label for="save-password">Save your password for next time</label>
-            </div>
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Click to Enter" required>
 
-            <button type="submit">LOGIN</button>
-        </form>
-        {% if form.errors %}
-                <p style="color:red;">Invalid username or password. Please try again.</p>
-        {% endif %}
-        <div class="footer">
-            <a href="#">Not a user? Register now</a><br>
-            <a href="#">Forgot Password?</a>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Click to Enter" required>
+
+        <div class="checkbox">
+            <input type="checkbox" id="save-password" name="save-password">
+            <label for="save-password">Save your password for next time</label>
         </div>
+
+        <button type="submit">LOGIN</button>
+    </form>
+    {% if form.errors %}
+        <p style="color:red;">Invalid username or password. Please try again.</p>
+    {% endif %}
+    <div class="footer">
+        <a href="#">Not a user? Register now</a>
+        <a href="#">Forgot Password?</a>
     </div>
 </body>
 </html>
-
-
-<style>
-    body, html {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background-color: #FFFFFF; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .container {
-        width: 100%;
-        max-width: 400px; 
-        background: #FFFFFF; 
-        padding: 20px; 
-        border-radius: 0; 
-        box-shadow: none;
-    }
-    .header, .footer {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    form {
-        display: flex;
-        flex-direction: column;
-    }
-    input[type="text"], input[type="password"] {
-        margin-bottom: 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-    }
-    input[type="text"]:focus, input[type="password"]:focus {
-        outline: none;
-        border-color: #0C4483;
-        box-shadow: 0 0 5px rgba(0, 0, 255, 0.5);
-    }
-    button {
-        padding: 10px;
-        border: none;
-        background-color: #0C4483;
-        color: white;
-        font-size: 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    button:hover {
-        background-color: darkblue;
-    }
-    .footer a {
-        color: #0C4483;
-        text-decoration: none;
-    }
-    .footer a:hover {
-        text-decoration: underline;
-    }
-</style>
