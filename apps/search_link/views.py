@@ -129,6 +129,12 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
+                # Serialize the results as a JSON string
+                results_json = json.dumps(self.broken_links)
+                # Store the results in a Redis key using the job ID
+                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                # logger.error(f"Results: {results_json}")
+
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
@@ -136,13 +142,6 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                        
-                        # Serialize the results as a JSON string
-                        results_json = json.dumps(self.broken_links)
-
-                        # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        # logger.error(f"Results: {results_json}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -187,6 +186,13 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
+                # Serialize the results as a JSON string
+                results_json = json.dumps(self.broken_links)
+
+                # Store the results in a Redis key using the job ID
+                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                # logger.error(f"Results: {results_json}")
+
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
@@ -194,13 +200,6 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-
-                        # Serialize the results as a JSON string
-                        results_json = json.dumps(self.broken_links)
-
-                        # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        # logger.error(f"Results: {results_json}")
                     break
 
     def handle_download_link(self, link, source_link, content_type):
@@ -230,10 +229,10 @@ class Web_spider():
     def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(50):
+        for _ in range(200):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(50):
+        for _ in range(200):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
