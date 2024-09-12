@@ -4,14 +4,6 @@ from threading import Thread
 from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
-from rq import Queue as rQueue
-from worker import conn
-import uuid
-from rq.job import Job
-from rq.command import send_stop_job_command
-from rq import get_current_job
-import json
-from rq.exceptions import NoSuchJobError
 import logging
 import time
 from django.http import JsonResponse
@@ -25,9 +17,6 @@ SEARCH_TIME_OUT = 10
 
 THREAD_NUM = 20
 
-logger = logging.getLogger(__name__)
-
-q = rQueue(connection=conn)
 
 class Web_spider():
     def __init__(self):
@@ -131,19 +120,10 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
-                # Serialize the results as a JSON string
-                results_json = json.dumps(self.broken_links)
-                # Store the results in a Redis key using the job ID
-                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                # logger.error(f"Results: {results_json}")
 
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
-                    if current_job_id:
-                        job = Job.fetch(current_job_id, connection=conn)
-                        job.set_status('finished')
-                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -188,72 +168,60 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
-                # Serialize the results as a JSON string
-                results_json = json.dumps(self.broken_links)
-
-                # Store the results in a Redis key using the job ID
-                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                # logger.error(f"Results: {results_json}")
 
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
-                    if current_job_id:
-                        job = Job.fetch(current_job_id, connection=conn)
-                        job.set_status('finished')
-                        logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
                     break
 
-    def handle_download_link(self, link, source_link, content_type):
-        # download the file
-        try:
-            response = requests.get(link, stream=True)
-            response.raise_for_status()  # Raise an exception for HTTP errors
+    # def handle_download_link(self, link, source_link, content_type):
+    #     # download the file
+    #     try:
+    #         response = requests.get(link, stream=True)
+    #         response.raise_for_status()  # Raise an exception for HTTP errors
+    #
+    #         # Extract the filename from the URL
+    #         filename = link.split('/')[-1]
+    #         download_path = os.path.join('downloads', filename)
+    #
+    #         # Ensure the downloads directory exists
+    #         os.makedirs(os.path.dirname(download_path), exist_ok=True)
+    #
+    #         # Write the file to the downloads directory
+    #         with open(download_path, 'wb') as file:
+    #             for chunk in response.iter_content(chunk_size=8192):
+    #                 file.write(chunk)
+    #
+    #         print(f'File downloaded: {download_path}')
+    #     except Exception as e:
+    #         logger.error(f'Failed to download file: {link}, error: {str(e)}')
+    #         # Log the failure to the broken links file
+    #         self.deal_broken_link(link, source_link, 'download_failed', str(e))
 
-            # Extract the filename from the URL
-            filename = link.split('/')[-1]
-            download_path = os.path.join('downloads', filename)
-
-            # Ensure the downloads directory exists
-            os.makedirs(os.path.dirname(download_path), exist_ok=True)
-
-            # Write the file to the downloads directory
-            with open(download_path, 'wb') as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    file.write(chunk)
-
-            print(f'File downloaded: {download_path}')
-        except Exception as e:
-            logger.error(f'Failed to download file: {link}, error: {str(e)}')
-            # Log the failure to the broken links file
-            self.deal_broken_link(link, source_link, 'download_failed', str(e))
-
-    def search_broken_links(self, baseurl, job_id):
+    def search_broken_links(self, baseurl):
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(THREAD_NUM):
-            t = Thread(target=self.get_more_links, args=(self.job_id,))
+            t = Thread(target=self.get_more_links)
             thread_list.append(t)
         for _ in range(THREAD_NUM):
-            t = Thread(target=self.detect_links, args=(self.job_id,))
+            t = Thread(target=self.detect_links)
             thread_list.append(t)
         for t in thread_list:
             t.daemon = True
             t.start()
-        for t in thread_list:
-            t.join()
         self.web_links.join()
         return self.broken_links
     
-    def search_keyword_links(self, baseurl, keyword, job_id):
+    def search_keyword_links(self, baseurl, keyword):
         self.put_keyword(keyword)
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(THREAD_NUM):
-            t = Thread(target=self.get_more_links, args=(self.job_id,))
+            t = Thread(target=self.get_more_links)
             thread_list.append(t)
         for _ in range(THREAD_NUM):
-            t = Thread(target=self.detect_links, args=(self.job_id,))
+            t = Thread(target=self.detect_links)
             thread_list.append(t)
         for t in thread_list:
             t.daemon = True
@@ -273,107 +241,74 @@ class Web_spider():
 #     except Exception as e:
 #         print(f'Error processing link {href}: {str(e)}')
 
-@login_required
+
 def search_link(request):
-    q.empty()
-
-    # Stop the unexpected current job if it's still running
-    if get_current_job() and get_current_job().get_status() == 'finished':
-        logger.error(f"Stopping current job: {get_current_job().id}")
-        send_stop_job_command(conn, get_current_job().id)
-
     if request.method == 'POST':
-        try:
-            url = request.POST.get('url')
-            keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
-
-            job_id = str(uuid.uuid4())
-
-            # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
-            q.enqueue_job(job)
-
-            # Poll the job every second for up to 25 seconds
-            for i in range(50):
-                time.sleep(0.5)
-                job.refresh()
-                # logger.error(f"current job id: {get_current_job().id}")
-                # logger.error(f"current job status: {get_current_job().get_status()}")
-                logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
-                logger.error(f"Job {job.id} job position: {job.get_position()}")
-                if job.is_finished:
-                    break
-
-            return redirect('results', job_id=job_id)
-
-        except ConnectionError as e:
-            logger.error(f"Redis connection error: {str(e)}")
-            return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
-        except Exception as e:
-            logger.error(f"Error in search_link view: {str(e)}")
-            return render(request, 'results.html', {'error': str(e)})
+        url = request.POST.get('url')
+        keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+        results = search_task(url, keyword)
+        return render(request, 'results.html', {'results': results})
     return render(request, 'search.html')
 
 # assign a job ID to each task
-def search_task(url, keyword, job_id):
-    job_id = str(job_id) # ensure job_id is a string
+def search_task(url, keyword):
     
     # Initialize Web_spider instance
     web_spider = Web_spider()
-    web_spider.put_job_id(job_id)
 
     if keyword:
-        web_spider.search_keyword_links(url, keyword, job_id)
+        results = web_spider.search_keyword_links(url, keyword)
     else:
-        web_spider.search_broken_links(url, job_id)
+        results = web_spider.search_broken_links(url)
+    return results
     
     
 
-def results(request, job_id):
-    try:
-        job_id_str = str(job_id)
-        job = Job.fetch(job_id_str, connection=conn)
-
-        # if job.is_finished or job.is_failed:
-        #     # Perform job cleanup, delete the job immediately after it finishes
-        #     job.cleanup(ttl=0)
-        #     # remove the job from Redis
-        #     # conn.delete(job.id)
-
-        if job.is_finished:
-            results = job.result
-            if not results:
-                # If job.result is empty, try to get results from Redis
-                results_json = conn.get(job_id_str)
-                if results_json:
-                    results = json.loads(results_json)
-                else:
-                    results = []
-
-            logger.error(f"Final results (error): {results}")
-            send_stop_job_command(conn, job_id_str)
-            return render(request, 'results.html', {'results': results})
-        
-        elif job.is_failed:
-            return render(request, 'results.html', {'error': 'Job failed.'})
-        else:
-            results = job.result
-            if not results:
-                # If job.result is empty, try to get results from Redis
-                results_json = conn.get(job_id_str)
-                if results_json:
-                    results = json.loads(results_json)
-                else:
-                    results = []
-
-            logger.error(f"Not finished final results (error): {results}")
-            send_stop_job_command(conn, job_id_str)
-            return render(request, 'results.html', {'results': results, 'status': 'Job cannot be completed because of the timeout.'})
-        
-    except NoSuchJobError:
-        return render(request, 'results.html', {'error': 'No such job found.'})
-    except ConnectionError as e:
-        logger.error(f"Redis connection error: {str(e)}")
-        return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
-    except Exception as e:
-        return render(request, 'results.html', {'error': str(e), 'results': []})    
+# def results(request, job_id):
+#     try:
+#         job_id_str = str(job_id)
+#         job = Job.fetch(job_id_str, connection=conn)
+#
+#         # if job.is_finished or job.is_failed:
+#         #     # Perform job cleanup, delete the job immediately after it finishes
+#         #     job.cleanup(ttl=0)
+#         #     # remove the job from Redis
+#         #     # conn.delete(job.id)
+#
+#         if job.is_finished:
+#             results = job.result
+#             if not results:
+#                 # If job.result is empty, try to get results from Redis
+#                 results_json = conn.get(job_id_str)
+#                 if results_json:
+#                     results = json.loads(results_json)
+#                 else:
+#                     results = []
+#
+#             logger.error(f"Final results (error): {results}")
+#             send_stop_job_command(conn, job_id_str)
+#             return render(request, 'results.html', {'results': results})
+#
+#         elif job.is_failed:
+#             return render(request, 'results.html', {'error': 'Job failed.'})
+#         else:
+#             results = job.result
+#             if not results:
+#                 # If job.result is empty, try to get results from Redis
+#                 results_json = conn.get(job_id_str)
+#                 if results_json:
+#                     results = json.loads(results_json)
+#                 else:
+#                     results = []
+#
+#             logger.error(f"Not finished final results (error): {results}")
+#             send_stop_job_command(conn, job_id_str)
+#             return render(request, 'results.html', {'results': results, 'status': 'Job cannot be completed because of the timeout.'})
+#
+#     except NoSuchJobError:
+#         return render(request, 'results.html', {'error': 'No such job found.'})
+#     except ConnectionError as e:
+#         logger.error(f"Redis connection error: {str(e)}")
+#         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
+#     except Exception as e:
+#         return render(request, 'results.html', {'error': str(e), 'results': []})
