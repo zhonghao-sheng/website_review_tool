@@ -193,7 +193,7 @@ class Web_spider():
 #     except Exception as e:
 #         print(f'Error processing link {href}: {str(e)}')
 
-
+@login_required
 def search_link(request):
     if request.method == 'POST':
         url = request.POST.get('url')
