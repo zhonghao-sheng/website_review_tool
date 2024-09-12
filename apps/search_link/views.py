@@ -66,11 +66,6 @@ class Web_spider():
     def get_more_links(self):
 
         while True:
-            if self.counter >= 200:
-                while not self.web_links.empty():
-                    self.web_links.get()
-                    self.web_links.task_done()
-                return
             link_combo = self.web_links.get()
 
             link = link_combo[0]
