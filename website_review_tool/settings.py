@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'website_review_tool.wsgi.application'
+WSGI_APPLICATION = 'website_review_tools.wsgi.application'
 
 
 # Database
