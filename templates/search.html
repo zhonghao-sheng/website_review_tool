@@ -88,6 +88,17 @@
             background-color: #d0d0d0; /* Darker shade of the original color */
         }
 
+         /* The horizontal line extending from the logo to the buttons */
+        .line {
+            position: absolute;
+            top: 13%; /* Vertically centered with the logo */
+            left: 170px; /* Starts at the end of the logo */
+            right: 0px; /* Stops before the buttons */
+            height: 2px;
+            background-color: rgb(200, 200, 200); /* Line color */
+            transform: translateY(-50%);
+        }
+
         .text {
             margin: 20px 0;
             font-size: 14px;
@@ -130,6 +141,10 @@
             <img src="{% static 'images/unimelb.svg' %}" alt="Logo">
             </a>
         </div>
+        
+        <!-- Black horizontal line -->
+        <div class="line"></div>
+
         <div class="nav-buttons">
             <button><i class="fas fa-user"></i> My Account</button>
             <button><i class="fas fa-globe"></i> Language</button>
