@@ -13,7 +13,7 @@ import time
 from django.http import JsonResponse
 import time
 
-
+S = 30
 def index(request):
     return render(request, 'search.html')
 
@@ -71,7 +71,7 @@ class Web_spider():
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
-                response = requests.get(link)
+                response = requests.get(link, timeout=S)
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
@@ -118,7 +118,7 @@ class Web_spider():
 
             try:
                 print(f'detecting link {link}')
-                response = requests.get(link)
+                response = requests.get(link, timeout=S)
                 # if not broken, then put back to the queue
                 if response.status_code == 200:
                     if link.startswith(self.baseurl):
