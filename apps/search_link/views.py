@@ -13,7 +13,7 @@ import time
 from django.http import JsonResponse
 import time
 
-S = 70
+S = 20
 def index(request):
     return render(request, 'search.html')
 
