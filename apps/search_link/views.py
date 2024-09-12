@@ -20,8 +20,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Setting the expire time for the results in Redis to 3 minutes
 EXPIRE_TIME = 180
-# Setting the search time out to 5 seconds
-SEARCH_TIME_OUT = 5
+# Setting the search time out to 10 seconds
+SEARCH_TIME_OUT = 10
+
+THREAD_NUM = 20
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +131,12 @@ class Web_spider():
                 self.counter -= 1
                 print(f'Final counter = {self.counter}')
                 print(f'remaining links number {self.web_links.qsize()}')
+                # Serialize the results as a JSON string
+                results_json = json.dumps(self.broken_links)
+                # Store the results in a Redis key using the job ID
+                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                # logger.error(f"Results: {results_json}")
+
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
@@ -136,13 +144,6 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-                        
-                        # Serialize the results as a JSON string
-                        results_json = json.dumps(self.broken_links)
-
-                        # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        # logger.error(f"Results: {results_json}")
                     break
 
     # help save time by filtering out broken link to reduce response time
@@ -187,6 +188,13 @@ class Web_spider():
                 print(f'counter = {self.counter}')
                 # print(f'remaining detected tasks{self.web_links.qsize()}')
 
+                # Serialize the results as a JSON string
+                results_json = json.dumps(self.broken_links)
+
+                # Store the results in a Redis key using the job ID
+                conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
+                # logger.error(f"Results: {results_json}")
+
                 # Check if the queue is empty and counter is zero to break the loop
                 if self.web_links.qsize() == 0 and self.counter == 0:
                     print('finished')
@@ -194,13 +202,6 @@ class Web_spider():
                         job = Job.fetch(current_job_id, connection=conn)
                         job.set_status('finished')
                         logger.error(f"Job {job.id} status after setting to finished: {job.get_status()}")
-
-                        # Serialize the results as a JSON string
-                        results_json = json.dumps(self.broken_links)
-
-                        # Store the results in a Redis key using the job ID
-                        conn.set(current_job_id, results_json, ex=EXPIRE_TIME)
-                        # logger.error(f"Results: {results_json}")
                     break
 
     def handle_download_link(self, link, source_link, content_type):
@@ -230,10 +231,10 @@ class Web_spider():
     def search_broken_links(self, baseurl, job_id):
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
@@ -248,10 +249,10 @@ class Web_spider():
         self.put_keyword(keyword)
         self.put_url(baseurl)
         thread_list = list()
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.get_more_links, args=(self.job_id,))
             thread_list.append(t)
-        for _ in range(20):
+        for _ in range(THREAD_NUM):
             t = Thread(target=self.detect_links, args=(self.job_id,))
             thread_list.append(t)
         for t in thread_list:
@@ -275,6 +276,12 @@ class Web_spider():
 @login_required
 def search_link(request):
     q.empty()
+
+    # Stop the unexpected current job if it's still running
+    if get_current_job() and get_current_job().get_status() == 'finished':
+        logger.error(f"Stopping current job: {get_current_job().id}")
+        send_stop_job_command(conn, get_current_job().id)
+
     if request.method == 'POST':
         try:
             url = request.POST.get('url')
@@ -286,8 +293,8 @@ def search_link(request):
             job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn, args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
             q.enqueue_job(job)
 
-            # Poll the job every second for up to 20 seconds
-            for i in range(40):
+            # Poll the job every second for up to 25 seconds
+            for i in range(50):
                 time.sleep(0.5)
                 job.refresh()
                 # logger.error(f"current job id: {get_current_job().id}")
@@ -344,16 +351,24 @@ def results(request, job_id):
                     results = []
 
             logger.error(f"Final results (error): {results}")
-            logger.info(f"Final results (info): {results}")
             send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'results': results})
         
         elif job.is_failed:
-            send_stop_job_command(conn, job_id_str)
             return render(request, 'results.html', {'error': 'Job failed.'})
         else:
+            results = job.result
+            if not results:
+                # If job.result is empty, try to get results from Redis
+                results_json = conn.get(job_id_str)
+                if results_json:
+                    results = json.loads(results_json)
+                else:
+                    results = []
+
+            logger.error(f"Not finished final results (error): {results}")
             send_stop_job_command(conn, job_id_str)
-            return render(request, 'results.html', {'status': 'Job is still processing...'})
+            return render(request, 'results.html', {'results': results, 'status': 'Job cannot be completed because of the timeout.'})
         
     except NoSuchJobError:
         return render(request, 'results.html', {'error': 'No such job found.'})
@@ -361,35 +376,4 @@ def results(request, job_id):
         logger.error(f"Redis connection error: {str(e)}")
         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
     except Exception as e:
-        return render(request, 'results.html', {'error': str(e), 'results': []})
-         
-# @csrf_exempt
-# def stop_job(request, job_id):
-#     try:
-#         job = Job.fetch(job_id, connection=conn)
-#         send_stop_job_command(conn, job_id)
-#         job.cancel()  # Cancel the job
-#         return JsonResponse({'status': 'Job cancelled successfully'})
-#     except NoSuchJobError:
-#         return JsonResponse({'error': 'Job not found'}, status=404)
-#     except Exception as e:
-#         logger.error(f"Error stopping job {job_id}: {str(e)}")
-#         return JsonResponse({'error': str(e)}, status=500)
-
-# @csrf_exempt
-# def stop_job(request, job_id):
-#     if request.method == 'POST':
-#         try:
-#             job = Job.fetch(job_id, connection=conn)
-#             if job.is_started or job.is_finished or job.is_queued:
-#                 # Cancel the job if it is running
-#                 job.cancel()
-#                 return JsonResponse({'status': 'success'}, status=200)
-#             else:
-#                 return JsonResponse({'status': 'job not running'}, status=400)
-#         except NoSuchJobError:
-#             return JsonResponse({'error': 'No such job found'}, status=404)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-    
+        return render(request, 'results.html', {'error': str(e), 'results': []})    

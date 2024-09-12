@@ -23,6 +23,11 @@
 </head>
 <body>
     <h1>Search Results</h1>
+    {% if status %} <!-- Display the info if 'status' is not empty -->
+        <tr>
+            <td colspan="3">{{ status }}</td> <!-- Display a message if an error occurs -->
+        </tr>
+    {% endif %}
     <table>
         <thead>
             <tr>
@@ -32,19 +37,25 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Loop through the 'results' list and render each dictionary as a row -->
-            {% for result in results %}
-            <tr>
-                <!-- Display URL as a clickable link -->
-                <td><a href="{{ result.url }}">{{ result.url }}</a></td>
+            {% if results %} <!-- Check if 'results' list is empty -->
+                <!-- Loop through the 'results' list and render each dictionary as a row -->
+                {% for result in results %}
+                <tr>
+                    <!-- Display URL as a clickable link -->
+                    <td><a href="{{ result.url }}">{{ result.url }}</a></td>
 
-                <!-- Display Source Link as a clickable link -->
-                <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>
+                    <!-- Display Source Link as a clickable link -->
+                    <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>
 
-                <!-- Display associated text as plain text -->
-                <td>{{ result.associated_text }}</td>
-            </tr>
-            {% endfor %}
+                    <!-- Display associated text as plain text -->
+                    <td>{{ result.associated_text }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3">No results found.</td> <!-- Display a message if no results are found -->
+                </tr>
+            {% endif %}
         </tbody>
     </table>
 </body>
