@@ -120,6 +120,11 @@ class Web_spider():
                 print(f'detecting link {link}')
                 response = requests.get(link, timeout=S)
                 # if not broken, then put back to the queue
+                content_type = response.headers.get('Content-Type', '').lower()
+
+                # Check if the link is a valid download link
+                if 'application/' in content_type or 'octet-stream' in content_type:
+                    print(f'Valid download link detected: {link}')
                 if response.status_code == 200:
                     if link.startswith(self.baseurl):
                         self.web_links.put(link_combo)
