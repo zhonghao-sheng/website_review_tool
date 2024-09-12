@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 # Setting the expire time for the results in Redis to 3 minutes
 EXPIRE_TIME = 180
 # Setting the search time out to 10 seconds
-SEARCH_TIME_OUT = 10
+SEARCH_TIME_OUT = 30
 
 THREAD_NUM = 20
 
@@ -72,12 +72,12 @@ class Web_spider():
 
     def get_more_links(self, current_job_id=None):
         while True:
-            # if self.counter >= 200:
-            #     while not self.web_links.empty():
-            #         self.web_links.get()
-            #         self.web_links.task_done()
-            #         self.counter -= 1
-            #     return
+            if self.counter >= 200:
+                while not self.web_links.empty():
+                    self.web_links.get()
+                    self.web_links.task_done()
+                    self.counter -= 1
+                return
             link_combo = self.web_links.get()
 
             link = link_combo[0]
@@ -135,12 +135,12 @@ class Web_spider():
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
         while True:
-            # if self.counter >= 200:
-            #     while not self.web_links.empty():
-            #         self.web_links.get()
-            #         self.web_links.task_done()
-            #         self.counter -= 1
-            #     return
+            if self.counter >= 200:
+                while not self.web_links.empty():
+                    self.web_links.get()
+                    self.web_links.task_done()
+                    self.counter -= 1
+                return
             link_combo = self.web_links.get()
             link = link_combo[0]
 
