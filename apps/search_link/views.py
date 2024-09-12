@@ -72,6 +72,12 @@ class Web_spider():
 
     def get_more_links(self, current_job_id=None):
         while True:
+            if self.counter >= 200:
+                while not self.web_links.empty():
+                    self.web_links.get()
+                    self.web_links.task_done()
+                    self.counter -= 1
+                return
             link_combo = self.web_links.get()
 
             link = link_combo[0]
@@ -129,6 +135,12 @@ class Web_spider():
     # help save time by filtering out broken link to reduce response time
     def detect_links(self, current_job_id=None):
         while True:
+            if self.counter >= 200:
+                while not self.web_links.empty():
+                    self.web_links.get()
+                    self.web_links.task_done()
+                    self.counter -= 1
+                return
             link_combo = self.web_links.get()
             link = link_combo[0]
 
