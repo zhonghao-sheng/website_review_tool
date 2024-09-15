@@ -1,62 +1,78 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>Results</title>-->
+<!--    <style>-->
+<!--        /* Style for the table */-->
+<!--        table {-->
+<!--            border-collapse: collapse; /* Merge borders between table cells to avoid double borders */-->
+<!--            width: 100%; /* Make the table occupy the full width of the page */-->
+<!--        }-->
+
+<!--        /* Apply border and padding to the table, table headers, and table cells */-->
+<!--        table, th, td {-->
+<!--            border: 1px solid black; /* Set a 1px solid black border */-->
+<!--            padding: 8px; /* Add padding inside the table cells */-->
+<!--        }-->
+
+<!--        /* Style the table header */-->
+<!--        th {-->
+<!--            background-color: #f2f2f2; /* Set a light gray background color for the header */-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Search Results</h1>-->
+<!--    {% if status %} &lt;!&ndash; Display the info if 'status' is not empty &ndash;&gt;-->
+<!--        <tr>-->
+<!--            <td colspan="3">{{ status }}</td> &lt;!&ndash; Display a message if an error occurs &ndash;&gt;-->
+<!--        </tr>-->
+<!--    {% endif %}-->
+<!--    <table>-->
+<!--        <thead>-->
+<!--            <tr>-->
+<!--                <th>URL</th> &lt;!&ndash; Column for URLs &ndash;&gt;-->
+<!--                <th>Source Link</th> &lt;!&ndash; Column for source links &ndash;&gt;-->
+<!--                <th>Associated Text</th> &lt;!&ndash; Column for associated text &ndash;&gt;-->
+<!--            </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--            {% if results %} &lt;!&ndash; Check if 'results' list is empty &ndash;&gt;-->
+<!--                &lt;!&ndash; Loop through the 'results' list and render each dictionary as a row &ndash;&gt;-->
+<!--                {% for result in results %}-->
+<!--                <tr>-->
+<!--                    &lt;!&ndash; Display URL as a clickable link &ndash;&gt;-->
+<!--                    <td><a href="{{ result.url }}">{{ result.url }}</a></td>-->
+
+<!--                    &lt;!&ndash; Display Source Link as a clickable link &ndash;&gt;-->
+<!--                    <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>-->
+
+<!--                    &lt;!&ndash; Display associated text as plain text &ndash;&gt;-->
+<!--                    <td>{{ result.associated_text }}</td>-->
+<!--                </tr>-->
+<!--                {% endfor %}-->
+<!--            {% else %}-->
+<!--                <tr>-->
+<!--                    <td colspan="3">No results found.</td> &lt;!&ndash; Display a message if no results are found &ndash;&gt;-->
+<!--                </tr>-->
+<!--            {% endif %}-->
+<!--        </tbody>-->
+<!--    </table>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Results</title>
-    <style>
-        /* Style for the table */
-        table {
-            border-collapse: collapse; /* Merge borders between table cells to avoid double borders */
-            width: 100%; /* Make the table occupy the full width of the page */
-        }
-
-        /* Apply border and padding to the table, table headers, and table cells */
-        table, th, td {
-            border: 1px solid black; /* Set a 1px solid black border */
-            padding: 8px; /* Add padding inside the table cells */
-        }
-
-        /* Style the table header */
-        th {
-            background-color: #f2f2f2; /* Set a light gray background color for the header */
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    {% load static %} <!-- Load the static tag library -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1>Search Results</h1>
-    {% if status %} <!-- Display the info if 'status' is not empty -->
-        <tr>
-            <td colspan="3">{{ status }}</td> <!-- Display a message if an error occurs -->
-        </tr>
-    {% endif %}
-    <table>
-        <thead>
-            <tr>
-                <th>URL</th> <!-- Column for URLs -->
-                <th>Source Link</th> <!-- Column for source links -->
-                <th>Associated Text</th> <!-- Column for associated text -->
-            </tr>
-        </thead>
-        <tbody>
-            {% if results %} <!-- Check if 'results' list is empty -->
-                <!-- Loop through the 'results' list and render each dictionary as a row -->
-                {% for result in results %}
-                <tr>
-                    <!-- Display URL as a clickable link -->
-                    <td><a href="{{ result.url }}">{{ result.url }}</a></td>
-
-                    <!-- Display Source Link as a clickable link -->
-                    <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>
-
-                    <!-- Display associated text as plain text -->
-                    <td>{{ result.associated_text }}</td>
-                </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="3">No results found.</td> <!-- Display a message if no results are found -->
-                </tr>
-            {% endif %}
-        </tbody>
-    </table>
+    {% comment %} <h1>Search Results for "{{ keyword }}"</h1> {% endcomment %}
+    <p>Occurrencess: </p>
+    <p>{{ results }}</p>
+    <a href="{% url 'index' %}">Search Again</a>
 </body>
 </html>
