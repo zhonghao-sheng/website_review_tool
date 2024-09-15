@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+django = "~=3.2"
+requests = "~=2.32.3"
+bs4 = "~=0.0.2"
+beautifulsoup4 = "~=4.12.3"
+pymysql = "~=1.1.1"
+mysqlclient = "==2.2.4"
 
 [dev-packages]
 
