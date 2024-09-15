@@ -86,23 +86,23 @@ WSGI_APPLICATION = 'website_review_tool.wsgi.application'
 #             'PORT': os.environ['RDS_PORT'],
 #         }
 #     }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'ebdb',
-#         'USER': 'ebroot',
-#         'PASSWORD': 'nbmy43602',
-#         'HOST': 'awseb-e-is39tew9m2-stack-awsebrdsdatabase-fg3qxeghnbjk.cdgamie849fo.ap-southeast-2.rds.amazonaws.com',
-#         'PORT': 3306,
-#     }
-# }
-# else:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ebdb',
+        'USER': 'ebroot',
+        'PASSWORD': 'nbmy43602',
+        'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-olpef11whdux.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
+        'PORT': 3306,
     }
 }
+# else:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
