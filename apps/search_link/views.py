@@ -13,7 +13,8 @@ import time
 from django.http import JsonResponse
 import time
 
-S = 20
+REQUEST_TIMEOUT = 20
+
 def index(request):
     return render(request, 'search.html')
 
@@ -71,7 +72,7 @@ class Web_spider():
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
-                response = requests.get(link, timeout=S)
+                response = requests.get(link, timeout=REQUEST_TIMEOUT)
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
@@ -118,7 +119,7 @@ class Web_spider():
 
             try:
                 print(f'detecting link {link}')
-                response = requests.get(link, timeout=S)
+                response = requests.get(link, timeout=REQUEST_TIMEOUT)
                 # if not broken, then put back to the queue
                 content_type = response.headers.get('Content-Type', '').lower()
 
@@ -213,54 +214,3 @@ def search_task(url, keyword):
     else:
         results = web_spider.search_broken_links(url)
     return results
-    
-    
-
-# def results(request, job_id):
-#     try:
-#         job_id_str = str(job_id)
-#         job = Job.fetch(job_id_str, connection=conn)
-#
-#         # if job.is_finished or job.is_failed:
-#         #     # Perform job cleanup, delete the job immediately after it finishes
-#         #     job.cleanup(ttl=0)
-#         #     # remove the job from Redis
-#         #     # conn.delete(job.id)
-#
-#         if job.is_finished:
-#             results = job.result
-#             if not results:
-#                 # If job.result is empty, try to get results from Redis
-#                 results_json = conn.get(job_id_str)
-#                 if results_json:
-#                     results = json.loads(results_json)
-#                 else:
-#                     results = []
-#
-#             logger.error(f"Final results (error): {results}")
-#             send_stop_job_command(conn, job_id_str)
-#             return render(request, 'results.html', {'results': results})
-#
-#         elif job.is_failed:
-#             return render(request, 'results.html', {'error': 'Job failed.'})
-#         else:
-#             results = job.result
-#             if not results:
-#                 # If job.result is empty, try to get results from Redis
-#                 results_json = conn.get(job_id_str)
-#                 if results_json:
-#                     results = json.loads(results_json)
-#                 else:
-#                     results = []
-#
-#             logger.error(f"Not finished final results (error): {results}")
-#             send_stop_job_command(conn, job_id_str)
-#             return render(request, 'results.html', {'results': results, 'status': 'Job cannot be completed because of the timeout.'})
-#
-#     except NoSuchJobError:
-#         return render(request, 'results.html', {'error': 'No such job found.'})
-#     except ConnectionError as e:
-#         logger.error(f"Redis connection error: {str(e)}")
-#         return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.', 'results': []})
-#     except Exception as e:
-#         return render(request, 'results.html', {'error': str(e), 'results': []})

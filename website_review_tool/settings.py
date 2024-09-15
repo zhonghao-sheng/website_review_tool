@@ -75,27 +75,28 @@ WSGI_APPLICATION = 'website_review_tool.wsgi.application'
 #
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-# if 'RDS_HOSTNAME' in os.environ:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.mysql',
-#             'NAME': os.environ['RDS_DB_NAME'],
-#             'USER': os.environ['RDS_USERNAME'],
-#             'PASSWORD': os.environ['RDS_PASSWORD'],
-#             'HOST': os.environ['RDS_HOSTNAME'],
-#             'PORT': os.environ['RDS_PORT'],
-#         }
-#     }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ebdb',
-        'USER': 'ebroot',
-        'PASSWORD': 'nbmy43602',
-        'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-olpef11whdux.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
-        'PORT': 3306,
+if 'RDS_HOSTNAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'ebdb',
+#         'USER': 'ebroot',
+#         'PASSWORD': 'nbmy43602',
+#         'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-olpef11whdux.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
+#         'PORT': 3306,
+#     }
+# }
 # else:
 # DATABASES = {
 #     'default': {
