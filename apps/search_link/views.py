@@ -75,10 +75,11 @@ class Web_spider():
                     soup = BeautifulSoup(response.content, 'html.parser')
                     if self.keyword is not None:
                         text = soup.get_text()
-                        if self.keyword in text:
-                            print(f'found keyword {self.keyword} in link {link}')
-                            self.keyword_links.append(link)
-                            self.keyword_link_file.write(link + '\n')
+                        for keyword in self.keyword:
+                            if keyword in text:
+                                print(f'found keyword {keyword} in link {link}')
+                                self.keyword_links.append({'url':link, 'associated_text':keyword})
+                                self.keyword_link_file.write(link + '\n')
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
                         text = href_link.get_text()
@@ -188,7 +189,8 @@ class Web_spider():
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword):
-        self.put_keyword(keyword)
+        keyword_list = keyword.split()
+        self.put_keyword(keyword_list)
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
@@ -207,7 +209,7 @@ class Web_spider():
 def search_link(request):
     if request.method == 'POST':
         url = request.POST.get('url')
-        keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
+        keyword = request.POST.get('specifiedText')  # Fetch the keyword if it's provided
         results = search_task(url, keyword)
         return render(request, 'results.html', {'results': results})
     return render(request, 'search.html')
