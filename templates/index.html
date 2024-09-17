@@ -132,16 +132,16 @@
     </div>
     {% comment %} <input type="text" value="Log in"> {% endcomment %}
 
-    {% if user.is_authenticated %}
-        <p>Hello, {{ user.username }}!
-            <form id="logout-form" action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        </p>
-    {% else %}
-        <p>You are not logged in. <a href="{% url 'login' %}">Login</a> or <a href="{% url 'signup' %}">Sign up</a></p>
-    {% endif %}
+<!--    {% if user.is_authenticated %}-->
+<!--        <p>Hello, {{ user.username }}!-->
+<!--            <form id="logout-form" action="{% url 'logout' %}" method="post">-->
+<!--                {% csrf_token %}-->
+<!--                <button type="submit">Logout</button>-->
+<!--            </form>-->
+<!--        </p>-->
+<!--    {% else %}-->
+    <p>You are not logged in. <a href="{% url 'login' %}">Login</a> or <a href="{% url 'signup' %}">Sign up</a></p>
+<!--    {% endif %}-->
 
     <button class="search-button" onclick="location.href='{% url 'check_login' %}'">
             SEARCH <i class="fas fa-search"></i>
