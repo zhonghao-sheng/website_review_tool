@@ -210,3 +210,13 @@ LOGGING = {
     },
 }
 
+# Emailing settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM = 'Website Review Tool'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')        # your email address
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')          # your email password; could use app password if google account
+EMAIL_PORT = os.getenv('EMAIL_PORT', '')
+EMAIL_USE_TLS = True
+
+PASSWORD_RESET_TIMEOUT = 14400
