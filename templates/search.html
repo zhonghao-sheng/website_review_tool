@@ -73,19 +73,18 @@
         .text-button, .links-button {
             width: 120px;
             height: 50px;
-            background-color: #e0e0e0;
             border: none;
             border-radius: 15px;
             font-size: 12px;
             cursor: pointer;
             transition: background-color 0.3s;
-            background-color: #0C4483; /* Deep blue background */
+            background-color: #002e5d; /* Deep blue background */
             color: #ffffff; /* White text color */
         }
 
          /* Hover effect */
          .text-button:hover, .links-button:hover{
-            background-color: #d0d0d0; /* Darker shade of the original color */
+            background-color: #0066cc; /* Darker shade of the original color */
         }
 
          /* The horizontal line extending from the logo to the buttons */
@@ -129,6 +128,60 @@
             border-radius: 4px;
         }
 
+        /* Tooltip container: ensures it fits the content and is centered */
+        .tooltip {
+            position: relative;
+            display: block;
+            width: fit-content; /* Ensure the container fits the content and doesn't stretch */
+            margin: 0 auto; /* Center the tooltip container horizontally */
+        }
+
+        /* Hidden tooltip box */
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #002e5d;
+            color: #fff;
+            text-align: left;
+            border-radius: 5px;
+            padding: 10px;
+
+            /* Tooltip position */
+            position: absolute;
+            z-index: 1;
+            left: 105%; /* Position the tooltip to the right of the input */
+            top: 50%; /* Vertically center the tooltip relative to the input */
+            margin-left: 10px;
+            transform: translateY(-50%); /* Adjust the tooltip position for perfect vertical centering */
+
+            /* Transition effect for opacity */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Show tooltip when input is hovered */
+        .tooltip input:hover + .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Show tooltip when input is focused */
+        .tooltip input:focus + .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Tooltip arrow */
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 50%; /* Vertically center the arrow */
+            right: 100%; /* Position the arrow on the left of the tooltip */
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */
+        }
     </style>
 
 </head>
@@ -159,7 +212,11 @@
     <form action="{% url 'search_link' %}" method="post">
         {% csrf_token %}
         <input type="text" id="url" name="url" placeholder="Click to enter URL" required>
+
+        <div class="tooltip">
         <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">
+        <div class="tooltiptext">instruction to be completed</div>
+        </div>
 
         <div class="button-container">
             <button class="text-button" type="submit" id="showHidden">SEARCH FOR TEXT <i class="fas fa-search"></i></button>
