@@ -55,7 +55,8 @@ def activate(request, uidb64, token):
     
     messages.success(request, f"This function works!")
     return redirect('index')
-
+def forgot_password(request):
+    return render(request, "forgotPassword.html")
 def activate_email(request, user, email):
     subject = "Activate your account."
     message = render_to_string("activate.html", {
