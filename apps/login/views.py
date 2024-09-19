@@ -14,6 +14,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.contrib.auth import get_user_model
+from smtplib import SMTPException
 
 def login_user(request):
     if request.method == 'POST':
@@ -66,7 +67,7 @@ def activate_email(request, user, email):
         'protocol': 'https' if request.is_secure() else 'http'
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
+    if email_message.send(fail_silently=False):
         messages.success(request, f"Thank you {user} for signing up to the website review tool. Please check \
                          your email {email} inbox and click on the activation link to confirm registration.")
     else:
@@ -80,7 +81,9 @@ def signup(request):
             user.is_active = False
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
-            # return redirect('index')  # Redirect to home page after successful signup
+            return redirect('login')  # Redirect to login page after successful signup
+        # else:
+            print(form.errors)
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
