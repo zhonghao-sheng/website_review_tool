@@ -82,6 +82,8 @@ def signup(request):
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
             # return redirect('index')  # Redirect to home page after successful signup
+        else:
+            messages.error(request, f"username or password invalid, please try again")
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
