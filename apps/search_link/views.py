@@ -18,10 +18,7 @@ class Web_spider():
         self.visited_or_about_to_visit = set()
         self.web_links = Queue()
         self.baseurl = 'https://sites.research.unimelb.edu.au/research-funding'
-        self.broken_link_file = open('broken_links_faster.txt', 'w')
         self.UOM_sign_links = list()
-        self.uom_sign_link_file = open('uom_links.txt','w')
-        self.keyword_link_file = open('keyword_links.txt','w')
         self.counter = 0
         self.broken_links = list()
         self.keyword = 'Funding Partners'
@@ -40,24 +37,16 @@ class Web_spider():
     def add_uom_sign_link(self, link, source_link):
         self.UOM_sign_links.append({'url': link, 'source_link': source_link})
 
-    def write_uom_sign_link(self, link, associated_text, source_link):
-        self.uom_sign_link_file.write(f'uom link:{link}, associated_text:{associated_text},page source:{source_link}\n')
 
     def deal_uom_sign_link(self, link,associated_text, source_link):
         if self.is_uom_sign_link(link):
             self.add_uom_sign_link(link, source_link)
-            self.write_uom_sign_link(link, associated_text, source_link)
     def add_broken_link(self, link, source_link, associated_text):
         self.broken_links.append({'url': link, 'source_link':
             source_link, 'associated_text': associated_text})
 
-    def write_broken_link(self, link, source_link, response_status, associated_text):
-        self.broken_link_file.write(f'status:{response_status}, broken link: '
-                                    f'{link}, page source: {source_link}, associated_text: {associated_text}\n')
-
     def deal_broken_link(self, link, source_link, response_status, associated_text):
         self.add_broken_link(link, source_link, associated_text)
-        self.write_broken_link(link, source_link, response_status, associated_text)
 
     def get_more_links(self):
 
