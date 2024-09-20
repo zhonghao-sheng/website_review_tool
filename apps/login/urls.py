@@ -3,9 +3,7 @@ from login.views import index,login_user, logout_user,signup, check_login, forgo
 from django.contrib.auth import views as auth_views
 
 from . import views
-from utils.converters import UsernameConverter
 from django.urls import register_converter
-register_converter(UsernameConverter, 'username')
 urlpatterns = [
     path('', index, name='index'),
     path('signup/', signup, name='signup'),
@@ -16,5 +14,4 @@ urlpatterns = [
     # path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     # path('logout/', auth_views.LogoutView.as_view(next_page=None), name='logout'),  # Logout and redirect to home page
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
-    # path('usernames/<username:username>/count/', views.UserNameCountView.as_view(),)
 ]

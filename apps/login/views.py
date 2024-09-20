@@ -14,20 +14,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.contrib.auth import get_user_model
-from django.views import View
-from .models import User
-import re
-
-
-class UserNameCountView(View):
-    def get(self, request, username):
-        # check if the username matches the format
-        if not re.match(r'[a-zA-Z0-9_-]{5,20}', username):
-            return JsonResponse({'code': 1, 'errmsg': 'invalid username'})
-        # check if the username already exists
-        count = User.objects.filter(username=username).count()
-        return JsonResponse({'code': 0, 'count': count, 'errmsg': 'ok'})
-
 
 def login_user(request):
     if request.method == 'POST':
