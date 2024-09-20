@@ -104,19 +104,25 @@
         {% csrf_token %}
         <label for="username">Username*</label>
         <input type="text" id="username" name="username" placeholder="Click to enter" required>
+        {{ form.username.errors }}
 
         <label for="email">Email Address*</label>
         <input type="email" id="email" name="email" placeholder="Click to enter" required>
+        {{ form.email.errors }}
 
         <label for="password">Password*</label>
         <input type="password" id="password" name="password" placeholder="Click to enter" required>
+        {{ form.password.errors }}
 
         <label for="confirm-password">Confirm Password*</label>
         <input type="password" id="confirm-password" name="confirm-password" placeholder="Click to enter" required>
+        {{ form.confirm-password.errors }}
 
         <button type="submit">SIGN UP</button>
     </form>
-
+    {% if form.errors %}
+        <p style="color:red;">Invalid username or password. Please try again.</p>
+    {% endif %}
     <div class="footer">
         <a href="{% url 'login' %}">Back to login</a>
     </div>
