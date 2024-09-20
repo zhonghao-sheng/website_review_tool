@@ -11,6 +11,8 @@ beautifulsoup4 = "~=4.12.3"
 pymysql = "~=1.1.1"
 mysqlclient = "==2.2.4"
 whitenoise = "~=6.7.0"
+pandas="~2.2.2"
+openpyxl="~3.1.5"
 [dev-packages]
 
 [requires]
