@@ -1,0 +1,19 @@
+branch-defaults:
+  deployment_aws2:
+    environment: env1
+environment-defaults:
+  env1:
+    branch: null
+    repository: null
+global:
+  application_name: website_reivew_tool
+  default_ec2_keyname: aws-eb
+  default_platform: Python 3.9 running on 64bit Amazon Linux 2023
+  default_region: ap-southeast-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  sc: git
+  workspace_type: Application
