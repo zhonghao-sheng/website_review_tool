@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 import requests
 from bs4 import BeautifulSoup
 import os
-from django.http import JsonResponse
+import pandas as pd
+from django.http import FileResponse, HttpResponse
 import time
 
 REQUEST_TIMEOUT = 20
@@ -68,7 +69,7 @@ class Web_spider():
                             if keyword in text:
                                 print(f'found keyword {keyword} in link {link}')
                                 self.keyword_links.append({'url':link, 'associated_text':keyword})
-                                self.keyword_link_file.write(link + '\n')
+
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
                         text = href_link.get_text()
@@ -212,4 +213,27 @@ def search_task(url, keyword):
         results = web_spider.search_keyword_links(url, keyword)
     else:
         results = web_spider.search_broken_links(url)
+    download_table(results)
     return results
+def download_table(results):
+    df = pd.DataFrame(results)
+    filename = 'output.xlsx'
+    if not os.path.exists('download_table'):
+        os.mkdir('download_table')
+    path = os.path.join('download_table', filename)
+    output = pd.ExcelWriter(path, engine='openpyxl')
+    df.to_excel(output, index=False)
+    output.close()
+
+def download(request):
+    # Specify the path to the existing Excel file
+    file_path = os.path.join('download_table', 'output.xlsx')
+    print(file_path)
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # Open the file in binary mode and send it as a response
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        response['Content-Disposition'] = 'attachment; filename="output.xlsx"'
+        return response
+    else:
+        return HttpResponse("File not found.", status=404)

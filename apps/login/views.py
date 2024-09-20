@@ -88,6 +88,7 @@ def signup(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
+            # messages.success(request, 'account has been activated')
             activate_email(request, user, form.cleaned_data.get('email'))
             # return redirect('index')  # Redirect to home page after successful signup
         else:
