@@ -126,14 +126,14 @@
 
     <form method="post">
         {% csrf_token %}
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" placeholder="Click to Enter" required>
+        <label for="userName">Userame</label>
+        <input type="text" id="userName" name="userName" class="userName" placeholder="Click to Enter" required>
 
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="Click to Enter" required>
+        <input type="password" id="password" name="password" class="password" placeholder="Click to Enter" required>
 
         <div class="checkbox">
-            <input type="checkbox" id="save-password" name="save-password">
+            <input type="checkbox" id="save-password" class="check" name="save-password">
             <label for="save-password">Save your password for next time</label>
         </div>
 
@@ -146,5 +146,33 @@
         <a href="{% url 'signup' %}">Not a user? Register now</a>
         <a href="{% url 'forgot_password' %}">Forgot Password?</a>
     </div>
+
+    <script>
+        var userName = document.querySelector('.userName');
+        var pwd = document.querySelector('.password');
+        var chk = document.querySelector('.check');
+        var btn = document.querySelector('button');
+    
+        // If "Remember Password" is checked when clicking login, the password is stored; Otherwise, clear the password
+        btn.onclick = function () {
+            if (chk.checked) {
+        // Memorize data
+                window.localStorage.setItem('userName', userName.value);
+                window.localStorage.setItem('pwd', pwd.value);
+            } else {
+        // Clear data
+                window.localStorage.removeItem('userName');
+                window.localStorage.removeItem('pwd');
+            }
+        }
+        // The next time you log in, if there is any data recorded, fill it directly
+        window.onload = function () {
+            if(window.localStorage.getItem('userName')) {
+                userName.value = window.localStorage.getItem('userName');
+                pwd.value = window.localStorage.getItem('pwd');
+                chk.checked = true;
+            }
+        }
+    </script>
 </body>
 </html>
