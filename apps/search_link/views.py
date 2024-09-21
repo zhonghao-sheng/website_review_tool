@@ -27,7 +27,7 @@ class Web_spider():
         self.broken_links = list()
         self.keyword = 'Funding Partners'
         self.keyword_links = list()
-        self.keyword_type = SPECIFIED_TEXT
+        self.keyword_type = None
 
 
     def put_url(self, baseurl):
@@ -78,7 +78,7 @@ class Web_spider():
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
-                                    self.keyword_links.append({'url':link, 'associated_text':link_combo[2]})
+                                    self.keyword_links.append({'url':link, 'associated_text':keyword})
                     elif self.keyword_type == WILDCARD:
                         pattern = self.keyword
                         if pattern is not None:
@@ -207,6 +207,11 @@ class Web_spider():
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword):
+        if keyword[0] == '/':
+            keyword = keyword[1:]
+            self.keyword_type = WILDCARD
+        else:
+            self.keyword_type = SPECIFIED_TEXT
         if self.keyword_type == SPECIFIED_TEXT:
             keyword = keyword.split()
         self.put_keyword(keyword)
@@ -243,12 +248,12 @@ def search_task(url, keyword):
         results = web_spider.search_keyword_links(url, keyword)
     else:
         results = web_spider.search_broken_links(url)
-    download_table(results)
+    download_table(results, 'output.xlsx')
     return results
 
-def download_table(results):
+def download_table(results, table_name):
     df = pd.DataFrame(results)
-    filename = 'output.xlsx'
+    filename = table_name
     if not os.path.exists('download_table'):
         os.mkdir('download_table')
     path = os.path.join('download_table', filename)
