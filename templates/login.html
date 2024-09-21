@@ -141,6 +141,10 @@
         <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
     </div>
 
+    <div class="alert"></div>
+        {% include 'message.html' %}
+    </div>
+
     <form method="post">
         {% csrf_token %}
         <label for="userName">Userame</label>
@@ -156,10 +160,6 @@
 
         <button type="submit">LOGIN</button>
     </form>
-    
-    <div class="alert"></div>
-        {% include 'message.html' %}
-    </div>
 
     <div class="footer">
         <a href="#">Not a user? Register now</a>
