@@ -67,7 +67,7 @@ def activate_email(request, user, email):
         'protocol': 'https' if request.is_secure() else 'http'
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send(fail_silently=False):
+    if email_message.send():
         messages.success(request, f"Thank you {user} for signing up to the website review tool. Please check \
                          your email {email} inbox and click on the activation link to confirm registration.")
     else:

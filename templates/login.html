@@ -108,6 +108,23 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -139,9 +156,11 @@
 
         <button type="submit">LOGIN</button>
     </form>
-    {% if form.errors %}
-        <p style="color:red;">Invalid username or password. Please try again.</p>
-    {% endif %}
+    
+    <div class="alert"></div>
+        {% include 'message.html' %}
+    </div>
+
     <div class="footer">
         <a href="#">Not a user? Register now</a>
         <a href="#">Forgot Password?</a>
