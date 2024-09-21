@@ -6,6 +6,7 @@
     <title>Sign Up</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,6 +85,23 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -95,13 +113,13 @@
         </div>
     </div>
 
-    <div class="messages-container"></div>
-        {% include 'message.html' %}
-    </div>
-
     <div class="image">
         <img src="{% static 'images/website-review-logo.svg' %}" alt="Page Logo">
         <h2>Sign Up</h2>
+    </div>
+
+    <div class="alert"></div>
+        {% include 'message.html' %}
     </div>
 
     <form method="post">
@@ -124,5 +142,7 @@
     <div class="footer">
         <a href="#">Back to login</a>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
