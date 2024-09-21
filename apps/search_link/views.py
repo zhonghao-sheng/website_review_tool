@@ -248,7 +248,9 @@ def search_task(url, keyword):
         results = web_spider.search_keyword_links(url, keyword)
     else:
         results = web_spider.search_broken_links(url)
+    uom_result = web_spider.UOM_sign_links
     download_table(results, 'output.xlsx')
+    download_table(uom_result, 'uom_sign_links.xlsx')
     return results
 
 def download_table(results, table_name):
@@ -262,14 +264,15 @@ def download_table(results, table_name):
     output.close()
 
 def download(request):
+    filename = request.GET.get('filename')
     # Specify the path to the existing Excel file
-    file_path = os.path.join('download_table', 'output.xlsx')
+    file_path = os.path.join('download_table', filename)
     print(file_path)
     # Check if the file exists
     if os.path.exists(file_path):
         # Open the file in binary mode and send it as a response
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-        response['Content-Disposition'] = 'attachment; filename="output.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
     else:
         return HttpResponse("File not found.", status=404)
