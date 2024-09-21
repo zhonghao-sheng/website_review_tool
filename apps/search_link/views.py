@@ -1,3 +1,5 @@
+from fnmatch import fnmatch
+
 from django.shortcuts import render, redirect
 from multiprocessing import JoinableQueue as Queue
 from threading import Thread
@@ -7,10 +9,11 @@ from bs4 import BeautifulSoup
 import os
 import pandas as pd
 from django.http import FileResponse, HttpResponse
-import time
+from fnmatch import *
 
 REQUEST_TIMEOUT = 20
-
+WILDCARD = 1
+SPECIFIED_TEXT = 0
 def index(request):
     return render(request, 'search.html')
 
@@ -24,6 +27,7 @@ class Web_spider():
         self.broken_links = list()
         self.keyword = 'Funding Partners'
         self.keyword_links = list()
+        self.keyword_type = SPECIFIED_TEXT
 
 
     def put_url(self, baseurl):
@@ -35,13 +39,13 @@ class Web_spider():
         self.keyword = keyword
     def is_uom_sign_link(self, link):
         return self.baseurl in link
-    def add_uom_sign_link(self, link, source_link):
-        self.UOM_sign_links.append({'url': link, 'source_link': source_link})
+    def add_uom_sign_link(self, link, source_link, associated_text):
+        self.UOM_sign_links.append({'url': link, 'source_link': source_link,'associated_text':associated_text})
 
 
-    def deal_uom_sign_link(self, link,associated_text, source_link):
+    def deal_uom_sign_link(self, link, associated_text, source_link):
         if self.is_uom_sign_link(link):
-            self.add_uom_sign_link(link, source_link)
+            self.add_uom_sign_link(link, source_link, associated_text)
     def add_broken_link(self, link, source_link, associated_text):
         self.broken_links.append({'url': link, 'source_link':
             source_link, 'associated_text': associated_text})
@@ -49,6 +53,11 @@ class Web_spider():
     def deal_broken_link(self, link, source_link, response_status, associated_text):
         self.add_broken_link(link, source_link, associated_text)
 
+    def translate_wildcard(self, pattern):
+        # print(pattern)
+        pattern = pattern.replace('%', '*')
+        pattern = pattern.replace('_', '?')
+        return pattern
     def get_more_links(self):
 
         while True:
@@ -63,12 +72,31 @@ class Web_spider():
                     if not link.startswith(self.baseurl):
                         continue
                     soup = BeautifulSoup(response.content, 'html.parser')
-                    if self.keyword is not None:
-                        text = soup.get_text()
-                        for keyword in self.keyword:
-                            if keyword in text:
-                                print(f'found keyword {keyword} in link {link}')
-                                self.keyword_links.append({'url':link, 'associated_text':keyword})
+                    if self.keyword_type == SPECIFIED_TEXT:
+                        if self.keyword is not None:
+                            text = soup.get_text()
+                            for keyword in self.keyword:
+                                if keyword in text:
+                                    print(f'found keyword {keyword} in link {link}')
+                                    self.keyword_links.append({'url':link, 'associated_text':link_combo[2]})
+                    elif self.keyword_type == WILDCARD:
+                        pattern = self.keyword
+                        if pattern is not None:
+                            text = soup.get_text().split()
+                            result = False
+                            for word in text:
+                                if fnmatch(word, pattern):
+                                    result = True
+                                    break
+                            if not result:
+                                pattern = self.translate_wildcard(pattern)
+                                for word in text:
+                                    if fnmatch(word, pattern):
+                                        result = True
+                                        break
+                            if result:
+                                print(f'found keyword {self.keyword} in link {link}')
+                                self.keyword_links.append({'url': link, 'associated_text': self.keyword})
 
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
@@ -179,8 +207,10 @@ class Web_spider():
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword):
-        keyword_list = keyword.split()
-        self.put_keyword(keyword_list)
+        if self.keyword_type == SPECIFIED_TEXT:
+            keyword = keyword.split()
+        self.put_keyword(keyword)
+
         self.put_url(baseurl)
         thread_list = list()
         for _ in range(20):
@@ -215,6 +245,7 @@ def search_task(url, keyword):
         results = web_spider.search_broken_links(url)
     download_table(results)
     return results
+
 def download_table(results):
     df = pd.DataFrame(results)
     filename = 'output.xlsx'
