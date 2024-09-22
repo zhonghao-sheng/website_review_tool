@@ -14,7 +14,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.contrib.auth import get_user_model
-from smtplib import SMTPException
+from django.utils.safestring import mark_safe
 
 def login_user(request):
     if request.method == 'POST':
@@ -54,7 +54,6 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, f"Link is invalid!")
     
-    messages.success(request, f"This function works!")
     return redirect('index')
 
 def activate_email(request, user, email):
@@ -82,8 +81,9 @@ def signup(request):
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
             return redirect('login')  # Redirect to login page after successful signup
-        # else:
-            print(form.errors)
+        else:
+            messages.error(request, mark_safe(''.join([f'• {msg}<br/>' for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
+
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
