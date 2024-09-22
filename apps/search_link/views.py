@@ -259,9 +259,18 @@ def download_table(results, table_name):
     if not os.path.exists('download_table'):
         os.mkdir('download_table')
     path = os.path.join('download_table', filename)
-    output = pd.ExcelWriter(path, engine='openpyxl')
-    df.to_excel(output, index=False)
-    output.close()
+    with pd.ExcelWriter(path, engine='openpyxl') as output:
+        df.to_excel(output, index=False, sheet_name = 'Sheet1')
+        worksheet = output.sheets['Sheet1']
+        column_widths = {
+            'A': 100,
+            'B': 100,
+            'C': 50
+        }
+        for col, width in column_widths.items():
+            worksheet.column_dimensions[col].width = width
+
+    # output.close()
 
 def download(request):
     filename = request.GET.get('filename')
