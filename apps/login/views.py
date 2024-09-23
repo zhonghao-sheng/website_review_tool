@@ -79,7 +79,7 @@ def activate_email(request, user, email):
                          your email {email} inbox and click on the activation link to confirm registration.")
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
-
+#
 
 def signup(request):
     if request.method == 'POST':
