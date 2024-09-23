@@ -8,3 +8,10 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+
+class ResetPasswordForm(forms.Form):
+    email = forms.EmailField(max_length=254, required=True, help_text='Required. Provide a valid email address.')
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
