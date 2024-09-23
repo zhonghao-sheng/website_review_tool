@@ -6,6 +6,7 @@
     <title>Sign Up</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,10 +20,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 20px;
-            background-color: #fff;
+            background-color: #080E45;
         }
         .header .logo {
-            max-width: 175px; /* control logo size */
+            max-width: 145px; /* control logo size */
         }
         .header .logo img {
             width: 100%;
@@ -60,29 +61,54 @@
         button {
             width: 200px;
             height: 60px;
-            padding: 10px;
+            padding: 5px;
             border: none;
-            background-color: #0C4483;
+            background-color: #080E45;
             color: #ffffff;
             border-radius: 30px;
-            margin: 20px auto;
+            margin: 10px auto;
             transition: background-color 0.3s;
             cursor: pointer;
             font-size: 20px;
         }
+        /* Hover effect */
+        button:hover {
+            background-color: #0066cc;
+        }
         .footer {
-            margin-top: 5px;
-            color: #0C4483;
+            margin-top: 2px;
+            color: #080E45;
             text-decoration: none;
         }
         .footer a {
             display: block;
-            margin: 5px 0;
-            color: #0C4483;
+            margin: 2px 0;
+            color: #080E45;
             text-decoration: none;
         }
         .footer a:hover {
             text-decoration: underline;
+            color: #0066cc;
+        }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
+        .required {
+            color: red;
         }
     </style>
 </head>
@@ -100,35 +126,31 @@
         <h2>Sign Up</h2>
     </div>
 
+    <div class="alert"></div>
+        {% include 'message.html' %}
+    </div>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.username.errors }}
-        {{ form.email.errors }}
-        {{ form.password1.errors }}
-        {{ form.password2.errors }}
-        <label for="username">Username*</label>
+        <label for="username">Username<span class="required">*</span></label>
         <input type="text" id="username" name="username" placeholder="Click to enter" required>
 
-
-        <label for="email">Email Address*</label>
+        <label for="email">Email Address<span class="required">*</span></label>
         <input type="email" id="email" name="email" placeholder="Click to enter" required>
 
+        <label for="password">Password<span class="required">*</span></label>
+        <input type="password" id="password" name="password1" placeholder="Click to enter" required>
 
-        <label for="password1">Password*</label>
-        <input type="password" id="password1" name="password1" placeholder="Click to enter" required>
-
-
-        <label for="password2">Confirm Password*</label>
-        <input type="password" id="password2" name="password2" placeholder="Click to enter" required>
-
+        <label for="confirm-password">Confirm Password<span class="required">*</span></label>
+        <input type="password" id="confirm-password" name="password2" placeholder="Click to enter" required>
 
         <button type="submit">SIGN UP</button>
     </form>
-    {% if form.errors %}
-        <p style="color:red;">Invalid username or password. Please try again.</p>
-    {% endif %}
+    
     <div class="footer">
-        <a href="{% url 'login' %}">Back to login</a>
+        <a href="#">Back to login</a>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
