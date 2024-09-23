@@ -28,7 +28,7 @@ def login_user(request):
             messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
-    return render(request, 'login', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
 def logout_user(request):
     logout(request)
@@ -93,7 +93,6 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
-"""
 def forgot_password(request):
     if request.method == 'POST':
         form = ResetPasswordForm(request.POST)
@@ -145,4 +144,3 @@ def reset_password(request, uidb64, token):
         messages.error(request, f"Link is invalid!")
     
     return redirect('index')
-"""
