@@ -6,6 +6,7 @@
     <title>Login</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,6 +109,23 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -122,6 +140,10 @@
     <div class="image">
         <img src="{% static 'images/website-review-logo.svg' %}" alt="Page Logo">
         <p>First time using this tool? Please watch our <a href="#">Quick Start Video</a>.</p>
+    </div>
+
+    <div class="alert"></div>
+        {% include 'message.html' %}
     </div>
 
     <form method="post">
@@ -139,13 +161,13 @@
 
         <button type="submit">LOGIN</button>
     </form>
-    {% if form.errors %}
-        <p style="color:red;">Invalid username or password. Please try again.</p>
-    {% endif %}
+
     <div class="footer">
         <a href="{% url 'signup' %}">Not a user? Register now</a>
         <a href="{% url 'forgot_password' %}">Forgot Password?</a>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         var username = document.querySelector('.username');
