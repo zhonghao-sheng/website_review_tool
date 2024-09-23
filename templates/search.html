@@ -158,6 +158,7 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
+
         /* Wrapper for scrollable content */
         .tooltip .scrollable-content {
             max-height: 300px; /* Set the maximum height of the tooltip */
@@ -187,8 +188,8 @@
             border-style: solid;
             border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */
         }
-    </style>
 
+    </style>
 </head>
 <body>
     {% load static %}
@@ -218,7 +219,7 @@
         <input type="text" id="url" name="url" placeholder="Click to enter URL" required>
 
         <div class="tooltip">
-        <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">
+            <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">
             <div class="tooltiptext">
                 <div class="scrollable-content">
                 To use keyword search, enter your keywords separated by a single space (e.g., apple banana cherry).
