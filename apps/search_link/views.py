@@ -48,7 +48,7 @@ class Web_spider():
             self.add_uom_sign_link(link, source_link, associated_text)
     def add_broken_link(self, link, source_link, associated_text):
         self.broken_links.append({'url': link, 'source_link':
-            source_link, 'associated_text': associated_text})
+            source_link, 'associated_text': associated_text, 'show_source_link':True})
 
     def deal_broken_link(self, link, source_link, response_status, associated_text):
         self.add_broken_link(link, source_link, associated_text)
@@ -78,7 +78,7 @@ class Web_spider():
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
-                                    self.keyword_links.append({'url':link, 'associated_text':keyword})
+                                    self.keyword_links.append({'url':link, 'keyword':keyword, 'show_source_link':False})
                     elif self.keyword_type == WILDCARD:
                         pattern = self.keyword
                         if pattern is not None:
@@ -96,7 +96,7 @@ class Web_spider():
                                         break
                             if result:
                                 print(f'found keyword {self.keyword} in link {link}')
-                                self.keyword_links.append({'url': link, 'associated_text': self.keyword})
+                                self.keyword_links.append({'url': link, 'keyword': self.keyword, 'show_source_link':False})
 
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
