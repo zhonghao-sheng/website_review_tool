@@ -15,6 +15,7 @@ from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
+
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -29,16 +30,13 @@ def login_user(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
-
 def logout_user(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
     return redirect('index')  # Redirect to a suitable page after logout
 
-
 def index(request):
     return render(request, 'index.html')
-
 
 def activate(request, uidb64, token):
     model = get_user_model()
@@ -47,7 +45,6 @@ def activate(request, uidb64, token):
         user = model.objects.get(pk=uid)
     except:
         user = None
-
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
@@ -55,14 +52,11 @@ def activate(request, uidb64, token):
         return redirect('login')
     else:
         messages.error(request, f"Link is invalid!")
-
     messages.success(request, f"This function works!")
     return redirect('index')
 
-
 def forgot_password(request):
     return render(request, "forgotPassword.html")
-
 
 def activate_email(request, user, email):
     subject = "Activate your account."
@@ -79,7 +73,6 @@ def activate_email(request, user, email):
                          your email {email} inbox and click on the activation link to confirm registration.")
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
-#
 
 def signup(request):
     if request.method == 'POST':
@@ -95,7 +88,6 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
-
 
 def check_login(request):
     if request.user.is_authenticated:
