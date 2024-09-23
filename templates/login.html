@@ -148,10 +148,10 @@
 
     <form method="post">
         {% csrf_token %}
-        <label for="username">Username</label>
+        <label for="username">Username<span class="required">*</span></label>
         <input type="text" id="username" name="username" class="username" placeholder="Click to Enter" required>
 
-        <label for="password">Password</label>
+        <label for="password">Password<span class="required">*</span></label>
         <input type="password" id="password" name="password" class="password" placeholder="Click to Enter" required>
 
         <div class="checkbox">
