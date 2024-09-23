@@ -29,7 +29,6 @@ class Web_spider():
         self.keyword_links = list()
         self.keyword_type = None
 
-
     def put_url(self, baseurl):
         # [link, source page link, associated text]
         self.web_links.put([baseurl, None, None])
@@ -48,7 +47,7 @@ class Web_spider():
             self.add_uom_sign_link(link, source_link, associated_text)
     def add_broken_link(self, link, source_link, associated_text):
         self.broken_links.append({'url': link, 'source_link':
-            source_link, 'associated_text': associated_text, 'show_source_link':True})
+            source_link, 'associated_text': associated_text})
 
     def deal_broken_link(self, link, source_link, response_status, associated_text):
         self.add_broken_link(link, source_link, associated_text)
@@ -78,7 +77,7 @@ class Web_spider():
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
-                                    self.keyword_links.append({'url':link, 'keyword':keyword, 'show_source_link':False})
+                                    self.keyword_links.append({'url':link, 'associated_text':keyword})
                     elif self.keyword_type == WILDCARD:
                         pattern = self.keyword
                         if pattern is not None:
@@ -96,7 +95,7 @@ class Web_spider():
                                         break
                             if result:
                                 print(f'found keyword {self.keyword} in link {link}')
-                                self.keyword_links.append({'url': link, 'keyword': self.keyword, 'show_source_link':False})
+                                self.keyword_links.append({'url': link, 'associated_text': self.keyword})
 
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
@@ -236,7 +235,11 @@ def search_link(request):
         url = request.POST.get('url')
         keyword = request.POST.get('specifiedText')  # Fetch the keyword if it's provided
         results = search_task(url, keyword)
-        return render(request, 'results.html', {'results': results})
+        if keyword:
+            show_source_link = False
+        else:
+            show_source_link = True
+        return render(request, 'results.html', {'results': results, 'show_source_link':show_source_link})
     return render(request, 'search.html')
 
 def search_task(url, keyword):
