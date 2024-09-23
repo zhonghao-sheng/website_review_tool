@@ -38,7 +38,9 @@
         <thead>
             <tr>
                 <th>URL</th> <!-- Column for URLs -->
-                <th>Source Link</th> <!-- Column for source links -->
+                {% if show_source_link %} <!-- Display Source Link column only if necessary -->
+                    <th>Source Link</th> <!-- Column for source links -->
+                {% endif %}
                 <th>Associated Text</th> <!-- Column for associated text -->
             </tr>
         </thead>
@@ -50,8 +52,16 @@
                     <!-- Display URL as a clickable link -->
                     <td><a href="{{ result.url }}">{{ result.url }}</a></td>
 
-                    <!-- Display Source Link as a clickable link -->
-                    <td><a href="{{ result.source_link }}">{{ result.source_link }}</a></td>
+                    {% if show_source_link %}
+                        <!-- Display Source Link as a clickable link if the column is shown -->
+                        <td>
+                            {% if result.source_link %}
+                                <a href="{{ result.source_link }}">{{ result.source_link }}</a>
+                            {% else %}
+                                N/A <!-- Optional: Display 'N/A' if source_link is empty -->
+                            {% endif %}
+                        </td>
+                    {% endif %}
 
                     <!-- Display associated text as plain text -->
                     <td>{{ result.associated_text }}</td>
