@@ -139,7 +139,7 @@
         /* Hidden tooltip box */
         .tooltip .tooltiptext {
             visibility: hidden;
-            width: 200px;
+            width: 300px;
             background-color: #002e5d;
             color: #fff;
             text-align: left;
@@ -157,6 +157,12 @@
             /* Transition effect for opacity */
             opacity: 0;
             transition: opacity 0.3s;
+        }
+
+        /* Wrapper for scrollable content */
+        .tooltip .scrollable-content {
+            max-height: 300px; /* Set the maximum height of the tooltip */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
         }
 
         /* Show tooltip when input is hovered */
@@ -182,8 +188,8 @@
             border-style: solid;
             border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */
         }
-    </style>
 
+    </style>
 </head>
 <body>
     {% load static %}
@@ -213,8 +219,26 @@
         <input type="text" id="url" name="url" placeholder="Click to enter URL" required>
 
         <div class="tooltip">
-        <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">
-        <div class="tooltiptext">instruction to be completed</div>
+            <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">
+            <div class="tooltiptext">
+                <div class="scrollable-content">
+                To use keyword search, enter your keywords separated by a single space (e.g., apple banana cherry).
+                <br><br>
+                To use wildcard search, start with / followed by your wildcard expression. <br><br>The following wildcard characters are supported:<br>
+                *: Matches zero or more characters.
+                Example: a* matches "apple," "apricot," etc.<br><br>
+                ?: Matches exactly one character.
+                Example: b?nana matches "banana," "b3nana," etc.<br><br>
+                [seq]: Matches any one character within the brackets.
+                Example: c[aou]t matches "cat," "cot," or "cut."<br><br>
+                [!seq]: Matches any one character not in the brackets.
+                Example: d[!aeiou]g matches "dog," "dig," but not "dag."<br><br>
+                %: Matches zero or more characters (used in some systems).
+                Example: a% matches "apple," "apricot," etc.<br><br>
+                _: Matches exactly one character (used in some systems).
+                Example: b_nana matches "banana," "b1nana," etc.
+                </div>
+            </div>
         </div>
 
         <div class="button-container">
