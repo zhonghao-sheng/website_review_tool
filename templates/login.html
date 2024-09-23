@@ -19,10 +19,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 20px;
-            background-color: #fff;
+            background-color: #080E45;
         }
         .header .logo {
-            max-width: 175px;
+            max-width: 145px;
         }
         .header .logo img {
             width: 100%;
@@ -42,7 +42,7 @@
         }
 
         .image a {
-            color: #0C4483;
+            color: #080E45;
             text-decoration: none;
             font-weight: thin;
         }
@@ -79,7 +79,7 @@
             height: 60px;
             padding: 10px;
             border: none;
-            background-color: #0C4483;
+            background-color: #080E45;
             color: #ffffff;
             border-radius: 30px;
             margin: 20px auto 10px; /* Adjusted to reduce the space between button and footer */
@@ -87,13 +87,17 @@
             cursor: pointer;
             font-size: 25px; 
             gap: 30px;
-            align-self: center; 
+            align-self: center;
+        }
+        /* Hover effect */
+        button:hover {
+            background-color: #0066cc; 
         }
         .checkbox {
-            display: flex; 
+            display: flex;
             align-items: center; 
-            gap: 5px; 
-            margin: 10px 0; 
+            gap: 5px;
+            margin: 10px 0;
             width: 100%;
         }
         .footer {
@@ -102,11 +106,12 @@
         .footer a {
             display: block; /* Ensures links are displayed on separate lines */
             margin: 5px 0; /* Adds spacing between the links */
-            color: #0C4483;
+            color: #080E45;
             text-decoration: none;
         }
         .footer a:hover {
             text-decoration: underline;
+            color: #0066cc;
         }
     </style>
 </head>
@@ -126,8 +131,8 @@
 
     <form method="post">
         {% csrf_token %}
-        <label for="userName">Userame</label>
-        <input type="text" id="userName" name="userName" class="userName" placeholder="Click to Enter" required>
+        <label for="username">Userame</label>
+        <input type="text" id="username" name="username" class="username" placeholder="Click to Enter" required>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" class="password" placeholder="Click to Enter" required>
@@ -148,7 +153,7 @@
     </div>
 
     <script>
-        var userName = document.querySelector('.userName');
+        var userName = document.querySelector('.username');
         var pwd = document.querySelector('.password');
         var chk = document.querySelector('.check');
         var btn = document.querySelector('button');
@@ -157,18 +162,18 @@
         btn.onclick = function () {
             if (chk.checked) {
         // Memorize data
-                window.localStorage.setItem('userName', userName.value);
+                window.localStorage.setItem('username', username.value);
                 window.localStorage.setItem('pwd', pwd.value);
             } else {
         // Clear data
-                window.localStorage.removeItem('userName');
+                window.localStorage.removeItem('username');
                 window.localStorage.removeItem('pwd');
             }
         }
         // The next time you log in, if there is any data recorded, fill it directly
         window.onload = function () {
-            if(window.localStorage.getItem('userName')) {
-                userName.value = window.localStorage.getItem('userName');
+            if(window.localStorage.getItem('username')) {
+                username.value = window.localStorage.getItem('username');
                 pwd.value = window.localStorage.getItem('pwd');
                 chk.checked = true;
             }
