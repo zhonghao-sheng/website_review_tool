@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
-from login.models import User
+# from login.models import User
 from django.http import JsonResponse
 from .forms import SignUpForm
 from django.contrib.auth import authenticate, login, logout
@@ -14,7 +14,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.contrib.auth import get_user_model
-
+from django.utils.safestring import mark_safe
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -85,14 +85,13 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
+            user = form.save(commit = False)
             user.is_active = False
             user.save()
-            # messages.success(request, 'account has been activated')
             activate_email(request, user, form.cleaned_data.get('email'))
-            # return redirect('index')  # Redirect to home page after successful signup
+            return redirect('login')  # Redirect to login page after successful signup
         else:
-            messages.error(request,form.errors)
+            messages.error(request, mark_safe("".join([f"• {msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})

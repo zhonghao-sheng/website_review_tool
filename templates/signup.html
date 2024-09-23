@@ -102,10 +102,10 @@
 
     <form method="post">
         {% csrf_token %}
-        {{ form.username.errors }}
-        {{ form.email.errors }}
-        {{ form.password1.errors }}
-        {{ form.password2.errors }}
+<!--        {{ form.username.errors }}-->
+<!--        {{ form.email.errors }}-->
+<!--        {{ form.password1.errors }}-->
+<!--        {{ form.password2.errors }}-->
         <label for="username">Username*</label>
         <input type="text" id="username" name="username" placeholder="Click to enter" required>
 
@@ -114,19 +114,24 @@
         <input type="email" id="email" name="email" placeholder="Click to enter" required>
 
 
-        <label for="password1">Password*</label>
-        <input type="password" id="password1" name="password1" placeholder="Click to enter" required>
+<!--        <label for="password1">Password*</label>-->
+<!--        <input type="password" id="password1" name="password1" placeholder="Click to enter" required>-->
 
 
-        <label for="password2">Confirm Password*</label>
-        <input type="password" id="password2" name="password2" placeholder="Click to enter" required>
+<!--        <label for="password2">Confirm Password*</label>-->
+<!--        <input type="password" id="password2" name="password2" placeholder="Click to enter" required>-->
 
+        <label for="password">Password<span class="required">*</span></label>
+        <input type="password" id="password" name="password1" placeholder="Click to enter" required>
+
+        <label for="confirm-password">Confirm Password<span class="required">*</span></label>
+        <input type="password" id="confirm-password" name="password2" placeholder="Click to enter" required>
 
         <button type="submit">SIGN UP</button>
     </form>
-    {% if form.errors %}
-        <p style="color:red;">Invalid username or password. Please try again.</p>
-    {% endif %}
+<!--    {% if form.errors %}-->
+<!--        <p style="color:red;">Invalid username or password. Please try again.</p>-->
+<!--    {% endif %}-->
     <div class="footer">
         <a href="{% url 'login' %}">Back to login</a>
     </div>
