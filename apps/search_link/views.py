@@ -45,9 +45,6 @@ class Web_spider():
         self.keyword_links = list()
         self.job_id = None
 
-    def put_job_id(self, job_id):
-        self.job_id = job_id
-
     def put_url(self, baseurl):
         # [link, source page link, associated text]
         self.web_links.put([baseurl, None, None])
@@ -287,36 +284,14 @@ def search_link(request):
         send_stop_job_command(conn, get_current_job().id)
 
     if request.method == 'POST':
-        try:
-            url = request.POST.get('url')
-            keyword = request.POST.get('keyword')  # Fetch the keyword if it's provided
-
-            job_id = str(uuid.uuid4())
-
-            # Enqueue the job in the background
-            job = Job.create('apps.search_link.views.search_task', id=job_id, connection=conn,
-                             args=(url, keyword, job_id), ttl=EXPIRE_TIME, failure_ttl=EXPIRE_TIME)
-            q.enqueue_job(job)
-
-            # Poll the job every second for up to 25 seconds
-            for i in range(50):
-                time.sleep(0.5)
-                job.refresh()
-                # logger.error(f"current job id: {get_current_job().id}")
-                # logger.error(f"current job status: {get_current_job().get_status()}")
-                logger.error(f"Job {job.id} status after refresh: {job.get_status()}")
-                logger.error(f"Job {job.id} job position: {job.get_position()}")
-                if job.is_finished:
-                    break
-
-            return redirect('results', job_id=job_id)
-
-        except ConnectionError as e:
-            logger.error(f"Redis connection error: {str(e)}")
-            return render(request, 'results.html', {'error': 'Could not connect to Redis. Please try again later.'})
-        except Exception as e:
-            logger.error(f"Error in search_link view: {str(e)}")
-            return render(request, 'results.html', {'error': str(e)})
+        url = request.POST.get('url')
+        keyword = request.POST.get('specifiedText')  # Fetch the keyword if it's provided
+        results = search_task(url, keyword)
+        if keyword:
+            show_source_link = False
+        else:
+            show_source_link = True
+        return render(request, 'results.html', {'results': results, 'show_source_link':show_source_link})
     return render(request, 'search.html')
 
 

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
-from login.models import User
+# from login.models import User
 from django.http import JsonResponse
 from .forms import SignUpForm, ResetPasswordForm
 from django.contrib.auth import authenticate, login, logout
@@ -83,11 +83,14 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit = False)
+            user = form.save(commit = False)
             user.is_active = False
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
             return redirect('login')  # Redirect to login page after successful signup
+            return redirect('login')  # Redirect to login page after successful signup
         else:
+            messages.error(request, mark_safe("".join([f"• {msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
             messages.error(request, mark_safe("".join([f"• {msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
     else:
         form = SignUpForm()
