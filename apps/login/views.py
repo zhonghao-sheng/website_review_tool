@@ -23,7 +23,7 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'You are now logged in.')
-            return redirect('search')  # Redirect to a suitable page after login
+            return redirect('index')  # Redirect to a suitable page after login
         else:
             messages.error(request, 'Invalid username or password.')
     else:

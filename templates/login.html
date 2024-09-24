@@ -114,26 +114,6 @@
             text-decoration: underline;
             color: #0066cc;
         }
-        .messages {
-            display: flex;
-            justify-content: center;
-        }
-        .alert {
-            width: 30%;
-            margin: 10px auto;
-            position: relative;
-        }
-        .btn-close {
-            position: absolute;
-            top: 0px;
-            right: 10px;
-            width: 15px;
-            height: 15px;
-            font-size: 10px;
-        }
-        .required {
-            color: red;
-        }
         /* Style for the Quick Start Video link */
         a.quick-start-video {
             color: #080E45; /* Change to whatever color you want for the link */
@@ -200,9 +180,10 @@
         <button type="submit">LOGIN</button>
     </form>
 
+
     <div class="footer">
-        <a href="#">Not a user? Register now</a>
-        <a href="#">Forgot Password?</a>
+        <a href="{% url 'signup' %}">Not a user? Register now</a>
+        <a href="{% url 'forgot_password' %}">Forgot Password?</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -236,5 +217,3 @@
     </script>
 </body>
 </html>
-
-
