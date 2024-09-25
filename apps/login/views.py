@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from login.models import User
 from django.http import JsonResponse
-from .forms import SignUpForm, ResetPasswordForm
+from .forms import SignUpForm, VerifyUserForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -23,7 +23,7 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'You are now logged in.')
-            return redirect('index')  # Redirect to a suitable page after login
+            return redirect('search_link')  # Redirect to a suitable page after login
         else:
             messages.error(request, 'Invalid username or password.')
     else:
@@ -64,7 +64,7 @@ def activate(request, uidb64, token):
 
 def activate_email(request, user, email):
     subject = "Activate your account."
-    message = render_to_string("activate.html", {
+    message = render_to_string("activate_email.html", {
         'user': user.username,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -96,13 +96,12 @@ def signup(request):
 
 def forgot_password(request):
     if request.method == 'POST':
-        form = ResetPasswordForm(request.POST)
+        form = VerifyUserForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             email = form.cleaned_data.get('email')
-            query = User.objects.filter(username, email)
-            if query.exists():
-                user = query.first()
+            user = authenticate(request, username=username, email=email)
+            if user is not None:
                 reset_password_email(request, user, email)
                 return redirect('login')
             else:
@@ -110,12 +109,12 @@ def forgot_password(request):
         else:
             messages.error(request, f"Username or password were invalid.")
     else:
-        form = ResetPasswordForm()
+        form = VerifyUserForm()
     return render(request, 'forgot_password.html', {'form': form})
 
 def reset_password_email(request, user, email):
     subject = "Reset your password."
-    message = render_to_string("reset_password.html", {
+    message = render_to_string("reset_password_email.html", {
         'user': user.username,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
