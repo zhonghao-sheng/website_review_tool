@@ -16,8 +16,9 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
-class PasswordResetForm(PasswordResetForm):
-    def __init__(self, *args, **kwargs):
-        super(PasswordResetForm, self).__init__(*args, **kwargs)
-
-    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+class VerifyUserForm(forms.Form):
+    email = forms.EmailField(max_length=254, required=True, help_text='Required. Provide a valid email address.')
+    username = forms.CharField(max_length=20, required=True)
+    class Meta:
+        model = User
+        fields = ('username', 'email')

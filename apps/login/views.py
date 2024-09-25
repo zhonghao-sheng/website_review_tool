@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from login.models import User
 from django.http import JsonResponse
-from .forms import SignUpForm, PasswordResetForm
+from .forms import SignUpForm, VerifyUserForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -96,7 +96,7 @@ def signup(request):
 
 def forgot_password(request):
     if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
+        form = VerifyUserForm(request.POST)
         if form.is_valid():
             user_email = form.cleaned_data.get('email')
             found_user = get_user_model().objects.filter(Q(email=user_email)).first()
@@ -108,7 +108,7 @@ def forgot_password(request):
         else:
             messages.error(request, f"Username or password were invalid.")
     else:
-        form = PasswordResetForm()
+        form = VerifyUserForm()
     return render(request, 'forgot_password.html', {'form': form})
 
 def reset_password_email(request, user, email):
