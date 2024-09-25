@@ -136,14 +136,14 @@ def reset_password(request, uidb64, token):
 
     if user is not None and reset_password_token.check_token(user, token):
         if request.method == "POST":
-            form = SetPasswordForm(request.POST)
+            form = SetPasswordForm(user, request.POST)
             if form.is_valid():
                 user.set_password(form.cleaned_data.get('password'))
                 user.save()
                 messages.success(request, f"Your password has been updated.")
                 return redirect('login')
         # messages.success(request, f"Email has been confirmed. Now you can log into your account.")
-        form = SetPasswordForm()
+        form = SetPasswordForm(user)
         return render(request, 'resetPassword.html', {'form': form})
     else:
         messages.error(request, f"Link is invalid!")
