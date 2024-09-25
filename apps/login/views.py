@@ -105,7 +105,7 @@ def forgot_password(request):
                 reset_password_email(request, user, email)
                 return redirect('login')
             else:
-                messages.error(request, f"No account found with the provided username and password.")
+                messages.error(request, f"No account found with the provided {username} and {email}.")
         else:
             messages.error(request, f"Username or password were invalid.")
     else:
