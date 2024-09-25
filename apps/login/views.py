@@ -83,7 +83,6 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit = False)
-            user = form.save(commit = False)
             user.is_active = False
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
@@ -105,7 +104,7 @@ def forgot_password(request):
                 reset_password_email(request, user, email)
                 return redirect('login')
             else:
-                messages.error(request, f"No account found with the provided {username} and {email}.")
+                messages.error(request, f"No account found with the provided username and email.")
         else:
             messages.error(request, f"Username or password were invalid.")
     else:
