@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.core.validators import RegexValidator
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
@@ -22,3 +22,9 @@ class VerifyUserForm(forms.Form):
     class Meta:
         model = User
         fields = ('username', 'email')
+
+
+class ResetPasswordUserForm(SetPasswordForm):
+    class Meta:
+        model = User
+        fields = ('new_password1', 'new_password2')
