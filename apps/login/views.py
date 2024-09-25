@@ -144,7 +144,7 @@ def reset_password(request, uidb64, token):
                 return redirect('login')
         # messages.success(request, f"Email has been confirmed. Now you can log into your account.")
         form = SetPasswordForm()
-        return render(request, 'reset_passwords.html', {'form': form})
+        return render(request, 'resetPassword.html', {'form': form})
     else:
         messages.error(request, f"Link is invalid!")
 
