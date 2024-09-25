@@ -86,6 +86,7 @@ class Web_spider():
                             for word in text:
                                 if fnmatch(word, pattern):
                                     result = True
+                                    matched_pattern = word
                                     break
                             if not result:
                                 pattern = self.translate_wildcard(pattern)
@@ -95,7 +96,7 @@ class Web_spider():
                                         break
                             if result:
                                 print(f'found keyword {self.keyword} in link {link}')
-                                self.keyword_links.append({'url': link, 'associated_text': self.keyword})
+                                self.keyword_links.append({'url': link, 'associated_text': matched_pattern})
 
                     for href_link in soup.find_all('a', href=True):
                         href = href_link['href']
@@ -212,7 +213,9 @@ class Web_spider():
         else:
             self.keyword_type = SPECIFIED_TEXT
         if self.keyword_type == SPECIFIED_TEXT:
+            temp = keyword
             keyword = keyword.split()
+            keyword.append(temp)
         self.put_keyword(keyword)
 
         self.put_url(baseurl)
