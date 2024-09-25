@@ -143,7 +143,9 @@ def reset_password(request, uidb64, token):
                 messages.success(request, f"Your password has been updated.")
                 return redirect('login')
             else:
-                messages.error(request, mark_safe("".join([f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
+                messages.error(request, mark_safe("".join(
+                    [f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in
+                     error.messages])))
         # messages.success(request, f"Email has been confirmed. Now you can log into your account.")
         form = SetPasswordForm(user)
         return render(request, 'resetPassword.html', {'form': form})
