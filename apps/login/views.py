@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from login.models import User
 from django.http import JsonResponse
-from .forms import SignUpForm, VerifyUserForm, ResetPasswordUserForm
+from .forms import SignUpForm, VerifyUserForm, SetPasswordForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -135,15 +135,18 @@ def reset_password(request, uidb64, token):
         user = None
 
     if user is not None and reset_password_token.check_token(user, token):
-        messages.success(request, f"Email has been confirmed. Now you can log into your account.")
-        return redirect('reset_passwords')
+        if request.method == "POST":
+            form = SetPasswordForm(request.POST)
+            if form.is_valid():
+                user.set_password(form.cleaned_data.get('password'))
+                user.save()
+                messages.success(request, f"Your password has been updated.")
+                return redirect('login')
+        # messages.success(request, f"Email has been confirmed. Now you can log into your account.")
+        form = SetPasswordForm()
+        return render(request, 'reset_passwords.html', {'form': form})
     else:
         messages.error(request, f"Link is invalid!")
-    
+
     return redirect('index')
-def reset_passwords(request):
-    # if request.method == 'POST':
-    #     form = ResetPasswordUserForm(request.POST)
-    #     if form.is_valid():
-    #         password = form.cleaned_data.get('new_password1')
-    return render(request, 'resetPassword.html')
+

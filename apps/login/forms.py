@@ -24,7 +24,7 @@ class VerifyUserForm(forms.Form):
         fields = ('username', 'email')
 
 
-class ResetPasswordUserForm(SetPasswordForm):
+class SetPasswordForm(SetPasswordForm):
     class Meta:
         model = User
         fields = ('new_password1', 'new_password2')
