@@ -43,6 +43,7 @@ wsproto = "==1.2.0"
 psycopg2 = "==2.9.9"
 six = "==1.16.0"
 pymysql = "==1.1.1"
+pandas = "==2.2.3"
 
 [dev-packages]
 
