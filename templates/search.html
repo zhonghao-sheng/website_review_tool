@@ -251,6 +251,11 @@
         detects <br> broken links, specified text, facilitates updates, extends to <br> SharePoint document checks. </div>
 
     <script>
+        window.onload = function() {
+            var input = document.getElementById("specifiedText");
+            input.value = ''; // Clear the content of specifiedText on page load
+        };
+
         // Add a click event listener to control the behavior of the "SEARCH FOR TEXT" button
         document.getElementById("showHidden").addEventListener("click", function(event) {
             var input = document.getElementById("specifiedText");
@@ -278,8 +283,11 @@
                 // Prevent form submission
                 event.preventDefault();
                 alert("You cannot submit the form while the specified TEXT input box is visible using this button.");
+            } else {
+                // If the specifiedText input is hidden, clear its value
+                input.value = ''; // Clear the content of specifiedText
             }
-            // If specifiedText is hidden, the form will submit normally
+            // If specifiedText is hidden and cleared, the form will submit normally
         });
     </script>
 </body>
