@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from login.models import User
 from django.http import JsonResponse
-from .forms import SignUpForm, VerifyUserForm
+from .forms import SignUpForm, PasswordResetForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -15,6 +15,7 @@ from django.core.mail import EmailMessage
 from .tokens import account_activation_token, reset_password_token
 from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
+from django.db.models.query_utils import Q
 
 def login_user(request):
     if request.method == 'POST':
@@ -95,20 +96,19 @@ def signup(request):
 
 def forgot_password(request):
     if request.method == 'POST':
-        form = VerifyUserForm(request.POST)
+        form = PasswordResetForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            user = authenticate(request, username=username, email=email)
-            if user is not None:
-                reset_password_email(request, user, email)
+            user_email = form.cleaned_data.get('email')
+            found_user = get_user_model().objects.filter(Q(email=user_email)).first()
+            if found_user:
+                reset_password_email(request, found_user, found_user.email)
                 return redirect('login')
             else:
-                messages.error(request, f"No account found with the provided {username} and {email}.")
+                messages.error(request, f"No account found with the provided username and email.")
         else:
             messages.error(request, f"Username or password were invalid.")
     else:
-        form = VerifyUserForm()
+        form = PasswordResetForm()
     return render(request, 'forgot_password.html', {'form': form})
 
 def reset_password_email(request, user, email):
@@ -135,8 +135,6 @@ def reset_password(request, uidb64, token):
         user = None
 
     if user is not None and reset_password_token.check_token(user, token):
-        user.is_active = True
-        user.save()
         messages.success(request, f"Email has been confirmed. Now you can log into your account.")
         return redirect('login')
     else:
