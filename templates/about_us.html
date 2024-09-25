@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+        }
+        .team-member {
+            flex: 1 1 40%; /* Control width more explicitly for 2 in a row */
+            margin: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .team-member.middle {
+            flex: 1 1 80%; /* Make the middle one stand out */
+        }
+        .team-member img {
+            width: 100%;
+            height: auto;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        .info {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Our Creation Team</h1>
+    <div class="container">
+        <!-- Front-end Developers -->
+        <div class="team-member">
+            <img src="path_to_frontend_member1_image.jpg" alt="Front-end Developer 1">
+            <div class="info">
+                <h3>Front-end 1</h3>
+                <p>Role: Front-end Developer</p>
+                <p>Email: example1@domain.com</p>
+            </div>
+        </div>
+        <div class="team-member">
+            <img src="path_to_frontend_member2_image.jpg" alt="Front-end Developer 2">
+            <div class="info">
+                <h3>Front-end 2</h3>
+                <p>Role: Front-end Developer</p>
+                <p>Email: example2@domain.com</p>
+            </div>
+        </div>
+
+        <!-- Email Handler (Middle) -->
+        <div class="team-member middle">
+            <img src="path_to_email_handler_image.jpg" alt="Email Handler">
+            <div class="info">
+                <h3>Email Handler</h3>
+                <p>Role: Email Communications</p>
+                <p>Email: email@domain.com</p>
+            </div>
+        </div>
+
+        <!-- Back-end Developers -->
+        <div class="team-member">
+            <img src="path_to_backend_member1_image.jpg" alt="Back-end Developer 1">
+            <div class="info">
+                <h3>Back-end 1</h3>
+                <p>Role: Back-end Developer</p>
+                <p>Email: backend1@domain.com</p>
+            </div>
+        </div>
+        <div class="team-member">
+            <img src="path_to_backend_member2_image.jpg" alt="Back-end Developer 2">
+            <div the="info">
+                <h3>Back-end 2</h3>
+                <p>Role: Back-end Developer</p>
+                <p>Email: backend2@domain.com</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

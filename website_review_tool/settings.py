@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import sys
-import secrets
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,29 +22,12 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    default=secrets.token_urlsafe(nbytes=64),
-)
-
-# The `DYNO` env var is set on Heroku CI, but it's not a real Heroku app, so we have to
-# also explicitly exclude CI:
-# https://devcenter.heroku.com/articles/heroku-ci#immutable-environment-variables
-IS_HEROKU_APP = "DYNO" in os.environ and not "CI" in os.environ
+SECRET_KEY = 'django-insecure-9m!jf+5qd0_z@4ot!d82mucd3xk!(klc*l!rbb@*$w$)vx$#qs'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if not IS_HEROKU_APP:
-    DEBUG = True
+DEBUG = True
 
-
-# On Heroku, it's safe to use a wildcard for `ALLOWED_HOSTS``, since the Heroku router performs
-# validation of the Host header in the incoming HTTP request. On other platforms you may need to
-# list the expected hostnames explicitly in production to prevent HTTP Host header attacks. See:
-# https://docs.djangoproject.com/en/5.1/ref/settings/#std-setting-ALLOWED_HOSTS
-if IS_HEROKU_APP:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = [".localhost", "127.0.0.1", "[::1]", "0.0.0.0"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -96,30 +77,35 @@ WSGI_APPLICATION = 'website_review_tool.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+# if 'RDS_HOSTNAME' in os.environ:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.mysql',
+#             'NAME': os.environ['RDS_DB_NAME'],
+#             'USER': os.environ['RDS_USERNAME'],
+#             'PASSWORD': os.environ['RDS_PASSWORD'],
+#             'HOST': os.environ['RDS_HOSTNAME'],
+#             'PORT': os.environ['RDS_PORT'],
+#         }
+#     }
 
-if IS_HEROKU_APP:
-    # In production on Heroku the database configuration is derived from the `DATABASE_URL`
-    # environment variable by the dj-database-url package. `DATABASE_URL` will be set
-    # automatically by Heroku when a database addon is attached to your Heroku app. See:
-    # https://devcenter.heroku.com/articles/provisioning-heroku-postgres#application-config-vars
-    # https://github.com/jazzband/dj-database-url
-    DATABASES = {
-        "default": dj_database_url.config(
-            env="DATABASE_URL",
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True,
-        ),
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ebdb',
+        'USER': 'ebroot',
+        'PASSWORD': 'nbmy43602',
+        'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-9wa9kltyresu.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
+        'PORT': 3306,
     }
-else:
-    # When running locally in development or in CI, a sqlite database file will be used instead
-    # to simplify initial setup. Longer term it's recommended to use Postgres locally too.
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
+# else:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -146,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Australia/Melbourne'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -159,15 +145,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] 
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static'),
+]
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn")
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -213,10 +199,22 @@ LOGGING = {
 # Emailing settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_FROM = 'Website Review Tool'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')        # your email address
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')          # your email password; could use app password if google account
-EMAIL_PORT = os.getenv('EMAIL_PORT', '')
+EMAIL_FROM = 'website-review-tool'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')                 # your email address
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')         # your email password; could use app password if google account
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 PASSWORD_RESET_TIMEOUT = 14400
+
+from django.contrib.messages import constants as messages
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-primary',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
