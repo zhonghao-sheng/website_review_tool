@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.core.validators import RegexValidator
-from captcha.fields import ReCaptchaField
-from captcha.widgets import ReCaptchaV2Checkbox
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True, help_text='Required. Provide a valid email address.')
