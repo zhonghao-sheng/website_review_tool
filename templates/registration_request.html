@@ -1,0 +1,16 @@
+{% autoescape off %}
+Hi Admin,
+
+A new user has requested to register. Here are their details:
+
+Username: {{ user.username }}
+Email: {{ user.email }}
+
+Please click on one of the links below to accept or reject the registration:
+
+<a href="{{ protocol }}://{{ domain }}{% url 'accept_registration' uidb64=uid token=token %}">Accept</a>
+<a href="{{ protocol }}://{{ domain }}{% url 'reject_registration' uidb64=uid token=token %}">Reject</a>
+
+This is an automated message. Do not reply to this email.
+
+{% endautoescape %}

@@ -12,7 +12,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
-from .tokens import account_activation_token, reset_password_token
+from .tokens import account_activation_token, reset_password_token, account_register_token
 from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 from django.db.models.query_utils import Q
@@ -79,6 +79,23 @@ def activate_email(request, user, email):
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
+def reg_request_email(request, user, email):
+    subject = "New User Registration Request"
+    message = render_to_string("registration_request.html", {
+        'user': user.username,
+        'domain': get_current_site(request).domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_register_token.make_token(user),
+        'protocol': 'https' if request.is_secure() else 'http'
+    })
+    admin_email = 'website.review.tool@gmail.com'
+    email_message = EmailMessage(subject, message, to=[admin_email])
+    if email_message.send():
+        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. An email has been sent to the admin for approval.")
+    else:
+        messages.error(request, f"Problem sending email to the admin. Please try again later.")
+    
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -86,6 +103,7 @@ def signup(request):
             user = form.save(commit = False)
             user.is_active = False
             user.save()
+            # Send email to user to activate account
             activate_email(request, user, form.cleaned_data.get('email'))
             return redirect('login')  # Redirect to login page after successful signup
         else:
