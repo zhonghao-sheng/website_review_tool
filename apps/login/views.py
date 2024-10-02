@@ -94,6 +94,39 @@ def reg_request_email(request, user, email):
         messages.success(request, f"Thank you {user.username} for signing up to the website review tool. An email has been sent to the admin for approval.")
     else:
         messages.error(request, f"Problem sending email to the admin. Please try again later.")
+
+def accept_registration(request, uidb64, token):
+    model = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = model.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, model.DoesNotExist):
+        user = None
+
+    if user is not None and account_register_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, f"User {user.username} has been successfully activated.")
+    else:
+        messages.error(request, "The activation link is invalid!")
+
+    return redirect('login')
+
+def reject_registration(request, uidb64, token):
+    model = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = model.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, model.DoesNotExist):
+        user = None
+
+    if user is not None and account_register_token.check_token(user, token):
+        user.delete()
+        messages.success(request, f"User {user.username} has been successfully rejected and deleted.")
+    else:
+        messages.error(request, "The rejection link is invalid!")
+
+    return redirect('signup')
     
 
 def signup(request):
