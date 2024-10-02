@@ -95,6 +95,30 @@ def reg_request_email(request, user, email):
     else:
         messages.error(request, f"Problem sending email to the admin. Please try again later.")
 
+# Send email to the user to inform them of the registration status which is approved
+def success_registration_email(request, user, email):
+    subject = "Registration Approved"
+    message = render_to_string("registration_accepted.html", {
+        'user': user.username,
+    })
+    email_message = EmailMessage(subject, message, to=[email])
+    if email_message.send():
+        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been approved.")
+    else:
+        messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+
+# Send email to the user to inform them of the registration status which is rejected
+def reject_registration_email(request, user, email):
+    subject = "Registration Rejected"
+    message = render_to_string("registration_rejected.html", {
+        'user': user.username,
+    })
+    email_message = EmailMessage(subject, message, to=[email])
+    if email_message.send():
+        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been rejected.")
+    else:
+        messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+
 def accept_registration(request, uidb64, token):
     model = get_user_model()
     try:
@@ -107,6 +131,9 @@ def accept_registration(request, uidb64, token):
         user.is_active = True
         user.save()
         messages.success(request, f"User {user.username} has been successfully activated.")
+
+        # Send email to user to inform them of the registration status
+        success_registration_email(request, user, user.email)
     else:
         messages.error(request, "The activation link is invalid!")
 
@@ -121,6 +148,9 @@ def reject_registration(request, uidb64, token):
         user = None
 
     if user is not None and account_register_token.check_token(user, token):
+        # Send email to user to inform them of the registration status
+        reject_registration_email(request, user, user.email)
+        
         user.delete()
         messages.success(request, f"User {user.username} has been successfully rejected and deleted.")
     else:
