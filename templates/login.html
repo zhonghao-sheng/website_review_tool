@@ -144,6 +144,9 @@
         .required {
             color: red;
         }
+        #login-success {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -158,6 +161,10 @@
     <div class="image">
         <img src="{% static 'images/website-review-logo.svg' %}" alt="Page Logo">
         <p>First time using this tool? Please watch our <a href="#" class="quick-start-video">Quick Start Video</a>.</p>
+    </div>
+
+    <div id="login-success">
+        <p>Login successful! Redirecting...</p>
     </div>
 
     <div class="alert"></div>
@@ -213,6 +220,18 @@
                 pwd.value = window.localStorage.getItem('pwd');
                 chk.checked = true;
             }
+            // Code to handle the login success transition
+            document.querySelector('form').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting immediately
+                // Assuming the login validation is successful
+                // Show the success message
+                document.getElementById('login-success').style.display = 'block';
+
+                // Set a timeout to redirect after 2 seconds (2000 milliseconds)
+                setTimeout(function() {
+                    window.location.href = "{% url 'search_link' %}"; 
+                }, 2000);
+            });
         }
     </script>
 </body>
