@@ -67,25 +67,25 @@ def reg_request_email(request, user, email):
 def success_registration_email(request, user, email):
     subject = "Registration Approved"
     message = render_to_string("registration_accepted.html", {
-        'user': user.username,
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
-        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been approved.")
-    else:
-        messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+    # if email_message.send():
+    #     messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been approved.")
+    # else:
+    #     messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
 # Send email to the user to inform them of the registration status which is rejected
 def reject_registration_email(request, user, email):
     subject = "Registration Rejected"
     message = render_to_string("registration_rejected.html", {
-        'user': user.username,
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
-        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been rejected.")
-    else:
-        messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+    # if email_message.send():
+    #     messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been rejected.")
+    # else:
+    #     messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
 # Function to accept registration request
 def accept_registration(request, uidb64, token):
@@ -134,10 +134,9 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit = False)
+            # mark the user as inactive until the admin approves the registration
             user.is_active = False
             user.save()
-            # # Send email to user to activate account
-            # activate_email(request, user, form.cleaned_data.get('email'))
             # Send email to admin to approve registration
             reg_request_email(request, user, form.cleaned_data.get('email'))
             return redirect('login')  # Redirect to login page after successful signup
