@@ -8,12 +8,13 @@ Email: {{ user.email }}
 
 Please click on one of the buttons below to accept or reject the registration:
 
-<a href="{{ protocol }}://{{ domain }}{% url 'accept_registration' uidb64=uid token=token %}" style="text-decoration: none;">
+{{ '<a href="'|safe }}{{ protocol }}://{{ domain }}{% url 'accept_registration' uidb64=uid token=token %}" style="text-decoration: none;">
     <button style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Accept</button>
-</a>
-<a href="{{ protocol }}://{{ domain }}{% url 'reject_registration' uidb64=uid token=token %}" style="text-decoration: none;">
+</a>'|safe }}
+
+{{ '<a href="'|safe }}{{ protocol }}://{{ domain }}{% url 'reject_registration' uidb64=uid token=token %}" style="text-decoration: none;">
     <button style="background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Reject</button>
-</a>
+</a>'|safe }}
 
 This is an automated message. Do not reply to this email.
 
