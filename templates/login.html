@@ -106,7 +106,7 @@
         }
         .footer a {
             display: block; /* Ensures links are displayed on separate lines */
-            margin: 5px 0; /* Adds spacing between the links */
+            margin: 3px 0; /* Adds spacing between the links */
             color: #080E45;
             text-decoration: none;
         }
@@ -116,13 +116,13 @@
         }
         /* Style for the Quick Start Video link */
         a.quick-start-video {
-            color: #080E45; /* Change to whatever color you want for the link */
-            text-decoration: none; /* Optional: removes underline from the link */
+            color: #080E45; 
+            text-decoration: underline; 
         }
         /* Hover style for the Quick Start Video link */
         a.quick-start-video:hover {
-            color: #0066cc; /* Change to whatever color you want for the hover state */
-            text-decoration: underline; /* Optional: adds underline on hover */
+            color: #0066cc; 
+            text-decoration: underline; 
         }
         .messages {
             display: flex;
@@ -220,18 +220,6 @@
                 pwd.value = window.localStorage.getItem('pwd');
                 chk.checked = true;
             }
-            // Code to handle the login success transition
-            document.querySelector('form').addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent the form from submitting immediately
-                // Assuming the login validation is successful
-                // Show the success message
-                document.getElementById('login-success').style.display = 'block';
-
-                // Set a timeout to redirect after 2 seconds (2000 milliseconds)
-                setTimeout(function() {
-                    window.location.href = "{% url 'search_link' %}"; 
-                }, 2000);
-            });
         }
     </script>
 </body>

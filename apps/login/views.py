@@ -24,12 +24,20 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'You are now logged in.')
-            return redirect('search_link')  # Redirect to a suitable page after login
+            # Redirect to the transition page, and specify the next URL
+            next_url = request.POST.get('next', '/search_link/')
+            return redirect(f'/transition/?next={next_url}')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def transition_view(request):
+    # Logic to decide the next URL
+    next_url = request.GET.get('next', '/default_redirect_url/')
+    response = render(request, 'transition.html', {'redirect_url': next_url})
+    return response
 
 def logout_user(request):
     logout(request)
