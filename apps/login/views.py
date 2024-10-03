@@ -79,10 +79,11 @@ def activate_email(request, user, email):
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
+# Send email to the admin to approve the registration request
 def reg_request_email(request, user, email):
     subject = "New User Registration Request"
     message = render_to_string("registration_request.html", {
-        'user': user.username,
+        'user': user,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_register_token.make_token(user),
@@ -119,6 +120,7 @@ def reject_registration_email(request, user, email):
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
+# Function to accept registration request
 def accept_registration(request, uidb64, token):
     model = get_user_model()
     try:
@@ -139,6 +141,7 @@ def accept_registration(request, uidb64, token):
 
     return redirect('login')
 
+# Function to reject registration request
 def reject_registration(request, uidb64, token):
     model = get_user_model()
     try:
