@@ -45,40 +45,6 @@ def check_login(request):
 def index(request):
     return render(request, 'index.html')
 
-def activate(request, uidb64, token):
-    model = get_user_model()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = model.objects.get(pk=uid)
-    except:
-        user = None
-
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        messages.success(request, f"Email has been confirmed. Now you can log into your account.")
-        return redirect('login')
-    else:
-        messages.error(request, f"Link is invalid!")
-    
-    return redirect('index')
-
-def activate_email(request, user, email):
-    subject = "Activate your account."
-    message = render_to_string("activate_email.html", {
-        'user': user.username,
-        'domain': get_current_site(request).domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': account_activation_token.make_token(user),
-        'protocol': 'https' if request.is_secure() else 'http'
-    })
-    email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
-        messages.success(request, f"Thank you {user} for signing up to the website review tool. Please check \
-                         your email {email} inbox and click on the activation link to confirm registration.")
-    else:
-        messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
-
 # Send email to the admin to approve the registration request
 def reg_request_email(request, user, email):
     subject = "New User Registration Request"
