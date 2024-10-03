@@ -1,3 +1,319 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Top Navigation with Logo</title>-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            text-align: center;-->
+<!--            background-color: #fff;-->
+<!--        }-->
+
+<!--        .image {-->
+<!--            width: 350px;-->
+<!--            height: 200px;-->
+<!--            background-color: #ffffff;-->
+<!--            margin: 20px auto;-->
+<!--        }-->
+
+<!--        .image img {-->
+<!--            width: 100%;-->
+<!--            height: 100%;-->
+<!--            object-fit: fill; /* ensure images cover the  div */-->
+<!--        }-->
+
+<!--        .top-bar {-->
+<!--            display: flex;-->
+<!--            justify-content: space-between;-->
+<!--            align-items: center;-->
+<!--            padding: 10px 20px;-->
+<!--            background-color: #080E45;-->
+<!--        }-->
+<!--        .top-bar .logo {-->
+<!--            max-width: 145px; /* controll logo size*/-->
+<!--        }-->
+<!--        .top-bar .logo img {-->
+<!--            width: 100%;-->
+<!--            height: auto;-->
+<!--        }-->
+<!--        .top-bar .nav-buttons {-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        .top-bar button {-->
+<!--            background-color: transparent;-->
+<!--            border: none;-->
+<!--            color: #f5f5f5;-->
+<!--            font-size: 20px;-->
+<!--            cursor: pointer;-->
+<!--            margin-left: 20px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            padding: 20px;-->
+<!--        }-->
+<!--        .top-bar button i {-->
+<!--            margin-right: 8px;-->
+<!--        }-->
+<!--        .top-bar button:hover {-->
+<!--            color: #0066cc;-->
+<!--        }-->
+
+<!--        .button-container {-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--            gap: 20px; /* Space between buttons */-->
+<!--            margin-top: 10px; /* Move the container down instead of the buttons */-->
+<!--        }-->
+
+<!--        .text-button, .links-button {-->
+<!--            width: 120px;-->
+<!--            height: 50px;-->
+<!--            border: none;-->
+<!--            border-radius: 15px;-->
+<!--            font-size: 12px;-->
+<!--            cursor: pointer;-->
+<!--            transition: background-color 0.3s;-->
+<!--            background-color: #002e5d; /* Deep blue background */-->
+<!--            color: #ffffff; /* White text color */-->
+<!--        }-->
+
+<!--         /* Hover effect */-->
+<!--         .text-button:hover, .links-button:hover{-->
+<!--            background-color: #0066cc; /* Darker shade of the original color */-->
+<!--        }-->
+
+<!--         /* The horizontal line extending from the logo to the buttons */-->
+<!--        .line {-->
+<!--            position: absolute;-->
+<!--            top: 13%; /* Vertically centered with the logo */-->
+<!--            left: 170px; /* Starts at the end of the logo */-->
+<!--            right: 0px; /* Stops before the buttons */-->
+<!--            height: 2px;-->
+<!--            background-color: rgb(200, 200, 200); /* Line color */-->
+<!--            transform: translateY(-50%);-->
+<!--        }-->
+
+<!--        .text {-->
+<!--            margin: 20px 0;-->
+<!--            font-size: 14px;-->
+<!--        }-->
+
+<!--        .link {-->
+<!--            text-decoration: underline;-->
+<!--            color: blue;-->
+<!--            font-size: 18px;-->
+<!--        }-->
+
+<!--        input[type="text"] {-->
+<!--            width: 400px;-->
+<!--            padding: 5px;-->
+<!--            margin-bottom: 10px;-->
+<!--            margin-bottom: 10px;-->
+<!--            padding: 10px;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 4px;-->
+<!--        }-->
+
+<!--        #specifiedText {-->
+<!--            display: none;-->
+<!--            width: 400px; /* Set same width as the first input */-->
+<!--            margin: 10px auto; /* Center it horizontally */-->
+<!--            padding: 10px;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 4px;-->
+<!--        }-->
+
+<!--        /* Tooltip container: ensures it fits the content and is centered */-->
+<!--        .tooltip {-->
+<!--            position: relative;-->
+<!--            display: block;-->
+<!--            width: fit-content; /* Ensure the container fits the content and doesn't stretch */-->
+<!--            margin: 0 auto; /* Center the tooltip container horizontally */-->
+<!--        }-->
+
+<!--        /* Hidden tooltip box */-->
+<!--        .tooltip .tooltiptext {-->
+<!--            visibility: hidden;-->
+<!--            width: 300px;-->
+<!--            background-color: #002e5d;-->
+<!--            color: #fff;-->
+<!--            text-align: left;-->
+<!--            border-radius: 5px;-->
+<!--            padding: 10px;-->
+
+<!--            /* Tooltip position */-->
+<!--            position: absolute;-->
+<!--            z-index: 1;-->
+<!--            left: 105%; /* Position the tooltip to the right of the input */-->
+<!--            top: 50%; /* Vertically center the tooltip relative to the input */-->
+<!--            margin-left: 10px;-->
+<!--            transform: translateY(-50%); /* Adjust the tooltip position for perfect vertical centering */-->
+
+<!--            /* Transition effect for opacity */-->
+<!--            opacity: 0;-->
+<!--            transition: opacity 0.3s;-->
+<!--        }-->
+
+<!--        /* Wrapper for scrollable content */-->
+<!--        .tooltip .scrollable-content {-->
+<!--            max-height: 300px; /* Set the maximum height of the tooltip */-->
+<!--            overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */-->
+<!--        }-->
+
+<!--        /* Show tooltip when input is hovered */-->
+<!--        .tooltip input:hover + .tooltiptext {-->
+<!--            visibility: visible;-->
+<!--            opacity: 1;-->
+<!--        }-->
+
+<!--        /* Show tooltip when input is focused */-->
+<!--        .tooltip input:focus + .tooltiptext {-->
+<!--            visibility: visible;-->
+<!--            opacity: 1;-->
+<!--        }-->
+
+<!--        /* Tooltip arrow */-->
+<!--        .tooltip .tooltiptext::after {-->
+<!--            content: "";-->
+<!--            position: absolute;-->
+<!--            top: 50%; /* Vertically center the arrow */-->
+<!--            right: 100%; /* Position the arrow on the left of the tooltip */-->
+<!--            margin-top: -5px;-->
+<!--            border-width: 5px;-->
+<!--            border-style: solid;-->
+<!--            border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */-->
+<!--        }-->
+<!--        .messages {-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--        }-->
+<!--        .alert {-->
+<!--            width: 30%;-->
+<!--            margin: 10px auto;-->
+<!--            position: relative;-->
+<!--        }-->
+<!--        .btn-close {-->
+<!--            position: absolute;-->
+<!--            top: 0px;-->
+<!--            right: 10px;-->
+<!--            width: 15px;-->
+<!--            height: 15px;-->
+<!--            font-size: 10px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    {% load static %}-->
+
+<!--    <div class="top-bar">-->
+<!--        <div class="logo">-->
+<!--            <a href="https://www.unimelb.edu.au" target="_blank">-->
+<!--            <img src="{% static 'images/unimelb.svg' %}" alt="Logo">-->
+<!--            </a>-->
+<!--        </div>-->
+
+<!--        <div class="nav-buttons">-->
+<!--            <button><i class="fas fa-info-circle"></i> Help</button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <br>-->
+<!--    <br>-->
+<!--    <br>-->
+<!--    <div class="image">-->
+<!--        <img src="{% static 'images/page.svg' %}" alt="page Logo">-->
+<!--    </div>-->
+
+<!--    <div class="alert"></div>-->
+<!--        {% include 'message.html' %}-->
+<!--    </div>-->
+
+<!--    <form action="{% url 'search_link' %}" method="post">-->
+<!--        {% csrf_token %}-->
+<!--        <input type="text" id="url" name="url" placeholder="Click to enter URL" required>-->
+
+<!--        <div class="tooltip">-->
+<!--            <input type="text" id="specifiedText" name="specifiedText" placeholder="Click to enter TEXT">-->
+<!--            <div class="tooltiptext">-->
+<!--                <div class="scrollable-content">-->
+<!--                To use keyword search, enter your keywords separated by a single space (e.g., apple banana cherry).-->
+<!--                <br><br>-->
+<!--                To use wildcard search, start with / followed by your wildcard expression. <br><br>The following wildcard characters are supported:<br>-->
+<!--                *: Matches zero or more characters.-->
+<!--                Example: a* matches "apple," "apricot," etc.<br><br>-->
+<!--                ?: Matches exactly one character.-->
+<!--                Example: b?nana matches "banana," "b3nana," etc.<br><br>-->
+<!--                [seq]: Matches any one character within the brackets.-->
+<!--                Example: c[aou]t matches "cat," "cot," or "cut."<br><br>-->
+<!--                [!seq]: Matches any one character not in the brackets.-->
+<!--                Example: d[!aeiou]g matches any "dxg" where x is not 'a','e','i','o','u'<br><br>-->
+<!--                %: Matches zero or more characters (used in some systems).-->
+<!--                Example: a% matches "apple," "apricot," etc.<br><br>-->
+<!--                _: Matches exactly one character (used in some systems).-->
+<!--                Example: b_nana matches "banana," "b1nana," etc.-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="button-container">-->
+<!--            <button class="text-button" type="submit" id="showHidden">SEARCH FOR TEXT <i class="fas fa-search"></i></button>-->
+<!--            <button class="links-button" type="submit" id="searchLinks"> SEARCH FOR LINKS <i class="fas fa-search"></i></button>-->
+<!--        </div>-->
+<!--    </form>-->
+
+<!--    <div class="text">Tool reviews university of Melbourne websites,-->
+<!--        detects <br> broken links, specified text, facilitates updates, extends to <br> SharePoint document checks. </div>-->
+<!--    -->
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
+
+<!--    <script>-->
+<!--        window.onload = function() {-->
+<!--            var input = document.getElementById("specifiedText");-->
+<!--            input.value = ''; // Clear the content of specifiedText on page load-->
+<!--        };-->
+
+<!--        // Add a click event listener to control the behavior of the "SEARCH FOR TEXT" button-->
+<!--        document.getElementById("showHidden").addEventListener("click", function(event) {-->
+<!--            var input = document.getElementById("specifiedText");-->
+
+<!--            if (input.style.display === "none" || input.style.display === "") {-->
+<!--                input.style.display = "block";-->
+<!--                input.setAttribute("required", "true"); // Show and set it as a required field-->
+<!--                event.preventDefault(); // Prevent form submission and show the input field-->
+<!--            } else if (input.style.display === "block") {-->
+<!--                if (!input.value) {-->
+<!--                    input.style.display = "none";-->
+<!--                    input.removeAttribute("required"); // Remove required attribute-->
+<!--                    event.preventDefault(); // Prevent submission and hide the input field-->
+<!--                }-->
+<!--                // Otherwise, the form will proceed to submit-->
+<!--            }-->
+<!--        });-->
+
+<!--        // Add a click event listener for the "SEARCH FOR LINKS" button, preventing form submission if the text input field is visible-->
+<!--        document.getElementById("searchLinks").addEventListener("click", function(event) {-->
+<!--            var input = document.getElementById("specifiedText");-->
+
+<!--            // Check if the specified input field is visible-->
+<!--            if (input.style.display === "block") {-->
+<!--                // Prevent form submission-->
+<!--                event.preventDefault();-->
+<!--                alert("You cannot submit the form while the specified TEXT input box is visible using this button.");-->
+<!--            } else {-->
+<!--                // If the specifiedText input is hidden, clear its value-->
+<!--                input.value = ''; // Clear the content of specifiedText-->
+<!--            }-->
+<!--            // If specifiedText is hidden and cleared, the form will submit normally-->
+<!--        });-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +321,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top Navigation with Logo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -189,23 +504,7 @@
             border-style: solid;
             border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */
         }
-        .messages {
-            display: flex;
-            justify-content: center;
-        }
-        .alert {
-            width: 30%;
-            margin: 10px auto;
-            position: relative;
-        }
-        .btn-close {
-            position: absolute;
-            top: 0px;
-            right: 10px;
-            width: 15px;
-            height: 15px;
-            font-size: 10px;
-        }
+
     </style>
 </head>
 <body>
@@ -227,10 +526,6 @@
     <br>
     <div class="image">
         <img src="{% static 'images/page.svg' %}" alt="page Logo">
-    </div>
-
-    <div class="alert"></div>
-        {% include 'message.html' %}
     </div>
 
     <form action="{% url 'search_link' %}" method="post">
@@ -268,8 +563,6 @@
 
     <div class="text">Tool reviews university of Melbourne websites,
         detects <br> broken links, specified text, facilitates updates, extends to <br> SharePoint document checks. </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         window.onload = function() {

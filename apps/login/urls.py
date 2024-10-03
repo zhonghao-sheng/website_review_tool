@@ -16,4 +16,4 @@ urlpatterns = [
     # path('logout/', auth_views.LogoutView.as_view(next_page=None), name='logout'),  # Logout and redirect to home page
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('reset_password/<uidb64>/<token>', views.reset_password, name='reset_password'),
-]
+    ]
