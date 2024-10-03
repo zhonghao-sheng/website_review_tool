@@ -91,6 +91,7 @@ def reg_request_email(request, user, email):
     })
     admin_email = 'website.review.tool@gmail.com'
     email_message = EmailMessage(subject, message, to=[admin_email])
+    email_message.content_subtype = "html"  # Ensure the email is sent as HTML
     if email_message.send():
         messages.success(request, f"Thank you {user.username} for signing up to the website review tool. An email has been sent to the admin for approval.")
     else:
