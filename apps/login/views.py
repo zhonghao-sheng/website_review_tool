@@ -150,7 +150,7 @@ def reject_registration(request, uidb64, token):
     if user is not None and account_register_token.check_token(user, token):
         # Send email to user to inform them of the registration status
         reject_registration_email(request, user, user.email)
-        
+
         user.delete()
         messages.success(request, f"User {user.username} has been successfully rejected and deleted.")
     else:
@@ -166,8 +166,10 @@ def signup(request):
             user = form.save(commit = False)
             user.is_active = False
             user.save()
-            # Send email to user to activate account
-            activate_email(request, user, form.cleaned_data.get('email'))
+            # # Send email to user to activate account
+            # activate_email(request, user, form.cleaned_data.get('email'))
+            # Send email to admin to approve registration
+            reg_request_email(request, user, form.cleaned_data.get('email'))
             return redirect('login')  # Redirect to login page after successful signup
         else:
             messages.error(request, mark_safe("".join([f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
