@@ -565,7 +565,7 @@
 
                 <form id="logout-form" action="{% url 'logout' %}" method="post"></form>
                     {% csrf_token %}
-                    <button>Log Out</button>
+                    <button type="submit">Log Out</button>
                 </form>
 
                 <button onclick="window.location.href='{% url 'index' %}'">Back to Main Page</button>
