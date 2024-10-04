@@ -6,7 +6,7 @@ from . import views
 from django.urls import register_converter
 
 urlpatterns = [
-    path('index/', index, name='index'),
+    path('', index, name='index'),
     path('signup/', signup, name='signup'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
