@@ -225,7 +225,7 @@ def reset_password(request, uidb64, token):
             form = ResetPasswordForm(user)
             return render(request, 'resetPassword.html', {'form': form})
     else:
-        messages.error(request, "Link is invalid or has expired.")
+        messages.error(request, f"{user == None} and {account_activation_token.check_token(user, token)}")
 
     return redirect('index')
 
