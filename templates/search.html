@@ -564,12 +564,12 @@
                 <button>Demo </button>
 
                 {% if user.is_authenticated %}
-                    <form id="logout-form" action="{% url 'logout' %}" method="post"></form>
+                    <form id="logout-form" action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
                         <button type="submit">Log Out</button>
                     </form>
                 {% endif %}
-                
+
                 <button onclick="window.location.href='{% url 'index' %}'">Back to Main Page</button>
 
             </div>
