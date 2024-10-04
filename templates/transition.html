@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <title>Operation Successful</title>
+    <meta http-equiv="refresh" content="2;url={{ next_url }}">
+    <title>Transition Page</title>
     <style>
         body {
             display: flex;
@@ -28,13 +28,13 @@
 </head>
 <body>
     <div class="message">
-        <h1>Operation Successful!</h1>
+        <h1>{{ message }}</h1>
         <p>You will be redirected shortly...</p>
     </div>
     <script>
         setTimeout(function() {
             window.location.href = "{{ redirect_url }}";
-        }, 1200); 
+        }, 1800); 
     </script>
 </body>
 </html>
