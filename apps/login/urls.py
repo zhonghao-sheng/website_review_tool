@@ -17,4 +17,5 @@ urlpatterns = [
     path('reset_password/<uidb64>/<token>', views.reset_password, name='reset_password'),
     path('accept-registration/<uidb64>/<token>/', views.accept_registration, name='accept_registration'),
     path('reject-registration/<uidb64>/<token>/', views.reject_registration, name='reject_registration'),
+    path('transition/', views.transition_view, name='transition'),
     ]
