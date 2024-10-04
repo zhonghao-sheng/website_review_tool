@@ -121,7 +121,7 @@ def forgot_password(request):
             found_user = get_user_model().objects.filter(Q(email=user_email)).first()
             if found_user:
                 reset_password_email(request, found_user, found_user.email)
-                return redirect('login')
+                return redirect('reset_password')
             else:
                 messages.error(request, f"No account found with the provided username and email.")
         else:
