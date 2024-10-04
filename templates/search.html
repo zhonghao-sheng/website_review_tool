@@ -563,11 +563,13 @@
             <div id="dropdown" class="dropdown-content">
                 <button>Demo </button>
 
-                <form id="logout-form" action="{% url 'logout' %}" method="post"></form>
-                    {% csrf_token %}
-                    <button type="submit">Log Out</button>
-                </form>
-
+                {% if user.is_authenticated %}
+                    <form id="logout-form" action="{% url 'logout' %}" method="post"></form>
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                {% endif %}
+                
                 <button onclick="window.location.href='{% url 'index' %}'">Back to Main Page</button>
 
             </div>
