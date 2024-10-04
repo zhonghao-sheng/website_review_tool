@@ -47,7 +47,7 @@ def transition_view(request):
 def logout_user(request):
     logout(request)
     # Specify where the user should be redirected after the transition
-    next_url = '/login/' 
+    next_url = '/index/' 
     # Custom message for logging out
     message = quote_plus('You have been logged out successfully!')
     # Redirect to the transition view with next URL and message
