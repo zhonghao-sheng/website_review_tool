@@ -6,6 +6,7 @@ from .forms import SignUpForm, VerifyUserForm, ResetPasswordForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from urllib.parse import quote_plus
 
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -24,17 +25,33 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, 'You are now logged in.')
-            return redirect('search_link')  # Redirect to a suitable page after login
+            # Redirect to the transition page with a custom message
+            next_url = request.POST.get('next', '/search_link/')
+            message = quote_plus('Login Successful!')  # Encodes the message to be URL-safe
+            return redirect(f'/transition/?next={next_url}&message={message}')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+def transition_view(request):
+    # Logic to decide the next URL
+    next_url = request.GET.get('next', '/default_redirect_url/')
+    # Get the custom message from the query parameters, with a default message
+    message = request.GET.get('message', 'Operation Successful!')
+    # Render the transition page with the URL and message
+    response = render(request, 'transition.html', {'redirect_url': next_url, 'message': message})
+    return response
+
 def logout_user(request):
     logout(request)
-    messages.success(request, 'You have been logged out.')
-    return redirect('index')  # Redirect to a suitable page after logout
+    # Specify where the user should be redirected after the transition
+    next_url = '/login/' 
+    # Custom message for logging out
+    message = quote_plus('You have been logged out successfully!')
+    # Redirect to the transition view with next URL and message
+    return redirect(f'/transition/?next={next_url}&message={message}')
 
 def check_login(request):
     if request.user.is_authenticated:
@@ -87,7 +104,9 @@ def signup(request):
             user.is_active = False
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
-            return redirect('login')  # Redirect to login page after successful signup
+            next_url = '/login/' 
+            message = quote_plus('Register Successful!')  
+            return redirect(f'/transition/?next={next_url}&message={message}')
         else:
             messages.error(request, mark_safe("".join([f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
     else:
@@ -134,23 +153,25 @@ def reset_password(request, uidb64, token):
     except:
         user = None
 
-    if user is not None and reset_password_token.check_token(user, token):
+    if user is not None and account_activation_token.check_token(user, token):
         if request.method == "POST":
             form = ResetPasswordForm(user, request.POST)
             if form.is_valid():
                 user.set_password(form.cleaned_data.get('password'))
                 user.save()
-                messages.success(request, f"Your password has been updated.")
-                return redirect('login')
+                # Redirect to the transition page with a custom message
+                next_url = '/login/'  # Directs users to log in with their new password
+                message = quote_plus('Password reset Successful!')  # Encodes the message to be URL-safe
+                return redirect(f'/transition/?next={next_url}&message={message}')
             else:
                 messages.error(request, mark_safe("".join(
                     [f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in
                      error.messages])))
-        # messages.success(request, f"Email has been confirmed. Now you can log into your account.")
-        form = ResetPasswordForm(user)
-        return render(request, 'resetPassword.html', {'form': form})
+        else:
+            form = ResetPasswordForm(user)
+            return render(request, 'resetPassword.html', {'form': form})
     else:
-        messages.error(request, f"Link is invalid!")
+        messages.error(request, "Link is invalid or has expired.")
 
     return redirect('index')
 
