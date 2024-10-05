@@ -9,10 +9,13 @@ class TestViews(TestCase):
         self.user = User.objects.create(username='admin', password='admin')
         self.login_url = reverse('login')  # Ensure 'login' is the correct name for your login URL
 
+    def test_user_creation(self):
+        user_in_db = User.objects.get(username='admin')
+        self.assertIsNotNone(user_in_db)
+        self.assertEqual(user_in_db.username, 'admin')
     def test_login(self):
         # Simulate a POST request to the login view with the correct credentials
         response = self.client.post(self.login_url, {'username': 'admin', 'password': 'admin'})
-
         # Check that the response status code is 302 (redirect after successful login)
         self.assertEqual(response.status_code, 302)
 
