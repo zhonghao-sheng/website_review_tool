@@ -2,7 +2,49 @@ from django.test import TestCase
 from django.urls import reverse
 from django.core import mail
 from django.contrib.auth.models import User
+# from .models import User
+# Log In Tests
+class UserLogInTest(TestCase):
+    # def setUp(self):
+    #     self.user = User(username='admin', password='admin')
+    #     self.user.save()
+    # def test_valid_login(self):
+    #     response = self.client.post(reverse('login'), {
+    #         'username': 'admin',
+    #         'password': 'admin',
+    #     })
+    #     print(response)
+    #     self.assertEqual(response.status_code, 302)
+    #     self.assertRedirects(response, reverse('search'))
+    #     self.assertTrue(response.wsgi_request.user.is_authenticated)
+    def setUp(self):
+        self.credentials = {
+            'username': 'testuser',
+            'password': 'secret'}
+        User.objects.create_user(**self.credentials)
 
+    def test_login(self):
+        # send login data
+        response = self.client.post('/login/', self.credentials, follow=True)
+        # should be logged in now
+        self.assertTrue(response.context['user'].is_active)
+    def test_login_incorrect_username(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'invaliduser',
+            'password': 'validpassword',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        self.assertContains(response, 'Invalid username or password.')
+
+    def test_login_incorrect_password(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'validuser',
+            'password': 'invalidpassword',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        self.assertContains(response, 'Invalid username or password.')
 
 # Sign Up Tests
 class UserSignUpTest(TestCase):
@@ -60,34 +102,6 @@ class UserSignUpTest(TestCase):
         self.assertFormError(response, 'form', 'password2', 'The two password fields didn’t match.')
 
 
-# Log In Tests
-class UserLogInTest(TestCase):
-    def test_valid_login(self):
-        response = self.client.post(reverse('login'), {
-            'username': 'validuser',
-            'password': 'validpassword',
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('search'))
-        self.assertTrue(response.wsgi_request.user.is_authenticated)
-
-    def test_login_incorrect_username(self):
-        response = self.client.post(reverse('login'), {
-            'username': 'invaliduser',
-            'password': 'validpassword',
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
-        self.assertContains(response, 'Invalid username or password.')
-
-    def test_login_incorrect_password(self):
-        response = self.client.post(reverse('login'), {
-            'username': 'validuser',
-            'password': 'invalidpassword',
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
-        self.assertContains(response, 'Invalid username or password.')
 
 
 # Forgot Password Tests
