@@ -106,17 +106,24 @@ class UserSignUpTest(TestCase):
 
 # Forgot Password Tests
 class UserForgotPasswordTest(TestCase):
+    def setUp(self):
+        self.credentials = {
+            'username': 'testuser',
+            'password': 'secret'}
+        User.objects.create_user(**self.credentials)
     def test_forgot_password_non_existent_email(self):
         response = self.client.post(reverse('forgot_password'), {
+            'username':'testuser',
             'email': 'nonexistent@example.com',
         })
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
+        self.assertTemplateUsed(response, 'forgot_password.html')
         self.assertEqual(len(mail.outbox), 0)
 
     def test_forgot_password_valid_email(self):
         response = self.client.post(reverse('forgot_password'), {
-            'email': 'validemail@gmail.com',
+            'username':'testuser',
+            'email': 'x15968472900@163.com',
         })
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'forgot_password.html')
