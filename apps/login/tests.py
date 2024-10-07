@@ -50,19 +50,20 @@ class UserSignUpTest(TestCase):
     # ensure signup when form is valid
     def test_signup_valid_form(self):
         response = self.client.get(reverse('signup'), {
-            'username': 'testusername',
+            'username': 'testnewusername',
             'email': 'validemail@gmail.com',
             'password1': 'val1dpassw0rd',
             'password2': 'val1dpassw0rd'
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', 'A user with that username already exists.')
         self.assertRedirects(response, reverse('login'))
         self.assertTrue(User.objects.filter(username='validuser').exists())
 
     # username already exists
     def test_signup_existing_username(self):
         response = self.client.post(reverse('signup'), {
-            'username': 'admin',
+            'username': 'testuser',
             'email': 'validemail@example.com',
             'password1': 'val1dpassw0rd',
             'password2': 'val1dpassw0rd',

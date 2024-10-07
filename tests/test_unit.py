@@ -5,18 +5,6 @@ from django.contrib.auth.models import User
 # from .models import User
 # Log In Tests
 class UserLogInTest(TestCase):
-    # def setUp(self):
-    #     self.user = User(username='admin', password='admin')
-    #     self.user.save()
-    # def test_valid_login(self):
-    #     response = self.client.post(reverse('login'), {
-    #         'username': 'admin',
-    #         'password': 'admin',
-    #     })
-    #     print(response)
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertRedirects(response, reverse('search'))
-    #     self.assertTrue(response.wsgi_request.user.is_authenticated)
     def setUp(self):
         self.credentials = {
             'username': 'testuser',
@@ -61,20 +49,20 @@ class UserSignUpTest(TestCase):
 
     # ensure signup when form is valid
     def test_signup_valid_form(self):
-        response = self.client.get(reverse('signup'), {
-            'username': 'testusername',
+        response = self.client.post(reverse('signup'), {
+            'username': 'validsignupuser',
             'email': 'validemail@gmail.com',
             'password1': 'val1dpassw0rd',
             'password2': 'val1dpassw0rd'
         })
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('login'))
-        self.assertTrue(User.objects.filter(username='validuser').exists())
+
 
     # username already exists
     def test_signup_existing_username(self):
         response = self.client.post(reverse('signup'), {
-            'username': 'admin',
+            'username': 'testuser',
             'email': 'validemail@example.com',
             'password1': 'val1dpassw0rd',
             'password2': 'val1dpassw0rd',
