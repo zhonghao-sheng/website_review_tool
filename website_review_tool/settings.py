@@ -97,7 +97,7 @@ DATABASES = {
         'PASSWORD': 'nbmy43602',
         'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-9wa9kltyresu.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
         'PORT': 3306,
-        'TEST': {'NAME': 'test_ebdb', },
+        'TEST': {'NAME': 'test_newdb', },
     }
 }
 # else:
