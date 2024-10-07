@@ -245,9 +245,7 @@ def search_link(request):
             show_source_link = True
         request.session['results'] = result
         request.session['show_source_link'] = show_source_link
-        # url = reverse('show_results') + f'?results={result}&show_source_link={show_source_link}'
         return redirect('show_results')
-        # return render(request, 'results.html', {'results': results, 'show_source_link':show_source_link})
     return render(request, 'search.html')
 
 def show_results(request):
