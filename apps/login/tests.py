@@ -5,18 +5,6 @@ from django.contrib.auth.models import User
 # from .models import User
 # Log In Tests
 class UserLogInTest(TestCase):
-    # def setUp(self):
-    #     self.user = User(username='admin', password='admin')
-    #     self.user.save()
-    # def test_valid_login(self):
-    #     response = self.client.post(reverse('login'), {
-    #         'username': 'admin',
-    #         'password': 'admin',
-    #     })
-    #     print(response)
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertRedirects(response, reverse('search'))
-    #     self.assertTrue(response.wsgi_request.user.is_authenticated)
     def setUp(self):
         self.credentials = {
             'username': 'testuser',
