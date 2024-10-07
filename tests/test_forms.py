@@ -40,7 +40,7 @@
 #         expected_url = self.live_server_url + reverse('home')  # Replace with your expected URL after login
 #
 #         self.assertEqual(current_url, expected_url, "Login failed: URL did not match expected URL")
-#
+
 #
 #
 #
