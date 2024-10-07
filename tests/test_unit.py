@@ -49,6 +49,11 @@ class UserLogInTest(TestCase):
 # Sign Up Tests
 class UserSignUpTest(TestCase):
     # ensure signup page is accessible
+    def setUp(self):
+        self.credentials = {
+            'username': 'testuser',
+            'password': 'secret'}
+        User.objects.create_user(**self.credentials)
     def test_signup_view(self):
         response = self.client.get(reverse('signup'))
         self.assertEqual(response.status_code, 200)
@@ -57,7 +62,7 @@ class UserSignUpTest(TestCase):
     # ensure signup when form is valid
     def test_signup_valid_form(self):
         response = self.client.get(reverse('signup'), {
-            'username': 'validuser',
+            'username': 'testusername',
             'email': 'validemail@gmail.com',
             'password1': 'val1dpassw0rd',
             'password2': 'val1dpassw0rd'
