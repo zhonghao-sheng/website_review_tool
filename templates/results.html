@@ -40,7 +40,7 @@
         .copy-btn {
             margin-left: 10px;
             padding: 5px 10px;
-            background-color: #002e5d; /* Green background */
+            background-color: #002e5d; /* Blue background */
             color: white; /* White text */
             border: none; /* Remove border */
             border-radius: 10px; /* Rounded corners */
@@ -48,9 +48,46 @@
         }
 
         .copy-btn:hover {
-            background-color: #0066cc; /* Darker green on hover */
+            background-color: #0066cc; /* Darker blue on hover */
         }
 
+        /* Flexbox layout for horizontal alignment */
+        .link-container {
+            display: flex;
+            justify-content: space-between; /* Push the back button to the far right */
+            align-items: center; /* Vertically center the items */
+            margin-top: 20px;
+        }
+
+        /* Left side container for links */
+        .left-links {
+            display: flex;
+            flex-direction: column; /* Make the items inside this div stack vertically */
+            align-items: flex-start; /* Align items to the start (left) */
+            gap: 10px; /* Add space between the vertical items */
+        }
+
+        /* Horizontal alignment for each link and copy button */
+        .link-item {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Style for the back button */
+        .back-btn {
+            padding: 5px 10px;
+            background-color: #002e5d; /* Blue background */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none; /* Remove underline from link */
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background-color: #0066cc; /* Darker blue on hover */
+        }
     </style>
 </head>
 <body>
@@ -62,11 +99,28 @@
         </tr>
     {% endif %}
 
-    <a href = "{% url 'download' %}?filename=output.xlsx" id="link1">click here to download the result <i class="fas fa-file-download"></i></a>
-    <button class="copy-btn" onclick="copyToClipboard('link1')">Copy share Link</button><br>
+    <!-- Flex container for both left-side links and right-side back button -->
+    <div class="link-container">
+        <!-- Left-side links and copy buttons -->
+        <div class="left-links">
+            <!-- First download link and copy button -->
+            <div class="link-item">
+                <a href="{% url 'download' %}?filename=output.xlsx" id="link1">click here to download the result <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link1')">Copy share Link</button>
+            </div>
 
-    <a href = "{% url 'download' %}?filename=uom_sign_links.xlsx" id="link2">click here to download the uom signs required links <i class="fas fa-file-download"></i></a>
-    <button class="copy-btn" onclick="copyToClipboard('link2')">Copy share Link</button>
+            <!-- Second download link and copy button -->
+            <div class="link-item">
+                <a href="{% url 'download' %}?filename=uom_sign_links.xlsx" id="link2">click here to download the uom signs required links <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link2')">Copy share Link</button>
+            </div>
+        </div>
+
+        <!-- Right-side back button -->
+        <a href="{% url 'index' %}" class="back-btn">Back to Main Page</a>
+    </div>
+
+    <br>
 
     <table>
         <thead>
