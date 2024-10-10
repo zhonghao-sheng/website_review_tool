@@ -43,13 +43,15 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y libmysqlclient-dev
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            brew install mysql-client pkg-config
-            export PKG_CONFIG_PATH="/opt/homebrew/opt/mysql-client/lib/pkgconfig"
-            pip install mysqlclient
+            brew install mysql-client
           fi
 
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+
+      - name: Drop and recreate test database
+        run: |
+          mysql -u root -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 
       - name: Run tests
         run: python manage.py test login
