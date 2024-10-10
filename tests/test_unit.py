@@ -59,7 +59,7 @@ class UserSignUpTest(TestCase):
             'password2': 'val1dpassw0rd'
         })
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('transition'))
+        self.assertRedirects(response, reverse('transition') + '?next=/login/&message=Register+Successful%21')
 
 
     # username already exists
