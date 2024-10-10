@@ -69,6 +69,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew services start mysql
+#
 #          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}'; FLUSH PRIVILEGES;"
           mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 
