@@ -75,4 +75,4 @@ jobs:
         run: python manage.py collectstatic --noinput
 
       - name: Run tests
-        run: python manage.py test login
+        run: python manage.py test
