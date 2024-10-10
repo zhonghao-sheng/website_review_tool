@@ -78,7 +78,18 @@ class Web_spider():
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
-                                    self.keyword_links.append({'url':link, 'associated_text':keyword})
+                                    urls = [item['url'] for item in self.keyword_links]
+                                    keywords = [item['associated_text'] for item in self.keyword_links]
+                                    # only those cases would dict be added to the keyword_links: 1. new url
+                                    # 2. existing url while keyword not the same keyword
+                                    if link not in urls:
+                                        self.keyword_links.append({'url':link, 'associated_text':[keyword]})
+                                    else:
+                                        index = [data for data, item in enumerate(self.keyword_links) if item['url'] == link][0]
+                                        if keyword not in self.keyword_links[index]['associated_text']:
+                                            self.keyword_links[index]['associated_text'].append(keyword)
+
+
                     elif self.keyword_type == WILDCARD:
                         pattern = self.keyword
                         if pattern is not None:
@@ -204,7 +215,7 @@ class Web_spider():
             t.daemon = True
             t.start()
         self.web_links.join()
-        print(self.keyword_links)
+        self.broken_links = sorted(self.broken_links, key=lambda x: x['associated_text'])
         return self.broken_links
     
     def search_keyword_links(self, baseurl, keyword):
@@ -231,6 +242,11 @@ class Web_spider():
             t.daemon = True
             t.start()
         self.web_links.join()
+        if self.keyword_type == SPECIFIED_TEXT:
+            for item in self.keyword_links:
+                item['associated_text'] = sorted(item['associated_text'])
+                item['associated_text'] = ' '.join(item['associated_text'])
+        # self.keyword_links = sorted(self.keyword_links, key=lambda x: x['associated_text'])
         return self.keyword_links
 
 @login_required

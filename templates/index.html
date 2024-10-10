@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -106,6 +107,26 @@
             color: #0C4483;
             font-size: 18px;
         }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
+        .required {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -125,9 +146,15 @@
     <br>
     <br>
     <div class="image">
+        <a href="{% url 'index' %}">
         <img src="{% static 'images/page.svg' %}" alt="page Logo">
+        </a>
     </div>
     {% comment %} <input type="text" value="Log in"> {% endcomment %}
+
+    <div class="alert"></div>
+        {% include 'message.html' %}
+    </div>
 
     {% if user.is_authenticated %}
         <p>Hello, {{ user.username }}!
@@ -147,6 +174,8 @@
     <div class="text">Tool reviews university of Melbourne websites,
         detects <br> broken links, specified text, facilitates updates, extends to <br> SharePoint document checks. </div>
     <a href="#" class="link">About us</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

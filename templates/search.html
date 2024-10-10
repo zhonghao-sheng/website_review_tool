@@ -360,6 +360,7 @@
         .top-bar .nav-buttons {
             display: flex;
             align-items: center;
+            position: relative; /* Position relative so that the dropdown is positioned absolutely within it */
         }
         .top-bar button {
             background-color: transparent;
@@ -367,7 +368,7 @@
             color: #f5f5f5;
             font-size: 20px;
             cursor: pointer;
-            margin-left: 20px;
+            margin-right: 30px;
             display: flex;
             align-items: center;
             padding: 20px;
@@ -375,7 +376,7 @@
         .top-bar button i {
             margin-right: 8px;
         }
-        .top-bar button:hover {
+        .top-bar button:hover, .top-bar button.active {
             color: #0066cc;
         }
 
@@ -505,6 +506,46 @@
             border-color: transparent #002e5d transparent transparent; /* Set the color of the arrow */
         }
 
+        /* style of drop down list */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%; /* Ensure dropdown appears just below the button */
+            left: 13px;
+            background-color: #ffffff; /* back ground color */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* shadow effect */
+            z-index: 1;
+        }
+
+        /* style of drop down button */
+        .dropdown-content button {
+            background-color: #002e5d; /* button color */
+            color: #fff; /* font color */
+            border: none;
+            padding: 8px 16px;
+            text-align: left;
+            text-decoration: none;
+            display: block;
+            font-size: 15px;
+            margin: 5px 0;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* style of drop down button hover effect */
+        .dropdown-content button:hover {
+            background-color: #0066cc; /*hover background color*/
+            color: #fff; /* hover font color */
+        }
+
+        /* Displays a drop-down when expanded */
+        .show {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -518,14 +559,29 @@
         </div>
 
         <div class="nav-buttons">
-            <button><i class="fas fa-info-circle"></i> Help</button>
+            <button onclick="toggleDropdown()"><i class="fas fa-info-circle"></i> Help</button>
+            <div id="dropdown" class="dropdown-content">
+                <button>Demo </button>
+
+                {% if user.is_authenticated %}
+                    <form id="logout-form" action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                {% endif %}
+
+                <button onclick="window.location.href='{% url 'index' %}'">Back to Main Page</button>
+
+            </div>
         </div>
     </div>
     <br>
     <br>
     <br>
     <div class="image">
+         <a href="{% url 'index' %}">
         <img src="{% static 'images/page.svg' %}" alt="page Logo">
+         </a>
     </div>
 
     <form action="{% url 'search_link' %}" method="post">
@@ -603,6 +659,19 @@
             }
             // If specifiedText is hidden and cleared, the form will submit normally
         });
+
+         function toggleDropdown() {
+            var dropdown = document.getElementById("dropdown");
+            var helpButton = document.querySelector(".top-bar button");
+
+            if (dropdown.classList.contains("show")) {
+                dropdown.classList.remove("show");
+                helpButton.classList.remove("active");
+            } else {
+                dropdown.classList.add("show");
+                helpButton.classList.add("active");
+            }
+        };
     </script>
 </body>
 </html>

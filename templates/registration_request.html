@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #fff;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #080E45; /* Aligned with the header background color */
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px #999;
+        }
+
+        .button:hover {
+            background-color: #060A36; /* Slightly darker shade for hover effect */
+        }
+
+        .button:active {
+            background-color: #060A36;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .button-reject {
+            background-color: #f44336;
+        }
+
+        .button-reject:hover {
+            background-color: #da190b;
+        }
+
+        .button-reject:active {
+            background-color: #da190b;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+    <p>Hi Admin,</p>
+    <p>A new user has requested to register. Here are their details:</p>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Please click on one of the buttons below to accept or reject the registration:</p>
+    <a href="{{ protocol }}://{{ domain }}{% url 'accept_registration' uidb64=uid token=token %}" class="button">Accept</a>
+    <a href="{{ protocol }}://{{ domain }}{% url 'reject_registration' uidb64=uid token=token %}" class="button button-reject">Reject</a>
+    <p>This is an automated message. Do not reply to this email.</p>
+</body>
+</html>
