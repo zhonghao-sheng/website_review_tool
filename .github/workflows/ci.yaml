@@ -43,7 +43,9 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y libmysqlclient-dev
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            brew install mysql-client
+            brew install mysql-client pkg-config
+            export PKG_CONFIG_PATH="/opt/homebrew/opt/mysql-client/lib/pkgconfig"
+            pip install mysqlclient
           fi
 
       - name: Install dependencies
