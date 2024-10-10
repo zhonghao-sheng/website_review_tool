@@ -53,6 +53,7 @@ jobs:
 
       - name: Drop and recreate test database
         run: |
+          sudo apt-get install mysql-server
           mysql -u root -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 
       - name: Run tests
