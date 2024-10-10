@@ -71,6 +71,8 @@ jobs:
 #          brew services start mysql
 #          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}'; FLUSH PRIVILEGES;"
 #          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+      - name: Collect static files
+        run: python manage.py collectstatic --noinput
 
       - name: Run tests
         run: python manage.py test login
