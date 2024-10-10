@@ -52,9 +52,16 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Drop and recreate test database
+      - name: Start MySQL service (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          mysql -u root -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+          sudo systemctl start mysql
+          sudo mysql -u root -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 
+      - name: Start MySQL service (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew services start mysql
+          mysql -u root -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
       - name: Run tests
         run: python manage.py test login
