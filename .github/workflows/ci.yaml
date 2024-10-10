@@ -12,12 +12,12 @@ jobs:
       fail-fast: false
       matrix:
 #        os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [macos-latest]
+        os: [ubuntu-latest]
         python-version:
           - "3.9"
-#          - "3.10"
-#          - "3.12"
-#          - "3.12-dev"
+          - "3.10"
+          - "3.12"
+          - "3.12-dev"
 #          - "pypy-3.8"
 #          - "pypy-3.9"
     name: Test
@@ -55,23 +55,23 @@ jobs:
 
 
 
-#      - name: Start MySQL service (Ubuntu)
-#        if: matrix.os == 'ubuntu-latest'
-#        run: |
-#          sudo systemctl start mysql
-#          sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
-      - name: Install MySQL formula (macOS)
-        if: matrix.os == 'macos-latest'
-        run: brew install mysql
-
-
-      - name: Start MySQL service (macOS)
-        if: matrix.os == 'macos-latest'
+      - name: Start MySQL service (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          brew services start mysql
-
-#          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}'; FLUSH PRIVILEGES;"
-          mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+          sudo systemctl start mysql
+          sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+#      - name: Install MySQL formula (macOS)
+#        if: matrix.os == 'macos-latest'
+#        run: brew install mysql
+#
+#
+#      - name: Start MySQL service (macOS)
+#        if: matrix.os == 'macos-latest'
+#        run: |
+#          brew services start mysql
+#
+##          mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_ROOT_PASSWORD }}'; FLUSH PRIVILEGES;"
+#          mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 
       - name: Collect static files
         run: python manage.py collectstatic --noinput
