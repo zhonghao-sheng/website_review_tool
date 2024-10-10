@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import pandas as pd
+from django.urls import reverse
 from django.http import FileResponse, HttpResponse
 from fnmatch import *
 
@@ -253,13 +254,21 @@ def search_link(request):
     if request.method == 'POST':
         url = request.POST.get('url')
         keyword = request.POST.get('specifiedText')  # Fetch the keyword if it's provided
-        results = search_task(url, keyword)
+        result = search_task(url, keyword)
         if keyword:
             show_source_link = False
         else:
             show_source_link = True
-        return render(request, 'results.html', {'results': results, 'show_source_link':show_source_link})
+        request.session['results'] = result
+        request.session['show_source_link'] = show_source_link
+        return redirect('show_results')
     return render(request, 'search.html')
+
+def show_results(request):
+    results = request.session.get('results')
+    show_source_link = request.session.get('show_source_link')
+    return render(request, 'results.html', {'results': results, 'show_source_link': show_source_link})
+
 
 def search_task(url, keyword):
     
