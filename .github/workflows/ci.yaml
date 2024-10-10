@@ -59,7 +59,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo systemctl start mysql
-          sudo mysql -u root -pROOT -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+          sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
 #      - name: Install MySQL formula (macOS)
 #        if: matrix.os == 'macos-latest'
 #        run: brew install mysql
