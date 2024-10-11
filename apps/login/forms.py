@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.core.validators import RegexValidator
 from django_recaptcha.fields import ReCaptchaField
@@ -13,18 +13,18 @@ class SignUpForm(UserCreationForm):
     )
     username = forms.CharField(validators=[username_regex], max_length=20, required=True)
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('username', 'email', 'password1', 'password2')
 
 class VerifyUserForm(forms.Form):
     email = forms.EmailField(max_length=254, required=True, help_text='Required. Provide a valid email address.')
     username = forms.CharField(max_length=20, required=True)
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('username', 'email')
 
 
 class ResetPasswordForm(SetPasswordForm):
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('new_password1', 'new_password2')
