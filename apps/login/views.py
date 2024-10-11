@@ -222,7 +222,7 @@ def reset_password(request, uidb64, token):
                     [f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in
                      error.messages])))
         form = ResetPasswordForm(user)
-        return render(request, 'resetPassword.html', {'form': form})
+        return render(request, 'reset_password.html', {'form': form})
     else:
         messages.error(request, "Link is invalid or expired.")
 
