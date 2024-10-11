@@ -99,9 +99,11 @@ class Web_spider():
                                 if fnmatch(word, pattern):
                                     result = True
                                     matched_pattern = word
+                                    print("matched")
                                     break
                             if not result:
                                 pattern = self.translate_wildcard(pattern)
+                                print("pattern is ", pattern)
                                 for word in text:
                                     if fnmatch(word, pattern):
                                         result = True
