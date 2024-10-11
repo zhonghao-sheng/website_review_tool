@@ -211,7 +211,7 @@ def reset_password(request, uidb64, token):
         if request.method == "POST":
             form = ResetPasswordForm(user, request.POST)
             if form.is_valid():
-                user.set_password(form.cleaned_data.get('password'))
+                user.set_password(form.cleaned_data.get('new_password1'))
                 user.save()
                 # Redirect to the transition page with a custom message
                 next_url = '/login/'  # Directs users to log in with their new password
