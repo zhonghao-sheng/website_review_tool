@@ -4,7 +4,7 @@ A tool that can review a defined range of UoM websites (internal and external), 
 ## Features
 
 - Review public and UniMelb restricted websites for broken links and specific keywords
-- Supports authentication using Okta Verify for accessing restricted UniMelb websites
+- Supports authentication using Okta Verify for accessing restricted UoM websites
 - Allows users to review documents stored in a SharePoint site
 - Custom keyword and content detection
 
@@ -15,8 +15,8 @@ To use the web application, simply click on the provided link: [Website Review T
 
 ### 2. User Registration and Login
 - Register as a user to access public websites.
-- UniMelb-specific and restricted content will require you to have a valid UniMelb account.
-- Use Okta Verify for secure login when accessing UniMelb-restricted pages.
+- UoM-specific and restricted content will require you to have a valid UoM account.
+- Use Okta Verify for secure login when accessing UoM-restricted pages.
 
 ## Repository Structure
 
