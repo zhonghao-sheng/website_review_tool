@@ -70,7 +70,7 @@ class Web_spider():
 
         while True:
             link_combo = self.web_links.get()
-
+            print(self.keyword, "this is keywordsss")
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
@@ -78,25 +78,31 @@ class Web_spider():
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
+                        print("skip this link")
                         continue
                     soup = BeautifulSoup(response.content, 'html.parser')
                     if self.keyword_type == SPECIFIED_TEXT:
                         if self.keyword is not None:
-                            text = soup.get_text()
+                            # text = soup.get_text()
+                            text = response.text
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
                                     urls = [item['url'] for item in self.keyword_links]
-                                    keywords = [item['associated_text'] for item in self.keyword_links]
                                     # only those cases would dict be added to the keyword_links: 1. new url
                                     # 2. existing url while keyword not the same keyword
                                     if link not in urls:
                                         self.keyword_links.append({'url': link, 'associated_text': [keyword]})
+
                                     else:
                                         index = \
-                                        [data for data, item in enumerate(self.keyword_links) if item['url'] == link][0]
+                                            [data for data, item in enumerate(self.keyword_links) if item['url'] == link][0]
                                         if keyword not in self.keyword_links[index]['associated_text']:
                                             self.keyword_links[index]['associated_text'].append(keyword)
+                                            # the first keyword is the whole input without splitting
+                                    if keyword == self.keyword[0]:
+                                        print("break exit")
+                                        break;
 
 
                     elif self.keyword_type == WILDCARD:
@@ -238,7 +244,12 @@ class Web_spider():
         if self.keyword_type == SPECIFIED_TEXT:
             temp = keyword
             keyword = keyword.split()
-            keyword.append(temp)
+            if len(keyword) == 1:
+                pass
+            else:
+                keyword_list = [temp]
+                keyword_list.extend(keyword)
+                keyword = keyword_list
         self.put_keyword(keyword)
 
         self.put_url(baseurl)
@@ -256,7 +267,7 @@ class Web_spider():
         if self.keyword_type == SPECIFIED_TEXT:
             for item in self.keyword_links:
                 item['associated_text'] = sorted(item['associated_text'])
-                item['associated_text'] = ' '.join(item['associated_text'])
+                item['associated_text'] = ', '.join(item['associated_text'])
         # self.keyword_links = sorted(self.keyword_links, key=lambda x: x['associated_text'])
         return (self.keyword_links, self.UOM_sign_links)
 
