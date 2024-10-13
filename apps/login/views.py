@@ -84,7 +84,7 @@ def reg_request_email(request, user, email):
 def success_registration_email(request, user, email):
     subject = "Registration Approved"
     message = render_to_string("registration_accepted.html", {
-        'username': user.name,
+        'username': user.username,
     })
     email_message = EmailMessage(subject, message, to=[email])
     # if email_message.send():
@@ -96,7 +96,7 @@ def success_registration_email(request, user, email):
 def reject_registration_email(request, user, email):
     subject = "Registration Rejected"
     message = render_to_string("registration_rejected.html", {
-        'user': user,
+        'username': user.username,
     })
     email_message = EmailMessage(subject, message, to=[email])
     # if email_message.send():
