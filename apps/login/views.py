@@ -84,7 +84,7 @@ def reg_request_email(request, user, email):
 def success_registration_email(request, user, email):
     subject = "Registration Approved"
     message = render_to_string("registration_accepted.html", {
-        'user': user,
+        'username': user.name,
     })
     email_message = EmailMessage(subject, message, to=[email])
     # if email_message.send():
