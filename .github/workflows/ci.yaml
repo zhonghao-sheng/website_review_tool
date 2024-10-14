@@ -3,8 +3,10 @@ name: CI
 on:
   push:
     branches:
-#      - feature-unit_testing
-      - main
+      - '*'  # This will trigger the workflow on push to any branch
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
   run-tests:
