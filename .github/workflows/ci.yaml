@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - feature-unit_testing
-#      - main
-
+      - '*'
 jobs:
   run-tests:
     strategy:
