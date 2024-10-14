@@ -88,7 +88,7 @@ def reg_request_email(request, user, email):
 def success_registration_email(request, user, email):
     subject = "Registration Approved"
     message = render_to_string("registration_accepted.html", {
-        'username': user.username,
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
     # if email_message.send():
@@ -100,7 +100,7 @@ def success_registration_email(request, user, email):
 def reject_registration_email(request, user, email):
     subject = "Registration Rejected"
     message = render_to_string("registration_rejected.html", {
-        'username': user.username,
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
     # if email_message.send():
@@ -120,10 +120,10 @@ def accept_registration(request, uidb64, token):
     if user is not None and account_register_token.check_token(user, token):
         user.is_active = True
         user.save()
-        messages.success(request, f"User {user.username} has been successfully activated.")
 
         # Send email to user to inform them of the registration status
         success_registration_email(request, user, user.email)
+        messages.success(request, f"User {user.username} has been successfully activated.")
     else:
         messages.error(request, "The activation link is invalid!")
 
