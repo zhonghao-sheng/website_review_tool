@@ -3,10 +3,8 @@ name: CI
 on:
   push:
     branches:
-      - '*'  # This will trigger the workflow on push to any branch
-#  pull_request:
-#    branches:
-#      - '*'
+      - feature-unit_testing
+#      - main
 
 jobs:
   run-tests:
@@ -61,8 +59,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo systemctl start mysql
-          
-          sudo mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS test_ebdb;DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+          sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
+#      - name: Install MySQL formula (macOS)
+#        if: matrix.os == 'macos-latest'
+#        run: brew install mysql
 #
 #
 #      - name: Start MySQL service (macOS)
@@ -76,4 +76,3 @@ jobs:
 
       - name: Run tests
         run: python manage.py test
-
