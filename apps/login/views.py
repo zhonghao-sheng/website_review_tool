@@ -61,7 +61,11 @@ def check_login(request):
 
 def index(request):
     return render(request, 'index.html')
+def reg_request_email(request, user, email):
+    subject = "New User Registration Request"
+    message = render_to_string("registration_request.html", {
 
+    })
 # Send email to the admin to approve the registration request
 def reg_request_email(request, user, email):
     subject = "New User Registration Request"
