@@ -3,6 +3,10 @@ name: CI
 on:
   push:
     branches:
+      - '*'
+
+  pull-request:
+    branches:
       - bugfix-CItest
       - main
 jobs:
