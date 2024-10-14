@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - '*'  # This will trigger the workflow on push to any branch
-  pull_request:
-    branches:
-      - '*'
+#  pull_request:
+#    branches:
+#      - '*'
 
 jobs:
   run-tests:
@@ -85,5 +85,3 @@ jobs:
       - name: Run tests
         run: python manage.py test
 
-      - name: Drop Database
-        run : sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb"
