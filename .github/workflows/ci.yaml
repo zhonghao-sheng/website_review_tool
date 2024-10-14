@@ -3,7 +3,8 @@ name: CI
 on:
   push:
     branches:
-      - '*'
+      - bugfix-CItest
+#      - main
 jobs:
   run-tests:
     strategy:
