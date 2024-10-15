@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - '*'
+
+#  pull-request:
+#    branches:
+#      - '*'
 jobs:
   run-tests:
     strategy:
@@ -58,7 +62,7 @@ jobs:
         run: |
           sudo systemctl start mysql
           sudo mysql -u root -proot -e "DROP DATABASE IF EXISTS test_ebdb; CREATE DATABASE test_ebdb;"
-#      - name: Install MySQL formula (macOS)
+#      - name: Install MySQL formulas (macOS)
 #        if: matrix.os == 'macos-latest'
 #        run: brew install mysql
 #
