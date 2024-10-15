@@ -268,7 +268,7 @@ class Web_spider():
             for item in self.keyword_links:
                 item['associated_text'] = sorted(item['associated_text'])
                 item['associated_text'] = ', '.join(item['associated_text'])
-        # self.keyword_links = sorted(self.keyword_links, key=lambda x: x['associated_text'])
+        self.keyword_links = sorted(self.keyword_links, key=lambda x: x['associated_text'])
         return (self.keyword_links, self.UOM_sign_links)
 
 
