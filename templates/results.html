@@ -105,14 +105,14 @@
         <div class="left-links">
             <!-- First download link and copy button -->
             <div class="link-item">
-                <a href="{% url 'download' %}?filename=output.xlsx" id="link1">click here to download the result <i class="fas fa-file-download"></i></a>
-                <button class="copy-btn" onclick="copyToClipboard('link1')">Copy share Link</button>
+                <a href="{% url 'download' %}?filename=output.xlsx" id="link1">Download Results <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link1')">Copy Link</button>
             </div>
 
             <!-- Second download link and copy button -->
             <div class="link-item">
-                <a href="{% url 'download' %}?filename=uom_sign_links.xlsx" id="link2">click here to download the uom signs required links <i class="fas fa-file-download"></i></a>
-                <button class="copy-btn" onclick="copyToClipboard('link2')">Copy share Link</button>
+                <a href="{% url 'download' %}?filename=uom_sign_links.xlsx" id="link2">Download UoM SSO Required Results <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link2')">Copy Link</button>
             </div>
         </div>
 
