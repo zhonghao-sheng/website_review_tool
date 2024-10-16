@@ -8,7 +8,7 @@ from django.urls import register_converter
 urlpatterns = [
     path('', index, name='index'),
     path('index/', index, name='index'),
-    path('signup/', signup, name='signup'),
+    path('signup/', signup, name='signup'), 
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('check_login/', check_login, name='check_login'),  # Check login and redirect
