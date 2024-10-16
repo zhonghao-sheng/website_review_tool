@@ -34,7 +34,7 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = ['env1.eba-wy6fcmup.ap-southeast-2.elasticbeanstalk.com/']
+ALLOWED_HOSTS = ['env1.eba-wy6fcmup.ap-southeast-2.elasticbeanstalk.com']
 
 
 # Application definition
