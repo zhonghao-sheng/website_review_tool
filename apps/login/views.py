@@ -18,6 +18,7 @@ from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 from django.db.models.query_utils import Q
 
+
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -35,6 +36,7 @@ def login_user(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+
 def transition_view(request):
     # Logic to decide the next URL
     next_url = request.GET.get('next', '/default_redirect_url/')
@@ -44,14 +46,16 @@ def transition_view(request):
     response = render(request, 'transition.html', {'redirect_url': next_url, 'message': message})
     return response
 
+
 def logout_user(request):
     logout(request)
     # Specify where the user should be redirected after the transition
-    next_url = '/index/' 
+    next_url = '/index/'
     # Custom message for logging out
     message = quote_plus('You have been logged out successfully!')
     # Redirect to the transition view with next URL and message
     return redirect(f'/transition/?next={next_url}&message={message}')
+
 
 def check_login(request):
     if request.user.is_authenticated:
@@ -59,13 +63,11 @@ def check_login(request):
     else:
         return redirect('login')  # Redirect to the login page if not logged in
 
+
 def index(request):
     return render(request, 'index.html')
-def reg_request_email(request, user, email):
-    subject = "New User Registration Request"
-    message = render_to_string("registration_request.html", {
 
-    })
+
 # Send email to the admin to approve the registration request
 def reg_request_email(request, user, email):
     subject = "New User Registration Request"
@@ -80,33 +82,37 @@ def reg_request_email(request, user, email):
     email_message = EmailMessage(subject, message, to=[admin_email])
     email_message.content_subtype = "html"  # Ensure the email is sent as HTML
     if email_message.send():
-        messages.success(request, f"Thank you {user.username} for signing up to the website review tool. An email has been sent to the admin for approval.")
+        messages.success(request,
+                         f"Thank you {user.username} for signing up to the website review tool. An email has been sent to the admin for approval.")
     else:
         messages.error(request, f"Problem sending email to the admin. Please try again later.")
 
+
+# Send email to the user to inform them of the registration status which is approved
 def success_registration_email(request, user, email):
     subject = "Registration Approved"
     message = render_to_string("registration_accepted.html", {
-        'user': user.username,
-        'domain': get_current_site(request).domain,
-        'protocol': 'https' if request.is_secure() else 'http'
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
-        messages.success(request, f"An email has been sent to {email}.")
-    else:
-        messages.error(request, f"Problem sending email to {email}.")
+    # if email_message.send():
+    #     messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been approved.")
+    # else:
+    #     messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
 
+
+# Send email to the user to inform them of the registration status which is rejected
 def reject_registration_email(request, user, email):
     subject = "Registration Rejected"
     message = render_to_string("registration_rejected.html", {
-        'user': user.username
+        'user': user,
     })
     email_message = EmailMessage(subject, message, to=[email])
-    if email_message.send():
-        messages.success(request, f"An email has been sent to {email}.")
-    else:
-        messages.error(request, f"Problem sending email to {email}.")
+    # if email_message.send():
+    #     messages.success(request, f"Thank you {user.username} for signing up to the website review tool. Your registration has been rejected.")
+    # else:
+    #     messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+
 
 # Function to accept registration request
 def accept_registration(request, uidb64, token):
@@ -120,14 +126,15 @@ def accept_registration(request, uidb64, token):
     if user is not None and account_register_token.check_token(user, token):
         user.is_active = True
         user.save()
+        messages.success(request, f"User {user.username} has been successfully activated.")
 
         # Send email to user to inform them of the registration status
         success_registration_email(request, user, user.email)
-        messages.success(request, f"User {user.username} has been successfully activated.")
     else:
         messages.error(request, "The activation link is invalid!")
 
     return redirect('login')
+
 
 # Function to reject registration request
 def reject_registration(request, uidb64, token):
@@ -148,28 +155,31 @@ def reject_registration(request, uidb64, token):
         messages.error(request, "The rejection link is invalid!")
 
     return redirect('signup')
-    
+
 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit = False)
+            user = form.save(commit=False)
             # mark the user as inactive until the admin approves the registration
             user.is_active = False
             user.save()
 
             # Send email to admin to approve registration
             reg_request_email(request, user, form.cleaned_data.get('email'))
-            next_url = '/login/' 
-            message = quote_plus('Register Successful!')  
+            next_url = '/login/'
+            message = quote_plus('Register Successful!')
             return redirect(f'/transition/?next={next_url}&message={message}')
 
         else:
-            messages.error(request, mark_safe("".join([f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in error.messages])))
+            messages.error(request, mark_safe("".join(
+                [f"{msg}<br/>" for error_list in form.errors.as_data().values() for error in error_list for msg in
+                 error.messages])))
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -188,6 +198,7 @@ def forgot_password(request):
         form = VerifyUserForm()
     return render(request, 'forgot_password.html', {'form': form})
 
+
 def reset_password_email(request, user, email):
     subject = "Reset your password."
     message = render_to_string("reset_password_email.html", {
@@ -202,6 +213,7 @@ def reset_password_email(request, user, email):
         messages.success(request, f"An email has been sent to {email}. Please check your inbox or spam.")
     else:
         messages.error(request, f"Problem sending email to {email}. Please ensure you have typed it correctly.")
+
 
 def reset_password(request, uidb64, token):
     model = get_user_model()
@@ -231,4 +243,3 @@ def reset_password(request, uidb64, token):
         messages.error(request, "Link is invalid or expired.")
 
     return redirect('index')
-
