@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 SECRET_KEY = 'django-insecure-9m!jf+5qd0_z@4ot!d82mucd3xk!(klc*l!rbb@*$w$)vx$#qs'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -97,6 +97,11 @@ DATABASES = {
         'PASSWORD': 'nbmy43602',
         'HOST': 'awseb-e-ssmte34gze-stack-awsebrdsdatabase-9wa9kltyresu.cbcy80um6q8r.ap-southeast-2.rds.amazonaws.com',
         'PORT': 3306,
+        'TEST': {
+            'NAME': 'test_ebdb',
+            'CREATE_DB': True,
+            'DEPENDENCIES': [],
+        },
     }
 }
 # else:

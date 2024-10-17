@@ -8,14 +8,18 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import pandas as pd
+from django.urls import reverse
 from django.http import FileResponse, HttpResponse
 from fnmatch import *
 
 REQUEST_TIMEOUT = 20
 WILDCARD = 1
 SPECIFIED_TEXT = 0
+
+
 def index(request):
     return render(request, 'search.html')
+
 
 class Web_spider():
     def __init__(self):
@@ -34,17 +38,21 @@ class Web_spider():
         self.web_links.put([baseurl, None, None])
         self.counter += 1
         self.baseurl = baseurl
+
     def put_keyword(self, keyword):
         self.keyword = keyword
-    def is_uom_sign_link(self, link):
-        return self.baseurl in link
-    def add_uom_sign_link(self, link, source_link, associated_text):
-        self.UOM_sign_links.append({'url': link, 'source_link': source_link,'associated_text':associated_text})
 
+    def is_uom_sign_link(self, link):
+        return 'unimelb' in link
+
+    def add_uom_sign_link(self, link, source_link, associated_text):
+        self.UOM_sign_links.append({'url': link, 'source_link': source_link, 'associated_text': associated_text})
 
     def deal_uom_sign_link(self, link, associated_text, source_link):
         if self.is_uom_sign_link(link):
+            print("is uom sign link")
             self.add_uom_sign_link(link, source_link, associated_text)
+
     def add_broken_link(self, link, source_link, associated_text):
         self.broken_links.append({'url': link, 'source_link':
             source_link, 'associated_text': associated_text})
@@ -57,11 +65,12 @@ class Web_spider():
         pattern = pattern.replace('%', '*')
         pattern = pattern.replace('_', '?')
         return pattern
+
     def get_more_links(self):
 
         while True:
             link_combo = self.web_links.get()
-
+            print(self.keyword, "this is keywordsss")
             link = link_combo[0]
             try:
                 print(f'getting link {link}')
@@ -69,15 +78,33 @@ class Web_spider():
                 self.visited_or_about_to_visit.add(link)
                 if response.status_code == 200:
                     if not link.startswith(self.baseurl):
+                        print("skip this link")
                         continue
                     soup = BeautifulSoup(response.content, 'html.parser')
                     if self.keyword_type == SPECIFIED_TEXT:
                         if self.keyword is not None:
-                            text = soup.get_text()
+                            # text = soup.get_text()
+                            text = response.text
                             for keyword in self.keyword:
                                 if keyword in text:
                                     print(f'found keyword {keyword} in link {link}')
-                                    self.keyword_links.append({'url':link, 'associated_text':keyword})
+                                    urls = [item['url'] for item in self.keyword_links]
+                                    # only those cases would dict be added to the keyword_links: 1. new url
+                                    # 2. existing url while keyword not the same keyword
+                                    if link not in urls:
+                                        self.keyword_links.append({'url': link, 'associated_text': [keyword]})
+
+                                    else:
+                                        index = \
+                                            [data for data, item in enumerate(self.keyword_links) if item['url'] == link][0]
+                                        if keyword not in self.keyword_links[index]['associated_text']:
+                                            self.keyword_links[index]['associated_text'].append(keyword)
+                                            # the first keyword is the whole input without splitting
+                                    if keyword == self.keyword[0]:
+                                        print("break exit")
+                                        break;
+
+
                     elif self.keyword_type == WILDCARD:
                         pattern = self.keyword
                         if pattern is not None:
@@ -111,10 +138,12 @@ class Web_spider():
                             print('new links founded', href)
                 else:
                     if response.status_code == 403:
+                        print("403 link found")
                         self.deal_uom_sign_link(link, link_combo[2], link_combo[1])
                     else:
                         self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
-                    print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}, associated_text:{link_combo[2]}')
+                    print(
+                        f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}, associated_text:{link_combo[2]}')
 
                     print(f'now the queue size is {self.web_links.qsize()}')
             except Exception as e:
@@ -141,7 +170,7 @@ class Web_spider():
                 if 'application/' in content_type or 'octet-stream' in content_type:
                     print(f'Valid download link detected: {link}')
                     self.handle_download_link(link, link_combo[1], content_type)
-                
+
                 elif response.status_code == 200:
                     if link.startswith(self.baseurl):
                         self.web_links.put(link_combo)
@@ -153,7 +182,7 @@ class Web_spider():
                 else:
                     print(f'status_code:{response.status_code}, broken_link:{link}, page source:{link_combo[1]}')
                     if response.status_code == 403:
-                        self.deal_uom_sign_link(link, link_combo[2],link_combo[1])
+                        self.deal_uom_sign_link(link, link_combo[2], link_combo[1])
                     else:
                         self.deal_broken_link(link, link_combo[1], response.status_code, link_combo[2])
 
@@ -203,9 +232,9 @@ class Web_spider():
             t.daemon = True
             t.start()
         self.web_links.join()
-        print(self.keyword_links)
-        return self.broken_links
-    
+        self.broken_links = sorted(self.broken_links, key=lambda x: x['associated_text'])
+        return (self.broken_links, self.UOM_sign_links)
+
     def search_keyword_links(self, baseurl, keyword):
         if keyword[0] == '/':
             keyword = keyword[1:]
@@ -215,7 +244,12 @@ class Web_spider():
         if self.keyword_type == SPECIFIED_TEXT:
             temp = keyword
             keyword = keyword.split()
-            keyword.append(temp)
+            if len(keyword) == 1:
+                pass
+            else:
+                keyword_list = [temp]
+                keyword_list.extend(keyword)
+                keyword = keyword_list
         self.put_keyword(keyword)
 
         self.put_url(baseurl)
@@ -230,34 +264,49 @@ class Web_spider():
             t.daemon = True
             t.start()
         self.web_links.join()
-        return self.keyword_links
+        if self.keyword_type == SPECIFIED_TEXT:
+            for item in self.keyword_links:
+                item['associated_text'] = sorted(item['associated_text'])
+                item['associated_text'] = ', '.join(item['associated_text'])
+        self.keyword_links = sorted(self.keyword_links, key=lambda x: x['associated_text'])
+        return (self.keyword_links, self.UOM_sign_links)
+
 
 @login_required
 def search_link(request):
     if request.method == 'POST':
         url = request.POST.get('url')
         keyword = request.POST.get('specifiedText')  # Fetch the keyword if it's provided
-        results = search_task(url, keyword)
+        result = search_task(url, keyword)
         if keyword:
             show_source_link = False
         else:
             show_source_link = True
-        return render(request, 'results.html', {'results': results, 'show_source_link':show_source_link})
+        request.session['results'] = result
+        request.session['show_source_link'] = show_source_link
+        return redirect('show_results')
     return render(request, 'search.html')
 
+
+def show_results(request):
+    results = request.session.get('results')
+    show_source_link = request.session.get('show_source_link')
+    return render(request, 'results.html', {'results': results, 'show_source_link': show_source_link})
+
+
 def search_task(url, keyword):
-    
     # Initialize Web_spider instance
     web_spider = Web_spider()
 
     if keyword:
-        results = web_spider.search_keyword_links(url, keyword)
+        results, uom_result = web_spider.search_keyword_links(url, keyword)
     else:
-        results = web_spider.search_broken_links(url)
-    uom_result = web_spider.UOM_sign_links
+        results, uom_result = web_spider.search_broken_links(url)
+    print(uom_result, "uom result link")
     download_table(results, 'output.xlsx')
     download_table(uom_result, 'uom_sign_links.xlsx')
     return results
+
 
 def download_table(results, table_name):
     df = pd.DataFrame(results)
@@ -266,7 +315,7 @@ def download_table(results, table_name):
         os.mkdir('download_table')
     path = os.path.join('download_table', filename)
     with pd.ExcelWriter(path, engine='openpyxl') as output:
-        df.to_excel(output, index=False, sheet_name = 'Sheet1')
+        df.to_excel(output, index=False, sheet_name='Sheet1')
         worksheet = output.sheets['Sheet1']
         column_widths = {
             'A': 100,
@@ -277,6 +326,7 @@ def download_table(results, table_name):
             worksheet.column_dimensions[col].width = width
 
     # output.close()
+
 
 def download(request):
     filename = request.GET.get('filename')

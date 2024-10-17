@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search</title>
+    <title>Index</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,6 +45,7 @@
         .top-bar .nav-buttons {
             display: flex;
             align-items: center;
+            position: relative; /* Position relative so that the dropdown is positioned absolutely within it */
         }
         .top-bar button {
             background-color: transparent;
@@ -51,7 +53,7 @@
             color: #f5f5f5;
             font-size: 20px;
             cursor: pointer;
-            margin-left: 20px;
+            margin-right: 30px;
             display: flex;
             align-items: center;
             padding: 20px;
@@ -59,7 +61,7 @@
         .top-bar button i {
             margin-right: 8px;
         }
-        .top-bar button:hover {
+        .top-bar button:hover, .top-bar button.active {
             color: #0066cc;
         }
 
@@ -106,6 +108,66 @@
             color: #0C4483;
             font-size: 18px;
         }
+        .messages {
+            display: flex;
+            justify-content: center;
+        }
+        .alert {
+            width: 30%;
+            margin: 10px auto;
+            position: relative;
+        }
+        .btn-close {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            font-size: 10px;
+        }
+        .required {
+            color: red;
+        }
+
+        /* style of drop down list */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%; /* Ensure dropdown appears just below the button */
+            left: 13px;
+            background-color: #ffffff; /* back ground color */
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* shadow effect */
+            z-index: 1;
+        }
+
+        /* style of drop down button */
+        .dropdown-content button {
+            background-color: #002e5d; /* button color */
+            color: #fff; /* font color */
+            border: none;
+            padding: 8px 16px;
+            text-align: left;
+            text-decoration: none;
+            display: block;
+            font-size: 15px;
+            margin: 5px 0;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* style of drop down button hover effect */
+        .dropdown-content button:hover {
+            background-color: #0066cc; /*hover background color*/
+            color: #fff; /* hover font color */
+        }
+
+        /* Displays a drop-down when expanded */
+        .show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -118,16 +180,28 @@
         </div>
 
         <div class="nav-buttons">
-            <button><i class="fas fa-info-circle"></i> Help</button>
+            <button onclick="toggleDropdown()"><i class="fas fa-info-circle"></i> Help</button>
+            <div id="dropdown" class="dropdown-content">
+                <button>Demo </button>
+
+            </div>
         </div>
     </div>
+
     <br>
     <br>
     <br>
+
     <div class="image">
+        <a href="{% url 'index' %}">
         <img src="{% static 'images/page.svg' %}" alt="page Logo">
+        </a>
     </div>
     {% comment %} <input type="text" value="Log in"> {% endcomment %}
+
+    <div class="alert"></div>
+        {% include 'message.html' %}
+    </div>
 
     {% if user.is_authenticated %}
         <p>Hello, {{ user.username }}!
@@ -148,5 +222,21 @@
         detects <br> broken links, specified text, facilitates updates, extends to <br> SharePoint document checks. </div>
     <a href="#" class="link">About us</a>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("dropdown");
+            var helpButton = document.querySelector(".top-bar button");
+
+            if (dropdown.classList.contains("show")) {
+                dropdown.classList.remove("show");
+                helpButton.classList.remove("active");
+            } else {
+                dropdown.classList.add("show");
+                helpButton.classList.add("active");
+            }
+        };
+    </script>
 </body>
 </html>

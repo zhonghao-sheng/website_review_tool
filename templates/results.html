@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet">
     <style>
         /* Style for the table */
         table {
@@ -24,6 +26,67 @@
         /* Center the text in the h1 element */
         h1 {
             text-align: center;
+            font-family: 'Merriweather', serif;
+            border-bottom: 2px solid #002e5d; /* Add a blue underline below the title */
+            padding-bottom: 10px; /* Increase the inside margin */
+        }
+
+        a i {
+            margin-left: 5px; /* Adjust the distance between the icon and the text */
+            font-size: 1.2em; /* Resize the icon */
+        }
+
+        /* Style for the copy button */
+        .copy-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #002e5d; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove border */
+            border-radius: 10px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        .copy-btn:hover {
+            background-color: #0066cc; /* Darker blue on hover */
+        }
+
+        /* Flexbox layout for horizontal alignment */
+        .link-container {
+            display: flex;
+            justify-content: space-between; /* Push the back button to the far right */
+            align-items: center; /* Vertically center the items */
+            margin-top: 20px;
+        }
+
+        /* Left side container for links */
+        .left-links {
+            display: flex;
+            flex-direction: column; /* Make the items inside this div stack vertically */
+            align-items: flex-start; /* Align items to the start (left) */
+            gap: 10px; /* Add space between the vertical items */
+        }
+
+        /* Horizontal alignment for each link and copy button */
+        .link-item {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Style for the back button */
+        .back-btn {
+            padding: 5px 10px;
+            background-color: #002e5d; /* Blue background */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none; /* Remove underline from link */
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background-color: #0066cc; /* Darker blue on hover */
         }
     </style>
 </head>
@@ -35,8 +98,29 @@
             <td colspan="3">{{ status }}</td> <!-- Display a message if an error occurs -->
         </tr>
     {% endif %}
-    <a href = "{% url 'download' %}?filename=output.xlsx">click here to download the result</a><br>
-    <a href = "{% url 'download' %}?filename=uom_sign_links.xlsx">click here to download the uom signs required links</a>
+
+    <!-- Flex container for both left-side links and right-side back button -->
+    <div class="link-container">
+        <!-- Left-side links and copy buttons -->
+        <div class="left-links">
+            <!-- First download link and copy button -->
+            <div class="link-item">
+                <a href="{% url 'download' %}?filename=output.xlsx" id="link1">Download Results <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link1')">Copy Link</button>
+            </div>
+
+            <!-- Second download link and copy button -->
+            <div class="link-item">
+                <a href="{% url 'download' %}?filename=uom_sign_links.xlsx" id="link2">Download UoM SSO Required Results <i class="fas fa-file-download"></i></a>
+                <button class="copy-btn" onclick="copyToClipboard('link2')">Copy Link</button>
+            </div>
+        </div>
+
+        <!-- Right-side back button -->
+        <a href="{% url 'index' %}" class="back-btn">Back to Main Page</a>
+    </div>
+
+    <br>
 
     <table>
         <thead>
@@ -78,5 +162,27 @@
         </tbody>
     </table>
 
+    <!-- JavaScript for copying the link to clipboard -->
+        <script>
+            function copyToClipboard(linkId) {
+                // Get the href of the link
+                var link = document.getElementById(linkId).href;
+
+                // Create a temporary input element to store the link for copying
+                var tempInput = document.createElement("input");
+                tempInput.value = link;
+                document.body.appendChild(tempInput);
+
+                // Select the input field and copy the value
+                tempInput.select();
+                document.execCommand("copy");
+
+                // Remove the temporary input element after copying
+                document.body.removeChild(tempInput);
+
+                // Optional: Alert to confirm the link has been copied
+                alert("Link copied: " + link);
+            }
+        </script>
 </body>
 </html>
